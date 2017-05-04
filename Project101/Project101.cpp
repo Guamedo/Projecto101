@@ -26,7 +26,6 @@ using namespace std;
 void draw();
 void update(int value);
 void enable2D(int width, int height);
-void keyboard();
 
 bool* keyStates = new bool[256];
 bool* keySpecialStates = new bool[246];
@@ -201,6 +200,10 @@ void keySpecialOperations(void) {
 	}
 }
 
+int eucDist(int x1, int y1, int x2, int y2) {
+	return (int)sqrt((x2 - x1)*(x2 - x1) + (y2 - y1)*(y2 - y1));
+}
+
 int main(int argc, char** argv)
 {
 	for (int i = 0; i < 15; i++) {
@@ -236,7 +239,17 @@ int main(int argc, char** argv)
 void drawPlayer() {
 	//Dibujo el jugador
 	glColor3f(1.0f, 0.0f, 0.0f);
-	glVertex2f(player.posx, player.posy);
+	int x, y;
+	for (int i = -3; i <= 3; i++) {
+		for (int j = -3; j <= 3; j++) {
+			x = player.posx - i;
+			y = player.posy - j;
+			if (eucDist(x, y, player.posx, player.posy) <= 3) {
+				glVertex2d(x, y);
+			}
+		}
+	}
+	//glVertex2f(player.posx, player.posy);
 
 	//Dibujo la accion, si la hay
 	if (player.accion != -1) {
