@@ -28,6 +28,8 @@ void update(int value);
 void enable2D(int width, int height);
 void keyboard();
 
+bool* keyStates = new bool[256];
+bool* keySpecialStates = new bool[246];
 const unsigned int interval = 1000 / 10;
 static World world = World();
 
@@ -110,12 +112,68 @@ public:
 		tipo = tipoo;
 	}
 	Enemy() {
-
 	}
 };
 
 Player player = Player("player", 25, 25, 1);
 std::vector<Enemy> enemies;
+
+void keyPressed(unsigned char key, int x, int y) {
+	keyStates[key] = true;
+}
+
+void keyUp(unsigned char key, int x, int y) {
+	keyStates[key] = false;
+}
+
+void keySpecial(int key, int x, int y) {
+	keySpecialStates[key] = true;
+}
+
+void keySpecialUp(int key, int x, int y) {
+	keySpecialStates[key] = false;
+}
+
+void keyOperations(void) {
+	if (keyStates[32]/*SPACE*/) {
+		if (rand() % 2 == 1) {
+			player.attack();
+		}
+		else {
+			player.wave();
+		}
+	}
+	if (keyStates['w']) {
+		player.setposy(player.posy + 1);
+	}
+	if (keyStates['s']) {
+		player.setposy(player.posy - 1);
+	}
+	if (keyStates['a']) {
+		player.setposx(player.posx - 1);
+	}
+	if (keyStates['d']) {
+		player.setposx(player.posx + 1);
+	}
+	if (keyStates[27]/*ESC*/) {
+		exit(1);
+	}
+}
+
+void keySpecialOperations(void) {
+	if (keySpecialStates[GLUT_KEY_UP]) {   
+		player.setposy(player.posy + 1);
+	}
+	if (keySpecialStates[GLUT_KEY_DOWN]) {
+		player.setposy(player.posy - 1);
+	}
+	if (keySpecialStates[GLUT_KEY_LEFT]) {
+		player.setposx(player.posx - 1);
+	}
+	if (keySpecialStates[GLUT_KEY_RIGHT]) {
+		player.setposx(player.posx + 1);
+	}
+}
 
 int main(int argc, char** argv)
 {
@@ -130,7 +188,17 @@ int main(int argc, char** argv)
 	glutInitWindowPosition(100, 100);
 	glutCreateWindow(world.name);
 
+	std::fill_n(keyStates, 256, false);
+	std::fill_n(keySpecialStates, 246, false);
+
 	glutDisplayFunc(draw);
+
+	glutKeyboardFunc(keyPressed);
+	glutKeyboardUpFunc(keyUp);
+
+	glutSpecialFunc(keySpecial);
+	glutSpecialUpFunc(keySpecialUp);
+
 	glutTimerFunc(interval, update, 0);
 
 	enable2D(world.W, world.H);
@@ -189,7 +257,6 @@ void draw()
 }
 
 void logic() {
-	//player.moveR();
 	for (int i = 0; i < 15; i++) {
 		enemies[i].moveR();
 	}
@@ -197,7 +264,8 @@ void logic() {
 
 void update(int value)
 {
-	keyboard();
+	keyOperations();
+	keySpecialOperations();
 	logic();
 	glutTimerFunc(interval, update, 0);
 	glutPostRedisplay();
@@ -218,33 +286,3 @@ void drawText(float x, float y, std::string text)
 	glRasterPos2d(x, y);
 	glutBitmapString(GLUT_BITMAP_8_BY_13, (const unsigned char*)text.c_str());
 }
-
-#define VK_W 0x57
-#define VK_S 0x53
-#define VK_A 0x41
-#define VK_D 0x44
-#define VK_J 0x4A
-void keyboard()
-{
-	if (GetAsyncKeyState(VK_J)) {
-		if (rand() % 2 == 1) {
-			player.attack();
-		}
-		else {
-			player.wave();
-		}
-	}
-	if (GetAsyncKeyState(VK_W)) {
-		player.setposy(player.posy + 1);
-	}
-	if (GetAsyncKeyState(VK_S)) {
-		player.setposy(player.posy - 1);
-	}
-	if (GetAsyncKeyState(VK_A)) {
-		player.setposx(player.posx - 1);
-	}
-	if (GetAsyncKeyState(VK_D)) {
-		player.setposx(player.posx + 1);
-	}
-}
-
