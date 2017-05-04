@@ -13,6 +13,13 @@
 #include <gl\gl.h>
 #include <gl\glu.h>
 #include "GL/freeglut.h"
+
+#include "World.h"
+#include "Dot.h"
+#include "Frame.h"
+#include "Animacion.h"
+#include "Action.h"
+
 using namespace std;
 #pragma comment(lib, "OpenGL32.lib")
 
@@ -22,96 +29,8 @@ void enable2D(int width, int height);
 void keyboard();
 int interval = 1000 / 10;
 
-class World {
-public:
-	char* name = "abc";
-	int H = 200, W = 200;
-	bool inrangex(int val) {
-		if (10 < val && val < W - 10) {
-			return true;
-		}
-		else {
-			return false;
-		}
-	}
-	bool inrangey(int val) {
-		if (10 < val && val < H - 10) {
-			return true;
-		}
-		else {
-			return false;
-		}
-	}
-	World() {
-	}
-};
-
 static World world = World();
 
-class Dot {
-public:
-	int x;
-	int y;
-	Dot(int a, int b) {
-		x = a;
-		y = b;
-	}
-	Dot() {
-	}
-};
-
-class Frame {
-public:
-	int numDots;
-	vector<Dot> dots;
-	Frame() {
-		dots = vector<Dot>();
-	}
-};
-
-class Animacion {
-public:
-	int numFrames;
-	vector<Frame> frames;
-	Animacion() {
-	}
-	Animacion(int cantidad, std::vector<Frame> frames) {
-		numFrames = cantidad;
-		frames = frames;
-	}
-	Animacion(string archivo) {
-		fstream file;
-		int x, y;
-		file.open(archivo);
-		int aux = 0;
-		file >> numFrames;
-		cout << numFrames << " frame kopurua\n";
-		frames = vector<Frame>(numFrames, Frame());
-		for (int i = 0; i < numFrames; i++) {
-			file >> frames.at(i).numDots;
-			frames[i].dots = vector<Dot>(frames.at(i).numDots, Dot());
-			for (int j = 0; j < frames.at(i).numDots; j++) {
-				file >> frames.at(i).dots.at(j).x;
-				file >> frames.at(i).dots.at(j).y;
-			}
-		}
-
-	}
-
-};
-
-class Action {
-public:
-	string nombre;
-	Animacion animacion;
-	Action(string nombreAnimacion, char* sourceAnimacion) {
-		nombre = nombreAnimacion;
-		animacion = Animacion(sourceAnimacion);
-	}
-	Action() {
-
-	}
-};
 class Entity {
 public:
 	string nombre;
