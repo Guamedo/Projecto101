@@ -100,6 +100,7 @@ public:
 
 class Player : public Entity {
 public:
+	float speed[2] = {0.0, 0.0};// (X,Y)
 	using Entity::Entity;
 };
 
@@ -143,21 +144,46 @@ void keyOperations(void) {
 			player.wave();
 		}
 	}
-	if (keyStates['w']) {
-		player.setposy(player.posy + 1);
+	if (keyStates['w'] || keyStates['W']) {
+		player.setposy(player.posy + 1 + player.speed[1]);
+		if (player.speed[1] < 5.0 - 0.2) {
+			player.speed[1] += 0.2;
+		}		
 	}
-	if (keyStates['s']) {
-		player.setposy(player.posy - 1);
+	if (!keyStates['w'] && !keyStates['W'] && player.speed[1] > 0.0) {
+		player.speed[1] = 0.0;
 	}
-	if (keyStates['a']) {
-		player.setposx(player.posx - 1);
+	if (keyStates['s'] || keyStates['S']) {
+		player.setposy(player.posy - 1 + player.speed[1]);
+		if (player.speed[1] > -5.0 + 0.2) {
+			player.speed[1] -= 0.2;
+		}
 	}
-	if (keyStates['d']) {
-		player.setposx(player.posx + 1);
+	if (!keyStates['s'] && !keyStates['S'] && player.speed[1] < 0.0) {
+		player.speed[1] = 0.0;
+	}
+	if (keyStates['a'] || keyStates['A']) {
+		player.setposx(player.posx - 1 + player.speed[0]);
+		if (player.speed[0] > -5.0 + 0.2) {
+			player.speed[0] -= 0.2;
+		}
+	}
+	if (!keyStates['a'] && !keyStates['A'] && player.speed[0] < 0.0) {
+		player.speed[0] = 0.0;
+	}
+	if (keyStates['d'] || keyStates['D']) {
+		player.setposx(player.posx + 1 + player.speed[0]);
+		if (player.speed[0] < 5.0 - 0.2) {
+			player.speed[0] += 0.2;
+		}
+	}
+	if (!keyStates['d'] && !keyStates['D'] && player.speed[0] > 0.0) {
+		player.speed[0] = 0.0;
 	}
 	if (keyStates[27]/*ESC*/) {
 		exit(1);
 	}
+	cout << player.speed[0] << "	" << player.speed[1] << "\n";
 }
 
 void keySpecialOperations(void) {
