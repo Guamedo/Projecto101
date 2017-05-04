@@ -27,8 +27,8 @@ void draw();
 void update(int value);
 void enable2D(int width, int height);
 void keyboard();
-int interval = 1000 / 10;
 
+const unsigned int interval = 1000 / 10;
 static World world = World();
 
 class Entity {
