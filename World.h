@@ -1,4 +1,6 @@
 #pragma once
+#include <string>
+
 class World
 {
 public:
@@ -8,7 +10,7 @@ public:
 	bool inrangex(int val);
 	bool inrangey(int val);
 
-	char* name = "abc";
+	std::string name = "abc";
 	int H = 200, W = 200;
 };
 
