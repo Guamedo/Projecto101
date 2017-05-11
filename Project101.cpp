@@ -8,7 +8,7 @@
 #include <math.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
-#include "GL/freeglut.h"
+#include "GL/glut.h"
 
 #include "World.h"
 #include "Dot.h"
@@ -141,6 +141,16 @@ void keySpecialUp(int key, int x, int y) {
 
 void keyOperations(void) {
     if (keyStates[32]/*SPACE*/) {
+        cout << "El espacio se ha ido de vacaciones loquete ¬¬";
+
+        /*if (rand() % 2 == 1) {
+            player.attack();
+        } else {
+            player.wave();
+        }*/
+    }
+    if (keyStates['j'] || keyStates['J']) {
+        cout << "La 'j' Master Race";
         if (rand() % 2 == 1) {
             player.attack();
         } else {
@@ -190,6 +200,7 @@ void keyOperations(void) {
 }
 
 void keySpecialOperations(void) {
+    cout << "No me gusta esta movida loco...";
     if (keySpecialStates[GLUT_KEY_UP]) {
         player.setposy(player.posy + 1);
     }
