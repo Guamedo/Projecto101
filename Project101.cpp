@@ -141,7 +141,7 @@ void keySpecialUp(int key, int x, int y) {
 
 void keyOperations(void) {
     if (keyStates[32]/*SPACE*/) {
-        cout << "El espacio se ha ido de vacaciones loquete ¬¬";
+        cout << "El espacio se ha ido de vacaciones loquete";
 
         /*if (rand() % 2 == 1) {
             player.attack();

@@ -16,4 +16,4 @@ add_executable(Project101 Project101.cpp
                             World.h
                             World.cpp)
 
-target_link_libraries(Project101 -mwindows glut32.lib -lopengl32 -lglu32)
+target_link_libraries(Project101 glut32.lib -lopengl32 -lglu32)
