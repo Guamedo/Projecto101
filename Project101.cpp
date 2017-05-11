@@ -39,6 +39,72 @@ public:
     int frameActual = -1;
     bool interrumpible;
 
+    /*codigo de movimiento guay*/
+    /*
+    Technobabble #2
+    I won't go into how to make a box collide with rectangles, beacuse I know that you can find a lot of stuff like that all over, and my solutions for this are a bit horribad. I will also assume that you know what a vector is, and that you know how to implement gravity and stuff like that. What I'm going to show you is how to create "atoms" or whatever you want to call them, that is points that are connected to each other to create a simple physics simulation.
+
+    So, assume that you have two points, Ax, Ay and Bx, By. These points also have velocity vectors, sAx, sAy and sBx, sBy. By adding the vectors to the positions you get movement, as you probably know.
+
+    You now need to create two functions, one to determine the distance between two points(I'm going to call mine diag, from diagonal) and one to create direction vector pointing towards a point. That is a vector with a total length of 1.0, only indicating direction. This can also be used for a lot of fun stuff, such as gravity wells and so on. I'm gonna call mine moveToPoint. These functions are heavy on the processor, so use them sparsely.
+
+    So this is what we have so far:
+
+            function diag(point1x, point1y, point2x, point2y)
+    rectHeight = ABSOLUTE(point1y - point2y)
+    rectWidth = ABSOLUTE(point1x - point2x)
+    diagonal = SQUAREROOT((rectHeight * rectHeight) + (rectWidth * rectWidth))
+    return diagonal
+            function end
+
+            function moveToPoint(point1x, point1y, point2x, point2y)
+    point2x = point2x - point1x
+    point2y = point2y - point1y
+    diag = diag(0,0, point2x, point2y)
+    if diag>0 then
+            dirVecX = point2x/diag
+    dirVecY = point2y/diag
+    else
+    dirVecX = 0
+    dirVecY = 1
+    end if
+    return [dirVecX, dirVecY]
+    function end
+
+    Alright, let's move on. This part is simple, every frame do this:
+
+    function newFrameMovePoints()
+    Ax = Ax + sAx
+    Ay = Ay + sAy
+    Bx = Bx + sBx
+    By = By + sBy
+
+    sAx = sAx*0.98
+    sAy = (sAy*0.98) + 1.2
+    sBx = sBx*0.98
+    sBy = (sBy*0.98) + 1.2
+
+    diag = diag(Ax, Ay, Bx, By)
+    rtrn = moveToPoint(Ax, Ay, Bx, By)
+    dirX = rtrn[1]
+    dirY = rtrn[2]
+    getToDiag = 17
+
+    Ax = Ax - (getToDiag-diag)*dirX*0.5
+    sAx = sAx - (getToDiag-diag)*dirX*0.5
+    Ay = Ay - (getToDiag-diag)*dirY*0.5
+    sAy = sAy - (getToDiag-diag)*dirY*0.5
+    Bx = Bx + (getToDiag-diag)*dirX*0.5
+    sBx = sBx + (getToDiag-diag)*dirX*0.5
+    By = By + (getToDiag-diag)*dirY*0.5
+    sBy = sBy + (getToDiag-diag)*dirY*0.5
+    function end
+
+    What you see is, separated by the empty rows: Adding the velocities to the positions, applying air friction and gravity to the velocities, retrieving the data necessary for the "binding" of the two points, and finally applying the bond. The points are now freely moving, but will always keep the same distance to each other, and forces applied to one point will realistically transfer into the other. As long as you draw the points after this has been done, they will always be displayed with the correct distance between them.
+
+    You see the "0.5"s after each row in the last section? Those mean that if there is a difference between the desired distance and the actual distance between the points, this point will stand for  50% of the movement made to correct the distance. If you tilt those numbers, so that for example point A stands for 85% of the movement and point B for 15% it will appear that B is significally heavier than A. If you make it so that the sum is less than 100% you will get an elastic bond, like a rubber band. You might want to tone down the movement of the actual positions in this case, and focus on the velocities. Other interesting choices you can toy with is to only affect the points if they are further away from each other than the desired distance, or only if they are closer.
+    */
+
     void attack() {
         if (accion == -1) {
             cout << "ataco\n";
@@ -142,12 +208,6 @@ void keySpecialUp(int key, int x, int y) {
 void keyOperations(void) {
     if (keyStates[32]/*SPACE*/) {
         cout << "El espacio se ha ido de vacaciones loquete";
-
-        /*if (rand() % 2 == 1) {
-            player.attack();
-        } else {
-            player.wave();
-        }*/
     }
     if (keyStates['j'] || keyStates['J']) {
         cout << "La 'j' Master Race";
@@ -302,9 +362,7 @@ void draw() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
     glBegin(GL_POINTS);
-
     drawEntity();
-
     glEnd();
     glutSwapBuffers();
 }
