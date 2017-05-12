@@ -27,7 +27,7 @@ void enable2D(int width, int height);
 
 bool *keyStates = new bool[256];
 bool *keySpecialStates = new bool[246];
-const unsigned int interval = 1000 / 10;
+const unsigned int interval = 1000 / 60;
 static World world = World();
 
 class Entity {
@@ -38,6 +38,30 @@ public:
     int accion = -1; //-1 libre. 1 ataque. 2 wave.
     int frameActual = -1;
     bool interrumpible;
+
+    int distance(int point1x, int point1y, int point2x, int point2y) {
+        int rectHeight = point1y - point2y;
+        int rectWidth = point1x - point2x;
+        return pow(pow(rectHeight, 2) + pow(rectWidth, 2), 0.5);
+    }
+
+    int[2] moveToPoint(int point1x, int point1y, int point2x, int point2y){
+        int dirVecX, dirVecY;
+        point2x = point2x - point1x;
+        point2y = point2y - point1y;
+        int distancia = distance(0, 0, point2x, point2y);
+        if (distancia>0) {
+            dirVecX = point2x / distancia;
+            dirVecY = point2y / distancia;
+        }else{
+            dirVecX = 0;
+            dirVecY = 1;
+        }
+        int cosa[2];
+        cosa[0] = dirVecX;
+        cosa[1] = dirVecY;
+    return cosa;
+    }
 
     /*codigo de movimiento guay*/
     /*
