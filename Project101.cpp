@@ -22,6 +22,8 @@ using namespace std;
 
 void draw();
 
+int random_range(int min, int max);
+
 void update(int value);
 
 void enable2D(int width, int height);
@@ -29,7 +31,7 @@ void enable2D(int width, int height);
 bool *keyStates = new bool[256];
 bool *keySpecialStates = new bool[246];
 const unsigned int interval = 1000 / 30;
-static World world = World();
+static World world = World("El mundo de J", 400, 400, 5);
 
 class Entity {
 public:
@@ -195,6 +197,7 @@ public:
 class Player : public Entity {
 public:
     float speed[2] = {0.0, 0.0};// (X,Y)
+    bool jump = false;
     Player(string nombreEntidad, int x, int y, int tipoo) : Entity(nombreEntidad, x, y, tipoo) {}
 };
 
@@ -232,17 +235,19 @@ void keySpecialUp(int key, int x, int y) {
 
 void keyOperations(void) {
     if (keyStates[32]/*SPACE*/) {
-        cout << "El espacio se ha ido de vacaciones loquete";
+        if(!player.jump){
+            player.speed[1] = 20;
+            player.jump=true;
+        }
     }
     if (keyStates['j'] || keyStates['J']) {
-        cout << "La 'j' Master Race";
         if (rand() % 2 == 1) {
             player.attack();
         } else {
             player.wave();
         }
     }
-    if (keyStates['w'] || keyStates['W']) {
+/*    if (keyStates['w'] || keyStates['W']) {
         player.setposy((int)(player.posy + 1 + player.speed[1]));
         if (player.speed[1] < 5.0 - 0.2) {
             player.speed[1] += 0.2;
@@ -250,8 +255,8 @@ void keyOperations(void) {
     }
     if (!keyStates['w'] && !keyStates['W'] && player.speed[1] > 0.0) {
         player.speed[1] = 0.0;
-    }
-    if (keyStates['s'] || keyStates['S']) {
+    }*/
+/*    if (keyStates['s'] || keyStates['S']) {
         player.setposy((int)(player.posy - 1 + player.speed[1]));
         if (player.speed[1] > -5.0 + 0.2) {
             player.speed[1] -= 0.2;
@@ -259,21 +264,17 @@ void keyOperations(void) {
     }
     if (!keyStates['s'] && !keyStates['S'] && player.speed[1] < 0.0) {
         player.speed[1] = 0.0;
-    }
+    }*/
     if (keyStates['a'] || keyStates['A']) {
-        player.setposx((int)(player.posx - 1 + player.speed[0]));
-        if (player.speed[0] > -5.0 + 0.2) {
-            player.speed[0] -= 0.2;
-        }
+        //player.setposx((int)(player.posx - 1 + player.speed[0]));
+        player.speed[0] = -5;
     }
     if (!keyStates['a'] && !keyStates['A'] && player.speed[0] < 0.0) {
         player.speed[0] = 0.0;
     }
     if (keyStates['d'] || keyStates['D']) {
-        player.setposx((int)(player.posx + 1 + player.speed[0]));
-        if (player.speed[0] < 5.0 - 0.2) {
-            player.speed[0] += 0.2;
-        }
+        //player.setposx((int)(player.posx + 1 + player.speed[0]));
+        player.speed[0] = 5;
     }
     if (!keyStates['d'] && !keyStates['D'] && player.speed[0] > 0.0) {
         player.speed[0] = 0.0;
@@ -281,11 +282,9 @@ void keyOperations(void) {
     if (keyStates[27]/*ESC*/) {
         exit(1);
     }
-    cout << player.speed[0] << "	" << player.speed[1] << "\n";
 }
 
 void keySpecialOperations(void) {
-    cout << "No me gusta esta movida loco...";
     if (keySpecialStates[GLUT_KEY_UP]) {
         player.setposy(player.posy + 1);
     }
@@ -306,7 +305,7 @@ int eucDist(int x1, int y1, int x2, int y2) {
 
 int main(int argc, char **argv) {
     for (int i = 0; i < 15; i++) {
-        enemies.push_back(Enemy("enemigo", (rand() % 170) + 12, (rand() % 170) + 12, 2));
+        enemies.push_back(Enemy("enemigo", random_range(10,world.W),random_range (10,world.H), 2));
     }
     srand((unsigned int)time(NULL));
     glutInit(&argc, argv);
@@ -398,9 +397,23 @@ void logic() {
     }
 }
 
+void playerUpdate(){
+    player.setposx(player.posx + player.speed[0]);
+    player.posy = player.posy + player.speed[1];
+    player.speed[1]-=world.gravity;
+    if(player.posy <= 10){
+        player.jump = false;
+        player.posy = 10;
+    }
+
+
+    cout << "X = " << player.posx << "  Y = " << player.posy << "\n";
+}
+
 void update(int value) {
     keyOperations();
     keySpecialOperations();
+    playerUpdate();
     logic();
     glutTimerFunc(interval, update, 0);
     glutPostRedisplay();
@@ -418,4 +431,8 @@ void enable2D(int width, int height) {
 void resize(int width, int height){
     glViewport(0,0, width, height);
     glOrtho(0.0f, width, 0.0f, height, 0.0f, 1.0f);
+}
+
+int random_range(int min, int max){
+    return min + (rand() % (int)(max - min + 1));
 }

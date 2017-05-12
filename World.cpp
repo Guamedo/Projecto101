@@ -5,6 +5,12 @@ World::World()
 {
 }
 
+World::World(std::string name, int h, int w, float g) {
+	this->name = name;
+	this->H = h;
+	this->W = w;
+	this->gravity = g;
+}
 
 World::~World()
 {
