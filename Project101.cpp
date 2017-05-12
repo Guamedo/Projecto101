@@ -5,11 +5,13 @@
 #include <time.h>
 #include <fstream>
 #include <sstream>
-#include <math.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <array>
 #include "GL/glut.h"
+
+#define _USE_MATH_DEFINES
+#include <cmath>
 
 #include "World.h"
 #include "Dot.h"
@@ -18,20 +20,18 @@
 #include "Action.h"
 
 using namespace std;
-#pragma comment(lib, "OpenGL32.lib")
 
 void draw();
-
+void DrawCircle(float cx, float cy, float r, int num_segments);
 int random_range(int min, int max);
-
 void update(int value);
-
 void enable2D(int width, int height);
 
+static const double PI = 4*atan(1);
 bool *keyStates = new bool[256];
 bool *keySpecialStates = new bool[246];
 const unsigned int interval = 1000 / 30;
-static World world = World("El mundo de J", 400, 400, 5);
+static World world = World("El mundo de J", 400, 400, 2);
 
 class Entity {
 public:
@@ -64,6 +64,16 @@ public:
         cosa[0] = dirVecX;
         cosa[1] = dirVecY;
         return cosa;
+    }
+
+    void moveToPoint(int x, int y,int speed){
+        int vecX = x - this->posx;
+        int vecY = y - this->posy;
+        double mod = sqrt(pow(vecX,2)+pow(vecY,2));
+        vecX = (vecX*speed)/mod;
+        vecY = (vecY*speed)/mod;
+        this->setposx(this->posx+vecX);
+        this->setposy(this->posy+vecY);
     }
 
     /*codigo de movimiento guay*/
@@ -183,7 +193,6 @@ public:
     Entity() {
 
     }
-
     Entity(string nombreEntidad, int x, int y, int tipoo) {
         nombre = nombreEntidad;
         posx = x;
@@ -236,7 +245,7 @@ void keySpecialUp(int key, int x, int y) {
 void keyOperations(void) {
     if (keyStates[32]/*SPACE*/) {
         if(!player.jump){
-            player.speed[1] = 20;
+            player.speed[1] = 10;
             player.jump=true;
         }
     }
@@ -247,33 +256,13 @@ void keyOperations(void) {
             player.wave();
         }
     }
-/*    if (keyStates['w'] || keyStates['W']) {
-        player.setposy((int)(player.posy + 1 + player.speed[1]));
-        if (player.speed[1] < 5.0 - 0.2) {
-            player.speed[1] += 0.2;
-        }
-    }
-    if (!keyStates['w'] && !keyStates['W'] && player.speed[1] > 0.0) {
-        player.speed[1] = 0.0;
-    }*/
-/*    if (keyStates['s'] || keyStates['S']) {
-        player.setposy((int)(player.posy - 1 + player.speed[1]));
-        if (player.speed[1] > -5.0 + 0.2) {
-            player.speed[1] -= 0.2;
-        }
-    }
-    if (!keyStates['s'] && !keyStates['S'] && player.speed[1] < 0.0) {
-        player.speed[1] = 0.0;
-    }*/
     if (keyStates['a'] || keyStates['A']) {
-        //player.setposx((int)(player.posx - 1 + player.speed[0]));
         player.speed[0] = -5;
     }
     if (!keyStates['a'] && !keyStates['A'] && player.speed[0] < 0.0) {
         player.speed[0] = 0.0;
     }
     if (keyStates['d'] || keyStates['D']) {
-        //player.setposx((int)(player.posx + 1 + player.speed[0]));
         player.speed[0] = 5;
     }
     if (!keyStates['d'] && !keyStates['D'] && player.speed[0] > 0.0) {
@@ -392,18 +381,20 @@ void draw() {
 }
 
 void logic() {
-    for (int i = 0; i < 15; i++) {
-        enemies[i].moveR();
+    for (int i = 0; i < enemies.size(); i++) {
+        enemies[i].moveToPoint(player.posx+random_range(-5,5),player.posy+random_range(-5,5),random_range(3,6));
     }
 }
 
 void playerUpdate(){
     player.setposx(player.posx + player.speed[0]);
     player.posy = player.posy + player.speed[1];
-    player.speed[1]-=world.gravity;
-    if(player.posy <= 10){
+    if(player.posy <= 20){
+        player.speed[1] = 0;
         player.jump = false;
-        player.posy = 10;
+        player.posy = 20;
+    }else{
+        player.speed[1]-=world.gravity;
     }
 
 
@@ -435,4 +426,15 @@ void resize(int width, int height){
 
 int random_range(int min, int max){
     return min + (rand() % (int)(max - min + 1));
+}
+
+void DrawCircle(float cx, float cy, float r, int num_segments) {
+    glBegin(GL_LINE_LOOP);
+    for (int ii = 0; ii < num_segments; ii++)   {
+        float theta = 2.0f * M_PI * float(ii) / float(num_segments);//get the current angle
+        float x = r * cosf(theta);//calculate the x component
+        float y = r * sinf(theta);//calculate the y component
+        glVertex2f(x + cx, y + cy);//output vertex
+    }
+    glEnd();
 }
