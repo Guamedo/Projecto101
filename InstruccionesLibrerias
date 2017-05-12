@@ -1,6 +1,6 @@
-Descargar openGL y...
+Descargar GLUT y...
 Copy glut.h to the MinGW\include\GL directory.
 Copy glut32.lib to your build directory (i.e., the directory that you compile into and link from).
 Copy glut32.dll to the same directory where your executable will be created.
 
-y listo!
+¡Y listo!
