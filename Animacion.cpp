@@ -25,7 +25,6 @@ Animacion::Animacion(std::string archivo) {
 			file >> frames.at(i).dots.at(j).y;
 		}
 	}
-
 }
 
 Animacion::~Animacion()

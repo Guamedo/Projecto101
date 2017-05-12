@@ -10,7 +10,7 @@ public:
 	bool inrangex(int val);
 	bool inrangey(int val);
 
-	std::string name = "Pixel Man 3000 Ultra Pro";
-	int H = 300, W = 300;
+	std::string name = "abc";
+	int H = 200, W = 200;
 };
 
