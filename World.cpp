@@ -16,7 +16,7 @@ World::~World()
 {
 }
 
-bool World::inrangex(int val) {
+bool World::inrangex(double val) {
 	if (10 < val && val < W - 10) {
 		return true;
 	}
@@ -24,7 +24,7 @@ bool World::inrangex(int val) {
 		return false;
 	}
 }
-bool World::inrangey(int val) {
+bool World::inrangey(double val) {
 	if (10 < val && val < H - 10) {
 		return true;
 	}

@@ -8,8 +8,8 @@ public:
 	World(std::string name, int h, int w, float g);
 	~World();
 
-	bool inrangex(int val);
-	bool inrangey(int val);
+	bool inrangex(double val);
+	bool inrangey(double val);
 
 	std::string name = "El mundo de J";
 	int H = 200, W = 200;
