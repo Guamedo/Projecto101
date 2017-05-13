@@ -22,7 +22,7 @@
 using namespace std;
 
 void draw();
-void DrawCircle(float cx, float cy, float r, int num_segments);
+void drawFilledCircle(GLfloat x, GLfloat y, GLfloat radius);
 int random_range(int min, int max);
 void update(int value);
 void enable2D(int width, int height);
@@ -32,6 +32,7 @@ bool *keyStates = new bool[256];
 bool *keySpecialStates = new bool[246];
 const unsigned int interval = 1000 / 30;
 static World world = World("El mundo de J", 400, 400, 2);
+static double grados = 0.0;
 
 class Entity {
 public:
@@ -325,7 +326,7 @@ int main(int argc, char **argv) {
 
 void drawPlayer() {
     //Dibujo el jugador
-    glColor3f(1.0f, 0.0f, 0.0f);
+/*    glColor3f(1.0f, 0.0f, 0.0f);
     int x, y;
     for (int i = -3; i <= 3; i++) {
         for (int j = -3; j <= 3; j++) {
@@ -335,7 +336,9 @@ void drawPlayer() {
                 glVertex2d(x, y);
             }
         }
-    }
+    }*/
+    glColor3f(1.0, 0.0, 0.0);
+    drawFilledCircle(player.posx, player.posy, 3);
     //glVertex2f(player.posx, player.posy);
 
     //Dibujo la accion, si la hay
@@ -360,10 +363,12 @@ void drawPlayer() {
 }
 
 void drawEnemies() {
+    glBegin(GL_POINTS);
     glColor3f(0.0f, 1.0f, 0.0f);
     for (int i = 0; i < 15; i++) {
         glVertex2f(enemies[i].posx, enemies[i].posy);
     }
+    glEnd();
 }
 
 void drawEntity() {
@@ -374,16 +379,22 @@ void drawEntity() {
 void draw() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
-    glBegin(GL_POINTS);
     drawEntity();
-    glEnd();
     glutSwapBuffers();
 }
 
 void logic() {
+    int x = 200 + sin(grados) * 120;
+    int y = 200 + cos(grados) * 120;
+    double vAngular = 8.0/150.0;
     for (int i = 0; i < enemies.size(); i++) {
-        enemies[i].moveToPoint(player.posx+random_range(-5,5),player.posy+random_range(-5,5),random_range(3,6));
+        enemies[i].moveToPoint(x+random_range(-10,10),y+random_range(-10,10),random_range(6,10));
     }
+    cout << "X = " << x << "    Y = " << y << "\n";
+    if(grados >= 360){
+        grados == 0;
+    }
+    grados-=vAngular;
 }
 
 void playerUpdate(){
@@ -396,9 +407,6 @@ void playerUpdate(){
     }else{
         player.speed[1]-=world.gravity;
     }
-
-
-    cout << "X = " << player.posx << "  Y = " << player.posy << "\n";
 }
 
 void update(int value) {
@@ -428,13 +436,17 @@ int random_range(int min, int max){
     return min + (rand() % (int)(max - min + 1));
 }
 
-void DrawCircle(float cx, float cy, float r, int num_segments) {
-    glBegin(GL_LINE_LOOP);
-    for (int ii = 0; ii < num_segments; ii++)   {
-        float theta = 2.0f * M_PI * float(ii) / float(num_segments);//get the current angle
-        float x = r * cosf(theta);//calculate the x component
-        float y = r * sinf(theta);//calculate the y component
-        glVertex2f(x + cx, y + cy);//output vertex
+void drawFilledCircle(GLfloat x, GLfloat y, GLfloat radius){
+    int i;
+    int triangleAmount = 20; //# of triangles used to draw circle
+    GLfloat twicePi = (GLfloat)(2.0f * 4*atan(1));
+    glBegin(GL_TRIANGLE_FAN);
+    glVertex2f(x, y); // center of circle
+    for(i = 0; i <= triangleAmount;i++) {
+        glVertex2f(
+                (GLfloat)(x + (radius * cos(i *  twicePi / triangleAmount))),
+                (GLfloat)(y + (radius * sin(i * twicePi / triangleAmount)))
+        );
     }
     glEnd();
 }
