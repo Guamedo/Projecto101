@@ -27,6 +27,7 @@ void drawFilledCircle(GLfloat x, GLfloat y, GLfloat radius);
 int random_range(int min, int max);
 void update(int value);
 void enable2D(int width, int height);
+void loadLevel(string level);
 
 static const double PI = 4*atan(1);
 bool *keyStates = new bool[256];
@@ -308,10 +309,12 @@ int main(int argc, char **argv) {
     for (int i = 0; i < 15; i++) {
         enemies.push_back(Enemy("enemigo", random_range(10,world.W),random_range (10,world.H), 2));
     }
-    plataformas.push_back(Box({50,25},{50,25}));
+    loadLevel("Levels/level0.txt");
+/*    plataformas.push_back(Box({50,25},{50,25}));
     plataformas.push_back(Box({133,50},{33,50}));
     plataformas.push_back(Box({266,75},{34,75}));
     plataformas.push_back(Box({350,100},{50,100}));
+    plataformas.push_back(Box({350,300},{50,50}));*/
     srand((unsigned int)time(NULL));
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
@@ -422,7 +425,6 @@ void logic() {
         enemies[i].moveToPoint(x+random_range(-100,100),y+random_range(-100,100),random_range(6,10));
         if(abs(enemies[i].posx-player.posx) < 3 && abs(enemies[i].posy-player.posy) < 3){
             cout << "Estas muerto tt\n";
-            exit(0);
         }
     }
     if(grados >= 360){
@@ -463,22 +465,21 @@ void playerUpdate(){
     if(colY == -1){
         player.posy = newY;
         player.speed[1]-=world.gravity;
-        /*if(player.posy <= 20){
-            player.speed[1] = 0;
-            player.jump = 0;
-            player.posy = 20;
-        }else{
-
-        }*/
     }else{
-        player.posy = plataformas[colY].center[1]+plataformas[colY].halfSize[1]+4;
-        player.jump = 0;
-        player.speed[1] = 0;
+        if(player.posy > plataformas[colY].center[1]){
+            player.posy = plataformas[colY].center[1]+plataformas[colY].halfSize[1]+4;
+            player.jump = 0;
+            player.speed[1] = 0;
+        }else{
+            player.posy = plataformas[colY].center[1]-plataformas[colY].halfSize[1]-4;
+            player.speed[1] = 0;
+        }
     }
     // Esto esta muy mal hecho pero por ahora se queda
     if(player.posy < -100){
         cout << "Estas muerto tt\n";
-        exit(0);
+        player.posx = 20;
+        player.posy = 60;
     }
     cout << "X = " << player.posx << "    Y = " << player.posy << "\n";
 }
@@ -523,4 +524,16 @@ void drawFilledCircle(GLfloat x, GLfloat y, GLfloat radius){
         );
     }
     glEnd();
+}
+
+void loadLevel(string level){
+    std::fstream file;
+    file.open(level);
+    int x, a, b, c, d;
+    file >> x;
+    for(int i = 0; i < x; i++){
+        file >> a >> b >> c >> d;
+        plataformas.push_back(Box({a,b},{c,d}));
+    }
+    file.close();
 }
