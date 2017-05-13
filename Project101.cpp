@@ -34,7 +34,7 @@ bool *keySpecialStates = new bool[246];
 const unsigned int interval = 1000 / 30;
 static World world = World("El mundo de J", 400, 400, 2);
 static double grados = 0.0;
-static Box plataforma({200,20},{50,30});
+static vector<Box> plataformas;
 
 class Entity {
 public:
@@ -229,7 +229,7 @@ public:
     }
 };
 
-Player player = Player("player", 25, 25, 1);
+Player player = Player("player", 20, 200, 1);
 std::vector<Enemy> enemies;
 
 void keyPressed(unsigned char key, int x, int y) {
@@ -308,6 +308,10 @@ int main(int argc, char **argv) {
     for (int i = 0; i < 15; i++) {
         enemies.push_back(Enemy("enemigo", random_range(10,world.W),random_range (10,world.H), 2));
     }
+    plataformas.push_back(Box({50,25},{50,25}));
+    plataformas.push_back(Box({133,50},{33,50}));
+    plataformas.push_back(Box({266,75},{34,75}));
+    plataformas.push_back(Box({350,100},{50,100}));
     srand((unsigned int)time(NULL));
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
@@ -382,22 +386,25 @@ void drawEnemies() {
     glEnd();
 }
 
-void drawPlataform(){
+void drawPlataforms(){
     glBegin(GL_TRIANGLES);
-    glVertex2f(plataforma.center[0]+plataforma.halfSize[0], plataforma.center[1]+plataforma.halfSize[1]);
-    glVertex2f(plataforma.center[0]-plataforma.halfSize[0], plataforma.center[1]+plataforma.halfSize[1]);
-    glVertex2f(plataforma.center[0]-plataforma.halfSize[0], plataforma.center[1]-plataforma.halfSize[1]);
+    for(int i = 0; i < plataformas.size(); i++){
+        glVertex2f(plataformas[i].center[0]+plataformas[i].halfSize[0], plataformas[i].center[1]+plataformas[i].halfSize[1]);
+        glVertex2f(plataformas[i].center[0]-plataformas[i].halfSize[0], plataformas[i].center[1]+plataformas[i].halfSize[1]);
+        glVertex2f(plataformas[i].center[0]-plataformas[i].halfSize[0], plataformas[i].center[1]-plataformas[i].halfSize[1]);
 
-    glVertex2f(plataforma.center[0]+plataforma.halfSize[0], plataforma.center[1]+plataforma.halfSize[1]);
-    glVertex2f(plataforma.center[0]-plataforma.halfSize[0], plataforma.center[1]-plataforma.halfSize[1]);
-    glVertex2f(plataforma.center[0]+plataforma.halfSize[0], plataforma.center[1]-plataforma.halfSize[1]);
+        glVertex2f(plataformas[i].center[0]+plataformas[i].halfSize[0], plataformas[i].center[1]+plataformas[i].halfSize[1]);
+        glVertex2f(plataformas[i].center[0]-plataformas[i].halfSize[0], plataformas[i].center[1]-plataformas[i].halfSize[1]);
+        glVertex2f(plataformas[i].center[0]+plataformas[i].halfSize[0], plataformas[i].center[1]-plataformas[i].halfSize[1]);
+    }
+
     glEnd();
 }
 
 void drawEntity() {
     drawPlayer();
     drawEnemies();
-    drawPlataform();
+    drawPlataforms();
 }
 
 void draw() {
@@ -413,8 +420,11 @@ void logic() {
     double vAngular = 8.0/120.0;
     for (int i = 0; i < enemies.size(); i++) {
         enemies[i].moveToPoint(x+random_range(-100,100),y+random_range(-100,100),random_range(6,10));
+        if(abs(enemies[i].posx-player.posx) < 3 && abs(enemies[i].posy-player.posy) < 3){
+            cout << "Estas muerto tt\n";
+            exit(0);
+        }
     }
-    cout << "X = " << x << "    Y = " << y << "\n";
     if(grados >= 360){
         grados == 0;
     }
@@ -423,26 +433,54 @@ void logic() {
 
 void playerUpdate(){
     int newX, newY;
+    bool colX = false;
+    int colY = -1;
     newX = player.posx + player.speed[0];
     newY = player.posy + player.speed[1];
-    if(!plataforma.Overlaps(Box({newX,player.posy},{3,3}))){
+    for(int i = 0; i < plataformas.size(); i++){
+        if(plataformas[i].Overlaps(Box({newX,player.posy},{3,3}))){
+            colX = true;
+        }
+        if(plataformas[i].Overlaps(Box({player.posx,newY},{3,3}))){
+            colY = i;
+/*            player.posy = newY;
+            if(player.posy <= 20){
+                player.speed[1] = 0;
+                player.jump = 0;
+                player.posy = 20;
+            }else{
+                player.speed[1]-=world.gravity;
+            }*/
+        }/*else{
+            player.posy = plataformas[i].center[1]+plataformas[i].halfSize[1]+4;
+            player.jump = 0;
+            player.speed[1] = 0;
+        }*/
+    }
+    if(!colX){
         player.setposx(newX);
     }
-    if(!plataforma.Overlaps(Box({player.posx,newY},{3,3}))){
+    if(colY == -1){
         player.posy = newY;
-        if(player.posy <= 20){
+        player.speed[1]-=world.gravity;
+        /*if(player.posy <= 20){
             player.speed[1] = 0;
             player.jump = 0;
             player.posy = 20;
         }else{
-            player.speed[1]-=world.gravity;
-        }
+
+        }*/
     }else{
-        player.posy = plataforma.center[1]+plataforma.halfSize[1]+4;
+        player.posy = plataformas[colY].center[1]+plataformas[colY].halfSize[1]+4;
         player.jump = 0;
         player.speed[1] = 0;
     }
-
+    // Esto esta muy mal hecho pero por ahora se queda
+    if(player.posy < -100){
+        cout << "Estas muerto tt\n";
+        exit(0);
+    }
+    cout << "X = " << player.posx << "    Y = " << player.posy << "\n";
 }
 
 void update(int value) {
