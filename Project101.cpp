@@ -48,6 +48,8 @@ public:
     int accion = -1; //-1 libre. 1 ataque. 2 wave.
     int frameActual = -1;
     int tipo;
+    int jump = 0;
+    Box BBox;
 
     Cacho head;
     Cacho body;
@@ -77,8 +79,14 @@ public:
     }
 
     void newFrameMovePoints() {
-        cout << "antes de nada... \n";
-        setPosition(getPosition()[0]+body.speed[0],getPosition()[1]+body.speed[1]);
+        double newX, newY;
+        bool colX = false;
+        double colY = -1;
+        newX = getPosition()[0] + body.speed[0];
+        newY = getPosition()[1] + body.speed[1];
+
+
+        //setPosition(getPosition()[0]+body.speed[0],getPosition()[1]+body.speed[1]);
         head.position[0] = head.position[0] + head.speed[0];
         head.position[1] = head.position[1] + head.speed[1];
 
@@ -89,31 +97,71 @@ public:
         head.speed[0] = head.speed[0] * airFriction;
         head.speed[1] = (head.speed[1] * airFriction);
 
-        double dist = distance(head.position[0], head.position[1], body.position[0], body.position[1]+6);
-        array<double,2> rtrn = moveToPoint(head.position[0], head.position[1], body.position[0], body.position[1]);
-        cout << rtrn[0] << " " << rtrn[1] << "\n";
-        double getToDiag = 2;
+        double dist = distance(head.position[0], head.position[1], newX, newY+6);
+        array<double,2> rtrn = moveToPoint(head.position[0], head.position[1], newX, newY+6);
+        double getToDiag = 1.5;
 
         double valor = 0.5;
-        setPosition(body.position[0] + (getToDiag - dist) * rtrn[0] * valor, body.position[1] + (getToDiag - dist) * rtrn[1] * valor);
+        //setPosition(body.position[0] + (getToDiag - dist) * rtrn[0] * valor, body.position[1] + (getToDiag - dist) * rtrn[1] * valor);
+        newX =  newX + (getToDiag - dist) * rtrn[0] * valor;
+        newY =  newY + (getToDiag - dist) * rtrn[1] * valor;
         body.speed[0] = body.speed[0] + (getToDiag - dist) * rtrn[0] * valor;
         body.speed[1] = body.speed[1] + (getToDiag - dist) * rtrn[1] * valor;
         head.position[0] = head.position[0] - (getToDiag - dist) * rtrn[0] * valor;
         head.speed[0] = head.speed[0] - (getToDiag - dist) * rtrn[0] * valor;
         head.position[1] = head.position[1] - (getToDiag - dist) * rtrn[1] * valor;
         head.speed[1] = head.speed[1] - (getToDiag - dist) * rtrn[1] * valor;
+        /////////////////////////////////////////////////
+
+
+
+
+        for(int i = 0; i < plataformas.size(); i++){
+            if(plataformas[i].Overlaps(Box({newX,getPosition()[1]},{3,3}))){
+                colX = true;
+            }
+            if(plataformas[i].Overlaps(Box({getPosition()[0],newY},{3,3}))) {
+                colY = i;
+            }
+        }
+        if(!colX){
+            setPosition(newX, getPosition()[1]);
+        }
+        if(colY == -1){
+            setPosition(getPosition()[1], newY);
+            body.speed[1]-=world.gravity;
+        }else{
+            //Si esta pisando la plataforma
+            if(getPosition()[1] > plataformas[colY].center[1]){
+                setPosition(getPosition()[0], plataformas[colY].center[1]+plataformas[colY].halfSize[1]+4);
+                jump = 0;
+                body.speed[1] = 0;
+            }else{ //Si la esta tocando por abajo
+                setPosition(getPosition()[1], plataformas[colY].center[1]-plataformas[colY].halfSize[1]-4);
+                body.speed[1] = 0;
+            }
+        }
+        // Esto esta muy mal hecho pero por ahora se queda
+        if(getPosition()[1] < -100){
+            cout << "Estas muerto tt\n";
+            getPosition()[0] = 20;
+            getPosition()[1] = 60;
+        }
+        cout << "X = " << getPosition()[0] << "    Y = " << getPosition()[1] << "\n";
+
+        ////////////////////////////////////////////////
+
 
     }
 
-    /*void moveToPoint(double x, double y,double speed){
+    void moveToPoint(double x, double y,double speed){
         double vecX = x - this->body.position[0];
         double vecY = y - this->body.position[1];
         double mod = sqrt(pow(vecX,2)+pow(vecY,2));
         vecX = (vecX*speed)/mod;
         vecY = (vecY*speed)/mod;
-        this->setposx(this->body.position[0]+vecX);
-        this->setposy(this->body.position[1]+vecY);
-    }*/
+        this->setPosition(this->body.position[0]+vecX, this->body.position[1]+vecY);
+    }
 
     void attack() {
         if (accion == -1) {
@@ -130,18 +178,6 @@ public:
             frameActual = 0;
         }
     }
-
-    /*void setposx(double x) {
-        if (world.inrangex(x)) {
-            body.position[0] = x;
-        }
-    }
-
-    void setposy(double y) {
-        if (world.inrangey(y)) {
-            body.position[1] = y;
-        }
-    }*/
 
     void setPosition(double x, double y){
         bool b1 = true, b2 = true;
@@ -164,26 +200,6 @@ public:
         return body.position;
     }
 
-    /*void moveR() {
-        int random = (rand() % 4) + 1;
-        switch (random) {
-            case 1:
-                setposx(getPosition()[0] + 1);
-                break;
-            case 2:
-                setposx(getPosition()[0] - 1);
-                break;
-            case 3:
-                setposy(getPosition()[1] + 1);
-                break;
-            case 4:
-                setposy(getPosition()[1] - 1);
-                break;
-            default:
-                break;
-        }
-    }*/
-
     Entity() {
 
     }
@@ -196,6 +212,7 @@ public:
         head.speed[1] = 0;
         head.position[0] = x;
         head.position[1] = y+6;
+        BBox = Box({x,y}, {3,3});
         tipo = tipoo;
         actions.push_back(Action("actionAttack", (char*)"Animaciones/attack.anim"));
         actions.push_back(Action("actionWave", (char*)"Animaciones/wave.anim"));
@@ -204,12 +221,7 @@ public:
 
 class Player : public Entity {
 public:
-
-    float speed[2] = {0.0, 0.0};// (X,Y)
-    int jump = 0;
-    Box BBox;
     Player(string nombreEntidad, int x, int y, int tipoo) : Entity(nombreEntidad, x, y, tipoo) {
-        BBox = Box({x,y}, {3,3});
     }
 };
 
@@ -248,7 +260,7 @@ void keyOperations(void) {
     if (keyStates[32]/*SPACE*/) {
 
         if(player.jump == 0 || player.jump == 2){
-            player.speed[1] = 10;
+            player.body.speed[1] = 10;
             player.jump++;
         }
     }
@@ -282,25 +294,6 @@ void keyOperations(void) {
     }
 }
 
-/*void keySpecialOperations(void) {
-    if (keySpecialStates[GLUT_KEY_UP]) {
-        player.setposy(player.body.position[1] + 1);
-    }
-    if (keySpecialStates[GLUT_KEY_DOWN]) {
-        player.setposy(player.body.position[1] - 1);
-    }
-    if (keySpecialStates[GLUT_KEY_LEFT]) {
-        player.setposx(player.body.position[0] - 1);
-    }
-    if (keySpecialStates[GLUT_KEY_RIGHT]) {
-        player.setposx(player.body.position[0] + 1);
-    }
-}*/
-
-int eucDist(int x1, int y1, int x2, int y2) {
-    return (int) sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
-}
-
 int main(int argc, char **argv) {
 
     player.nombre = "Manolo";
@@ -308,11 +301,6 @@ int main(int argc, char **argv) {
         enemies.push_back(Enemy("enemigo", random_range(10,world.W),random_range (10,world.H), 2));
     }
     loadLevel("Levels/level0.txt");
-/*    plataformas.push_back(Box({50,25},{50,25}));
-    plataformas.push_back(Box({133,50},{33,50}));
-    plataformas.push_back(Box({266,75},{34,75}));
-    plataformas.push_back(Box({350,100},{50,100}));
-    plataformas.push_back(Box({350,300},{50,50}));*/
 
     srand((unsigned int)time(NULL));
     glutInit(&argc, argv);
@@ -344,31 +332,11 @@ int main(int argc, char **argv) {
 void drawPlayer() {
 
     //Dibujo el jugador
-
-/*    glColor3f(1.0f, 0.0f, 0.0f);
-    int x, y;
-    for (int i = -3; i <= 3; i++) {
-        for (int j = -3; j <= 3; j++) {
-            x = (int)player.body.position[0] - i;
-            y = (int)player.body.position[1] - j;
-            if (eucDist(x, y, player.body.position[0], player.body.position[1]) <= 3) {
-                glVertex2d(x, y);
-            }
-        }
-    }
-    //head
-    glColor3f(1.0f, 1.0f, 0.0f);
-    for (int i = -3; i <= 3; i++) {
-        for (int j = -3; j <= 3; j++) {
-            x = (int) player.head.position[0] - i;
-            y = (int) player.head.position[1] - j;
-            if (eucDist(x, y, player.head.position[0], player.head.position[1]) <= 1.5) {
-                glVertex2d(x, y);
-            }
-        }
-*/
     glColor3f(1.0, 0.0, 0.0);
-    drawFilledCircle(player.posx, player.posy, 3);
+    drawFilledCircle(player.getPosition()[0], player.getPosition()[1], 3);
+
+    glColor3f(1.0f, 1.0f, 0.0f);
+    drawFilledCircle(player.head.position[0], player.head.position[1], 1.5);
 
 
     //Dibujo la accion, si la hay
@@ -436,7 +404,7 @@ void logic() {
     double vAngular = 8.0/120.0;
     for (int i = 0; i < enemies.size(); i++) {
         enemies[i].moveToPoint(x+random_range(-100,100),y+random_range(-100,100),random_range(6,10));
-        if(abs(enemies[i].posx-player.posx) < 3 && abs(enemies[i].posy-player.posy) < 3){
+        if(abs(enemies[i].getPosition()[0]-player.getPosition()[0]) < 3 && abs(enemies[i].getPosition()[1]-player.getPosition()[1]) < 3){
             cout << "Estas muerto tt\n";
         }
     }
@@ -447,61 +415,14 @@ void logic() {
 }
 
 void playerUpdate(){
-    int newX, newY;
-    bool colX = false;
-    int colY = -1;
-    newX = player.posx + player.speed[0];
-    newY = player.posy + player.speed[1];
-    for(int i = 0; i < plataformas.size(); i++){
-        if(plataformas[i].Overlaps(Box({newX,player.posy},{3,3}))){
-            colX = true;
-        }
-        if(plataformas[i].Overlaps(Box({player.posx,newY},{3,3}))){
-            colY = i;
-/*            player.posy = newY;
-            if(player.posy <= 20){
-                player.speed[1] = 0;
-                player.jump = 0;
-                player.posy = 20;
-            }else{
-                player.speed[1]-=world.gravity;
-            }*/
-        }/*else{
-            player.posy = plataformas[i].center[1]+plataformas[i].halfSize[1]+4;
-            player.jump = 0;
-            player.speed[1] = 0;
-        }*/
-    }
-    if(!colX){
-        player.setposx(newX);
-    }
-    if(colY == -1){
-        player.posy = newY;
-        player.speed[1]-=world.gravity;
-    }else{
-        if(player.posy > plataformas[colY].center[1]){
-            player.posy = plataformas[colY].center[1]+plataformas[colY].halfSize[1]+4;
-            player.jump = 0;
-            player.speed[1] = 0;
-        }else{
-            player.posy = plataformas[colY].center[1]-plataformas[colY].halfSize[1]-4;
-            player.speed[1] = 0;
-        }
-    }
-    // Esto esta muy mal hecho pero por ahora se queda
-    if(player.posy < -100){
-        cout << "Estas muerto tt\n";
-        player.posx = 20;
-        player.posy = 60;
-    }
-    cout << "X = " << player.posx << "    Y = " << player.posy << "\n";
+    player.newFrameMovePoints();
 }
 
 void update(int value) {
     keyOperations();
     //keySpecialOperations();
     playerUpdate();
-    //logic();
+    logic();
     glutTimerFunc(interval, update, 0);
     glutPostRedisplay();
 }

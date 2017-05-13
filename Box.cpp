@@ -1,7 +1,7 @@
 //
 // Created by GPA on 13/05/2017.
 //
-
+#include <stdlib.h>
 #include "Box.h"
 
 Box::Box() {}
