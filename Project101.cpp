@@ -19,19 +19,24 @@
 #include "Animacion.h"
 #include "Action.h"
 #include "Cacho.h"
+#include "Box.h"
 
 using namespace std;
 
 void draw();
+void drawFilledCircle(GLfloat x, GLfloat y, GLfloat radius);
 int random_range(int min, int max);
 void update(int value);
 void enable2D(int width, int height);
+void loadLevel(string level);
 
 static const double PI = 4*atan(1);
 bool *keyStates = new bool[256];
 bool *keySpecialStates = new bool[246];
 const unsigned int interval = 1000 / 10;
 static World world = World("El mundo de J", 400, 400, 2);
+static double grados = 0.0;
+static vector<Box> plataformas;
 
 
 
@@ -199,8 +204,13 @@ public:
 
 class Player : public Entity {
 public:
-    bool jump = false;
-    Player(string nombreEntidad, double x, double y, int tipoo) : Entity(nombreEntidad, x, y, tipoo) {}
+
+    float speed[2] = {0.0, 0.0};// (X,Y)
+    int jump = 0;
+    Box BBox;
+    Player(string nombreEntidad, int x, int y, int tipoo) : Entity(nombreEntidad, x, y, tipoo) {
+        BBox = Box({x,y}, {3,3});
+    }
 };
 
 class Enemy : public Entity {
@@ -215,7 +225,7 @@ public:
     }
 };
 
-Player player = Player("player", 25, 25, 1);
+Player player = Player("player", 20, 200, 1);
 std::vector<Enemy> enemies;
 
 void keyPressed(unsigned char key, int x, int y) {
@@ -236,9 +246,16 @@ void keySpecialUp(int key, int x, int y) {
 
 void keyOperations(void) {
     if (keyStates[32]/*SPACE*/) {
-        if(!player.jump){
-            player.body.speed[1] = 10;
-            player.jump=true;
+
+        if(player.jump == 0 || player.jump == 2){
+            player.speed[1] = 10;
+            player.jump++;
+        }
+    }
+    if(!keyStates[32]/*SPACE_UP*/){
+        if(player.jump == 1){
+            player.jump++;
+
         }
     }
     if (keyStates['j'] || keyStates['J']) {
@@ -285,6 +302,18 @@ int eucDist(int x1, int y1, int x2, int y2) {
 }
 
 int main(int argc, char **argv) {
+
+    player.nombre = "Manolo";
+    for (int i = 0; i < 15; i++) {
+        enemies.push_back(Enemy("enemigo", random_range(10,world.W),random_range (10,world.H), 2));
+    }
+    loadLevel("Levels/level0.txt");
+/*    plataformas.push_back(Box({50,25},{50,25}));
+    plataformas.push_back(Box({133,50},{33,50}));
+    plataformas.push_back(Box({266,75},{34,75}));
+    plataformas.push_back(Box({350,100},{50,100}));
+    plataformas.push_back(Box({350,300},{50,50}));*/
+
     srand((unsigned int)time(NULL));
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
@@ -315,8 +344,8 @@ int main(int argc, char **argv) {
 void drawPlayer() {
 
     //Dibujo el jugador
-    //body
-    glColor3f(1.0f, 0.0f, 0.0f);
+
+/*    glColor3f(1.0f, 0.0f, 0.0f);
     int x, y;
     for (int i = -3; i <= 3; i++) {
         for (int j = -3; j <= 3; j++) {
@@ -337,7 +366,10 @@ void drawPlayer() {
                 glVertex2d(x, y);
             }
         }
-    }
+*/
+    glColor3f(1.0, 0.0, 0.0);
+    drawFilledCircle(player.posx, player.posy, 3);
+
 
     //Dibujo la accion, si la hay
     if (player.accion != -1) {
@@ -361,46 +393,108 @@ void drawPlayer() {
 }
 
 void drawEnemies() {
+    glBegin(GL_POINTS);
     glColor3f(0.0f, 1.0f, 0.0f);
     for (int i = 0; i < 15; i++) {
         glVertex2f(enemies[i].body.position[0], enemies[i].body.position[1]);
     }
+    glEnd();
+}
+
+void drawPlataforms(){
+    glBegin(GL_TRIANGLES);
+    for(int i = 0; i < plataformas.size(); i++){
+        glVertex2f(plataformas[i].center[0]+plataformas[i].halfSize[0], plataformas[i].center[1]+plataformas[i].halfSize[1]);
+        glVertex2f(plataformas[i].center[0]-plataformas[i].halfSize[0], plataformas[i].center[1]+plataformas[i].halfSize[1]);
+        glVertex2f(plataformas[i].center[0]-plataformas[i].halfSize[0], plataformas[i].center[1]-plataformas[i].halfSize[1]);
+
+        glVertex2f(plataformas[i].center[0]+plataformas[i].halfSize[0], plataformas[i].center[1]+plataformas[i].halfSize[1]);
+        glVertex2f(plataformas[i].center[0]-plataformas[i].halfSize[0], plataformas[i].center[1]-plataformas[i].halfSize[1]);
+        glVertex2f(plataformas[i].center[0]+plataformas[i].halfSize[0], plataformas[i].center[1]-plataformas[i].halfSize[1]);
+    }
+
+    glEnd();
 }
 
 void drawEntity() {
     drawPlayer();
-    //drawEnemies();
+    drawEnemies();
+    drawPlataforms();
 }
 
 void draw() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
-    glBegin(GL_POINTS);
     drawEntity();
-    glEnd();
     glutSwapBuffers();
 }
 
-/*void logic() {
+
+void logic() {
+    int x = 200 + sin(grados) * 120;
+    int y = 200 + cos(grados) * 120;
+    double vAngular = 8.0/120.0;
     for (int i = 0; i < enemies.size(); i++) {
-        enemies[i].moveToPoint(player.body.position[0]+random_range(-5,5),player.body.position[1]+random_range(-5,5),random_range(3,6));
+        enemies[i].moveToPoint(x+random_range(-100,100),y+random_range(-100,100),random_range(6,10));
+        if(abs(enemies[i].posx-player.posx) < 3 && abs(enemies[i].posy-player.posy) < 3){
+            cout << "Estas muerto tt\n";
+        }
     }
-}*/
+    if(grados >= 360){
+        grados == 0;
+    }
+    grados-=vAngular;
+}
 
 void playerUpdate(){
-    player.newFrameMovePoints();
-    /*player.setposx(player.body.position[0] + player.body.speed[0]);
-    player.setposy(player.body.position[1] + player.body.speed[1]);
-    if(player.body.position[1] <= 20){
-        player.body.speed[1] = 0;
-        player.jump = false;
-        player.body.position[1] = 20;
+    int newX, newY;
+    bool colX = false;
+    int colY = -1;
+    newX = player.posx + player.speed[0];
+    newY = player.posy + player.speed[1];
+    for(int i = 0; i < plataformas.size(); i++){
+        if(plataformas[i].Overlaps(Box({newX,player.posy},{3,3}))){
+            colX = true;
+        }
+        if(plataformas[i].Overlaps(Box({player.posx,newY},{3,3}))){
+            colY = i;
+/*            player.posy = newY;
+            if(player.posy <= 20){
+                player.speed[1] = 0;
+                player.jump = 0;
+                player.posy = 20;
+            }else{
+                player.speed[1]-=world.gravity;
+            }*/
+        }/*else{
+            player.posy = plataformas[i].center[1]+plataformas[i].halfSize[1]+4;
+            player.jump = 0;
+            player.speed[1] = 0;
+        }*/
+    }
+    if(!colX){
+        player.setposx(newX);
+    }
+    if(colY == -1){
+        player.posy = newY;
+        player.speed[1]-=world.gravity;
     }else{
-        player.body.speed[1]-=world.gravity;
-    }*/
-
-
-    cout << "X = " << player.getPosition()[0] << "  Y = " << player.getPosition()[1] << "\n";
+        if(player.posy > plataformas[colY].center[1]){
+            player.posy = plataformas[colY].center[1]+plataformas[colY].halfSize[1]+4;
+            player.jump = 0;
+            player.speed[1] = 0;
+        }else{
+            player.posy = plataformas[colY].center[1]-plataformas[colY].halfSize[1]-4;
+            player.speed[1] = 0;
+        }
+    }
+    // Esto esta muy mal hecho pero por ahora se queda
+    if(player.posy < -100){
+        cout << "Estas muerto tt\n";
+        player.posx = 20;
+        player.posy = 60;
+    }
+    cout << "X = " << player.posx << "    Y = " << player.posy << "\n";
 }
 
 void update(int value) {
@@ -428,4 +522,32 @@ void resize(int width, int height){
 
 int random_range(int min, int max){
     return min + (rand() % (int)(max - min + 1));
+}
+
+
+void drawFilledCircle(GLfloat x, GLfloat y, GLfloat radius){
+    int i;
+    int triangleAmount = 20; //# of triangles used to draw circle
+    GLfloat twicePi = (GLfloat)(2.0f * 4*atan(1));
+    glBegin(GL_TRIANGLE_FAN);
+    glVertex2f(x, y); // center of circle
+    for(i = 0; i <= triangleAmount;i++) {
+        glVertex2f(
+                (GLfloat)(x + (radius * cos(i *  twicePi / triangleAmount))),
+                (GLfloat)(y + (radius * sin(i * twicePi / triangleAmount)))
+        );
+    }
+    glEnd();
+}
+
+void loadLevel(string level){
+    std::fstream file;
+    file.open(level);
+    int x, a, b, c, d;
+    file >> x;
+    for(int i = 0; i < x; i++){
+        file >> a >> b >> c >> d;
+        plataformas.push_back(Box({a,b},{c,d}));
+    }
+    file.close();
 }
