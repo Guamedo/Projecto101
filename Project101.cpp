@@ -33,7 +33,7 @@ void loadLevel(string level);
 static const double PI = 4*atan(1);
 bool *keyStates = new bool[256];
 bool *keySpecialStates = new bool[246];
-const unsigned int interval = 1000 / 10;
+const unsigned int interval = 1000 / 3;
 static World world = World("El mundo de J", 400, 400, 2);
 static double grados = 0.0;
 static vector<Box> plataformas;
@@ -79,57 +79,61 @@ public:
     }
 
     void newFrameMovePoints() {
-        double newX, newY;
         bool colX = false;
         double colY = -1;
-        newX = getPosition()[0] + body.speed[0];
-        newY = getPosition()[1] + body.speed[1];
 
+        double Ax = getPosition()[0] + body.speed[0];
+        double Ay = getPosition()[1] + body.speed[1];
 
-        //setPosition(getPosition()[0]+body.speed[0],getPosition()[1]+body.speed[1]);
-        head.position[0] = head.position[0] + head.speed[0];
-        head.position[1] = head.position[1] + head.speed[1];
+        double Bx = head.position[0] + head.speed[0];
+        double By = head.position[1] + head.speed[1];
 
-        double airFriction = 0.98;
-        double grav = 0.5;
-        body.speed[0] = body.speed[0] * airFriction;
-        body.speed[1] = (body.speed[1] * airFriction)-grav;
-        head.speed[0] = head.speed[0] * airFriction;
-        head.speed[1] = (head.speed[1] * airFriction);
+        double sAx = body.speed[0] * 0.98;
+        double sAy = (body.speed[1]*0.98) - world.gravity;
 
-        double dist = distance(head.position[0], head.position[1], newX, newY+6);
-        array<double,2> rtrn = moveToPoint(head.position[0], head.position[1], newX, newY+6);
-        double getToDiag = 1.5;
+        double sBx = head.speed[0] * 0.98;
+        double sBy = (head.speed[0] * 0.98) - world.gravity;
 
-        double valor = 0.5;
-        //setPosition(body.position[0] + (getToDiag - dist) * rtrn[0] * valor, body.position[1] + (getToDiag - dist) * rtrn[1] * valor);
-        newX =  newX + (getToDiag - dist) * rtrn[0] * valor;
-        newY =  newY + (getToDiag - dist) * rtrn[1] * valor;
-        body.speed[0] = body.speed[0] + (getToDiag - dist) * rtrn[0] * valor;
-        body.speed[1] = body.speed[1] + (getToDiag - dist) * rtrn[1] * valor;
-        head.position[0] = head.position[0] - (getToDiag - dist) * rtrn[0] * valor;
-        head.speed[0] = head.speed[0] - (getToDiag - dist) * rtrn[0] * valor;
-        head.position[1] = head.position[1] - (getToDiag - dist) * rtrn[1] * valor;
-        head.speed[1] = head.speed[1] - (getToDiag - dist) * rtrn[1] * valor;
-        /////////////////////////////////////////////////
+        double dist = distance(Ax, Ay, Bx, By);
+        array<double,2> rtrn = moveToPoint(Ax, Ay, Bx, By);
+        double getToDiag = 3.5;
+        double correcionX = (getToDiag-dist)*rtrn[0]*0.37;
+        double correcionY = (getToDiag-dist)*rtrn[1]*0.37;
 
+        Ax = Ax - correcionX;
+        sAx = sAx - correcionY;
 
+        Ay = Ay - correcionX;
+        sAy = sAy - correcionY;
+
+        Bx = Bx + correcionX;
+        sBx = sBx + correcionY;
+
+        By = By + correcionX;
+        sBy = sBy + correcionY;
 
 
         for(int i = 0; i < plataformas.size(); i++){
-            if(plataformas[i].Overlaps(Box({newX,getPosition()[1]},{3,3}))){
+            if(plataformas[i].Overlaps(Box({(int)Ax,(int)getPosition()[1]},{3,3}))){
                 colX = true;
             }
-            if(plataformas[i].Overlaps(Box({getPosition()[0],newY},{3,3}))) {
+            if(plataformas[i].Overlaps(Box({(int)getPosition()[0],(int)Ay},{3,3}))) {
                 colY = i;
             }
         }
         if(!colX){
-            setPosition(newX, getPosition()[1]);
+            setPosition(Ax, getPosition()[1]);
+            body.speed[0] = sAx;
+
+            head.position[0] = Bx;
+            head.speed[0] = sBx;
         }
         if(colY == -1){
-            setPosition(getPosition()[1], newY);
-            body.speed[1]-=world.gravity;
+            setPosition(getPosition()[1], Ay);
+            body.speed[1] = sAy;
+
+            head.position[1] = By;
+            head.speed[1] = sBy;
         }else{
             //Si esta pisando la plataforma
             if(getPosition()[1] > plataformas[colY].center[1]){
@@ -141,17 +145,6 @@ public:
                 body.speed[1] = 0;
             }
         }
-        // Esto esta muy mal hecho pero por ahora se queda
-        if(getPosition()[1] < -100){
-            cout << "Estas muerto tt\n";
-            getPosition()[0] = 20;
-            getPosition()[1] = 60;
-        }
-        cout << "X = " << getPosition()[0] << "    Y = " << getPosition()[1] << "\n";
-
-        ////////////////////////////////////////////////
-
-
     }
 
     void moveToPoint(double x, double y,double speed){
@@ -237,7 +230,7 @@ public:
     }
 };
 
-Player player = Player("player", 20, 200, 1);
+Player player = Player("player", 200, 200, 1);
 std::vector<Enemy> enemies;
 
 void keyPressed(unsigned char key, int x, int y) {
