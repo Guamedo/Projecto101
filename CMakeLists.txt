@@ -13,6 +13,8 @@ add_executable(Project101   Project101.cpp
                             Frame.h
                             Frame.cpp
                             World.h
-                            World.cpp)
+                            World.cpp
+                            Box.cpp
+                            Box.h)
 
 target_link_libraries(Project101 glut32.lib -lopengl32 -lglu32)

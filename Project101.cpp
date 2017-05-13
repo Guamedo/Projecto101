@@ -18,6 +18,7 @@
 #include "Frame.h"
 #include "Animacion.h"
 #include "Action.h"
+#include "Box.h"
 
 using namespace std;
 
@@ -33,6 +34,7 @@ bool *keySpecialStates = new bool[246];
 const unsigned int interval = 1000 / 30;
 static World world = World("El mundo de J", 400, 400, 2);
 static double grados = 0.0;
+static Box plataforma({200,20},{50,30});
 
 class Entity {
 public:
@@ -207,8 +209,11 @@ public:
 class Player : public Entity {
 public:
     float speed[2] = {0.0, 0.0};// (X,Y)
-    bool jump = false;
-    Player(string nombreEntidad, int x, int y, int tipoo) : Entity(nombreEntidad, x, y, tipoo) {}
+    int jump = 0;
+    Box BBox;
+    Player(string nombreEntidad, int x, int y, int tipoo) : Entity(nombreEntidad, x, y, tipoo) {
+        BBox = Box({x,y}, {3,3});
+    }
 };
 
 class Enemy : public Entity {
@@ -245,9 +250,14 @@ void keySpecialUp(int key, int x, int y) {
 
 void keyOperations(void) {
     if (keyStates[32]/*SPACE*/) {
-        if(!player.jump){
+        if(player.jump == 0 || player.jump == 2){
             player.speed[1] = 10;
-            player.jump=true;
+            player.jump++;
+        }
+    }
+    if(!keyStates[32]/*SPACE_UP*/){
+        if(player.jump == 1){
+            player.jump++;
         }
     }
     if (keyStates['j'] || keyStates['J']) {
@@ -294,6 +304,7 @@ int eucDist(int x1, int y1, int x2, int y2) {
 }
 
 int main(int argc, char **argv) {
+    player.nombre = "Manolo";
     for (int i = 0; i < 15; i++) {
         enemies.push_back(Enemy("enemigo", random_range(10,world.W),random_range (10,world.H), 2));
     }
@@ -371,9 +382,22 @@ void drawEnemies() {
     glEnd();
 }
 
+void drawPlataform(){
+    glBegin(GL_TRIANGLES);
+    glVertex2f(plataforma.center[0]+plataforma.halfSize[0], plataforma.center[1]+plataforma.halfSize[1]);
+    glVertex2f(plataforma.center[0]-plataforma.halfSize[0], plataforma.center[1]+plataforma.halfSize[1]);
+    glVertex2f(plataforma.center[0]-plataforma.halfSize[0], plataforma.center[1]-plataforma.halfSize[1]);
+
+    glVertex2f(plataforma.center[0]+plataforma.halfSize[0], plataforma.center[1]+plataforma.halfSize[1]);
+    glVertex2f(plataforma.center[0]-plataforma.halfSize[0], plataforma.center[1]-plataforma.halfSize[1]);
+    glVertex2f(plataforma.center[0]+plataforma.halfSize[0], plataforma.center[1]-plataforma.halfSize[1]);
+    glEnd();
+}
+
 void drawEntity() {
     drawPlayer();
     drawEnemies();
+    drawPlataform();
 }
 
 void draw() {
@@ -386,9 +410,9 @@ void draw() {
 void logic() {
     int x = 200 + sin(grados) * 120;
     int y = 200 + cos(grados) * 120;
-    double vAngular = 8.0/150.0;
+    double vAngular = 8.0/120.0;
     for (int i = 0; i < enemies.size(); i++) {
-        enemies[i].moveToPoint(x+random_range(-10,10),y+random_range(-10,10),random_range(6,10));
+        enemies[i].moveToPoint(x+random_range(-100,100),y+random_range(-100,100),random_range(6,10));
     }
     cout << "X = " << x << "    Y = " << y << "\n";
     if(grados >= 360){
@@ -398,15 +422,27 @@ void logic() {
 }
 
 void playerUpdate(){
-    player.setposx(player.posx + player.speed[0]);
-    player.posy = player.posy + player.speed[1];
-    if(player.posy <= 20){
-        player.speed[1] = 0;
-        player.jump = false;
-        player.posy = 20;
-    }else{
-        player.speed[1]-=world.gravity;
+    int newX, newY;
+    newX = player.posx + player.speed[0];
+    newY = player.posy + player.speed[1];
+    if(!plataforma.Overlaps(Box({newX,player.posy},{3,3}))){
+        player.setposx(newX);
     }
+    if(!plataforma.Overlaps(Box({player.posx,newY},{3,3}))){
+        player.posy = newY;
+        if(player.posy <= 20){
+            player.speed[1] = 0;
+            player.jump = 0;
+            player.posy = 20;
+        }else{
+            player.speed[1]-=world.gravity;
+        }
+    }else{
+        player.posy = plataforma.center[1]+plataforma.halfSize[1]+4;
+        player.jump = 0;
+        player.speed[1] = 0;
+    }
+
 }
 
 void update(int value) {
