@@ -1,3 +1,4 @@
+#include <iostream>
 #include "Entity.h"
 
 double Entity::distance(double point1x, double point1y, double point2x, double point2y) {
@@ -28,7 +29,7 @@ void Entity::newFrameMovePoints(World world) {
     bool colX = false;
     double colY = -1;
     double newX, newY;
-    vector<Box> platforms = world.getPlatforms();
+    vector<Box> platforms = *world.getPlatforms();
 
     newX = getPosition()[0] + body.speed[0];
     newY = getPosition()[1] + body.speed[1];
@@ -37,9 +38,8 @@ void Entity::newFrameMovePoints(World world) {
     head.position[1] = head.position[1] + head.speed[1];
 
     double airFriction = 0.98;
-    double grav = 0.5;
     body.speed[0] = body.speed[0] * airFriction;
-    body.speed[1] = (body.speed[1] * airFriction)-grav;
+    body.speed[1] = (body.speed[1] * airFriction)-world.gravity;
 
     for(int i = 0; i < platforms.size(); i++){
         if(platforms[i].Overlaps(Box({newX,getPosition()[1]},{3,3}))){
@@ -68,9 +68,23 @@ void Entity::newFrameMovePoints(World world) {
     }
     if(getPosition()[1] < -100){
         body.position = {20,200};
-        head.position = {20.206};
+        head.position = {20,206};
+    }else{
+        if(!flip){
+            head.moveToPoint(getPosition()[0],getPosition()[1]+6, 1.0);
+        }else{
+            if(flip == 1){
+                flipGrades-=0.8;
+            }else{
+                flipGrades+=0.8;
+            }
+            head.position = {getPosition()[0] + cos(flipGrades) * 6, getPosition()[1] + sin(flipGrades) * 6};
+            if(flipGrades >= 5*M_PI/2 || flipGrades <= -3*M_PI/2){
+                flipGrades = M_PI/2;
+                flip = 0;
+            }
+        }
     }
-    head.moveToPoint(getPosition()[0],getPosition()[1]+6, 1.0);
 }
 
 void Entity::moveToPoint(double x, double y,double speed){

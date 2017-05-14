@@ -4,8 +4,8 @@
 #include "Action.h"
 #include "Cacho.h"
 #include "World.h"
+#define _USE_MATH_DEFINES
 #include <cmath>
-
 using namespace std;
 
 class Entity {
@@ -16,6 +16,8 @@ public:
     int actualFrame = -1;
     int type;
     int jump = 0;
+    int flip = 0;
+    double flipGrades = M_PI/2;
     Box BBox;
     Cacho head;
     Cacho body;

@@ -11,7 +11,8 @@ public:
 
 	bool inrangex(double val);
 	bool inrangey(double val);
-	std::vector<Box> getPlatforms();
+	std::vector<Box> *getPlatforms();
+	void loadLevel(std::string name);
 
 	std::string name = "El mundo de J";
 	int H = 200, W = 200;

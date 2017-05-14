@@ -1,3 +1,4 @@
+#include <fstream>
 #include "World.h"
 
 
@@ -33,6 +34,18 @@ bool World::inrangey(double val) {
 	}
 }
 
-std::vector<Box> World::getPlatforms(){
-    return platforms;
+std::vector<Box> *World::getPlatforms(){
+    return &platforms;
+}
+
+void World::loadLevel(std::string level) {
+    std::fstream file;
+    file.open(level);
+    double x, a, b, c, d;
+    file >> x;
+    for (int i = 0; i < x; i++) {
+        file >> a >> b >> c >> d;
+        platforms.push_back(Box({a, b}, {c, d}));
+    }
+    file.close();
 }

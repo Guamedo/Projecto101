@@ -17,6 +17,8 @@ add_executable(Project101   Project101.cpp
                             Cacho.cpp
                             Cacho.h
                             Box.cpp
-                            Box.h Entity.cpp Entity.h)
+                            Box.h
+                            Entity.cpp
+                            Entity.h)
                             
 target_link_libraries(Project101 glut32.lib -lopengl32 -lglu32)
