@@ -30,7 +30,7 @@ void enable2D(int width, int height);
 
 bool *keyStates = new bool[256];
 bool *keySpecialStates = new bool[246];
-const unsigned int interval = 1000 / 5;
+const unsigned int interval = 1000 / 30;
 World world = World("El mundo de J", 400, 400, 1);
 double grados = 0.0;
 
@@ -106,11 +106,14 @@ int main(int argc, char **argv) {
 
     srand((unsigned int) time(NULL));
     glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
     glutInitWindowSize(world.H, world.W);
     glutInitWindowPosition(100, 100);
     glutCreateWindow(world.name.c_str());
 
+    // To draw with RGBA
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     std::fill_n(keyStates, 256, false);
     std::fill_n(keySpecialStates, 246, false);
@@ -133,22 +136,9 @@ int main(int argc, char **argv) {
 
 void drawPlayer() {
 
-    glColor3f(1.0, 0.0, 0.0);
-    drawFilledCircle(player.getPosition()[0], player.getPosition()[1], 3);
-
-
-
-    glColor3f(1.0f, 0.0f, 1.0f);
-    for (int i = 0; i<6 ; i++){
-        drawFilledCircle(player.tail[i].position[0], player.tail[i].position[1], 1.5);
-    }
-
-    glColor3f(1.0f, 1.0f, 0.0f);
-    drawFilledCircle(player.head.position[0], player.head.position[1], 1.5);
-
     //Dibujo la accion, si la hay
     if (player.actualAction != -1) {
-    cout<<"z";
+        cout<<"z";
         glColor3f(0.8f, 0.8f, 0.0f);
         int cosaQuePlayerHace = player.actualAction - 1;
         int frameDeLaCosa = player.actualFrame;
@@ -165,6 +155,26 @@ void drawPlayer() {
             player.actualFrame++;
         }
     }
+
+    GLfloat alpha = 1.0f;
+    for (int i = 0; i<player.tailBody.size() ; i++){
+        glColor4f(0.36f, 0.43f, 0.95f, alpha);
+        alpha -= max((1.0f/(float)player.tail.size()),0.0f);
+        drawFilledCircle(player.tailBody[i].position[0], player.tailBody[i].position[1], 3);
+    }
+
+    glColor3f(1.0, 0.0, 0.0);
+    drawFilledCircle(player.getPosition()[0], player.getPosition()[1], 3);
+
+    alpha = 1.0f;
+    for (int i = 0; i<player.tail.size() ; i++){
+        glColor4f(0.36f, 0.43f, 0.95f, alpha);
+        alpha -= max((1.0f/(float)player.tail.size()),0.0f);
+        drawFilledCircle(player.tail[i].position[0], player.tail[i].position[1], 1.5);
+    }
+
+    glColor3f(1.0f, 1.0f, 0.0f);
+    drawFilledCircle(player.head.position[0], player.head.position[1], 1.5);
 }
 
 void drawEnemies() {
@@ -228,7 +238,7 @@ void logic() {
 }
 
 void playerUpdate() {
-    player.newFrameMovePoints2(world);
+    player.newFrameMovePoints(world);
 }
 
 void update(int value) {

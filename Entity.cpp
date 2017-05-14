@@ -45,8 +45,8 @@ void Entity::newFrameMovePoints2(World world) {
     double valor = 10;
     double correcionX = (getToDiag-dist)*rtrn[0]*valor;
     double correcionY = (getToDiag-dist)*rtrn[1]*valor;
-/*
-    Ax = Ax - correcionX;
+
+/*    Ax = Ax - correcionX;
     sAx = sAx - correcionX;
 
     Ay = Ay - correcionY;
@@ -56,8 +56,8 @@ void Entity::newFrameMovePoints2(World world) {
     sBx = sBx + correcionX;
 
     By = By + correcionY;
-    sBy = sBy + correcionY;
-*/
+    sBy = sBy + correcionY;*/
+
 
     Bx = Bx + correcionX;
     sBx = sBx + correcionX;
@@ -67,10 +67,10 @@ void Entity::newFrameMovePoints2(World world) {
 
 
     for(int i = 0; i < world.platforms.size(); i++){
-        if(world.platforms[i].Overlaps(Box({(int)Ax,(int)getPosition()[1]},{3,3}))){
+        if(world.platforms[i].Overlaps(Box({Ax,getPosition()[1]},{3,3}))){
             colX = true;
         }
-        if(world.platforms[i].Overlaps(Box({(int)getPosition()[0],(int)Ay},{3,3}))) {
+        if(world.platforms[i].Overlaps(Box({getPosition()[0],Ay},{3,3}))) {
             colY = i;
         }
     }
@@ -160,12 +160,18 @@ void Entity::newFrameMovePoints(World world) {
             }
         }
     }
-    //head.moveToPoint(getPosition()[0],getPosition()[1]+6, 1.0);
     for (int i =0 ; i<6; i++){
         if (i == 0){
-            tail[i].moveToPoint(head.position[0],head.position[1], 1.0);
+            tail[i].moveToPoint(head.position[0],head.position[1], 0.8);
         }else{
-            tail[i].moveToPoint(tail[i-1].position[0],tail[i-1].position[1], 1.0);
+            tail[i].moveToPoint(tail[i-1].position[0],tail[i-1].position[1], 0.8);
+        }
+    }
+    for (int i =0 ; i<6; i++){
+        if (i == 0){
+            tailBody[i].moveToPoint(body.position[0],body.position[1], 0.8);
+        }else{
+            tailBody[i].moveToPoint(tailBody[i-1].position[0],tailBody[i-1].position[1], 0.8);
         }
     }
 }
@@ -183,7 +189,6 @@ void Entity::attack() {
     cout<<"a";
     if (actualAction == -1) {
         cout<<"b";
-
         actualAction = 1;
         actualFrame = 0;
     }
@@ -194,7 +199,6 @@ void Entity::wave() {
 
     if (actualAction == -1) {
         std::cout<<"d";
-
         actualAction = 2;
         actualFrame = 0;
     }
@@ -229,7 +233,10 @@ Entity::Entity(string entityName, double x, double y, int entityType) {
     this->BBox = Box({x,y}, {3,3});
     this->type = entityType;
     for(int i=0; i<6 ; i++){
-        this->tail.push_back(Cacho(1));
+        this->tail.push_back(Cacho());
+    }
+    for(int i=0; i<6; i++){
+        this->tailBody.push_back(Cacho());
     }
     this->actions.push_back(Action("actionAttack", (char*)"Animaciones/attack.anim"));
     this->actions.push_back(Action("actionWave", (char*)"Animaciones/wave.anim"));
