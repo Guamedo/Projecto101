@@ -32,3 +32,7 @@ bool World::inrangey(double val) {
 		return false;
 	}
 }
+
+std::vector<Box> World::getPlatforms(){
+    return platforms;
+}

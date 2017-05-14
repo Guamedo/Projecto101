@@ -18,8 +18,32 @@ void Cacho::moveToPoint(double x, double y,double speed){
     if(mod >= 1){
         vecX = (vecX*speed)/mod;
         vecY = (vecY*speed)/mod;
-        this->position = {this->position[0]+vecX*0.5*abs(mod+val), this->position[1]+vecY*0.5*abs(mod+val)};
+        this->position = {this->position[0]+vecX*0.5*std::abs(mod+val), this->position[1]+vecY*0.5*std::abs(mod+val)};
     }else{
         this->position = {x,y};
     }
+}
+
+int Cacho::getRadio() const {
+    return radio;
+}
+
+void Cacho::setRadio(int radio) {
+    Cacho::radio = radio;
+}
+
+const std::array<double, 2> &Cacho::getPosition() const {
+    return position;
+}
+
+void Cacho::setPosition(const std::array<double, 2> &position) {
+    Cacho::position = position;
+}
+
+const std::array<double, 2> &Cacho::getSpeed() const {
+    return speed;
+}
+
+void Cacho::setSpeed(const std::array<double, 2> &speed) {
+    Cacho::speed = speed;
 }

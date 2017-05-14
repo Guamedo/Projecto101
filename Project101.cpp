@@ -12,14 +12,8 @@
 
 #define _USE_MATH_DEFINES
 #include <cmath>
+#include "entity.h"
 
-#include "World.h"
-#include "Dot.h"
-#include "Frame.h"
-#include "Animacion.h"
-#include "Action.h"
-#include "Cacho.h"
-#include "Box.h"
 
 using namespace std;
 
@@ -34,183 +28,11 @@ static const double PI = 4*atan(1);
 bool *keyStates = new bool[256];
 bool *keySpecialStates = new bool[246];
 const unsigned int interval = 1000 / 30;
-static World world = World("El mundo de J", 400, 400, 0.5);
-static double grados = 0.0;
-static vector<Box> plataformas;
+World world = World("El mundo de J", 400, 400, 0.5);
+double grados = 0.0;
 
-
-
-
-class Entity {
-public:
-    string nombre;
-    vector<Action> actions;
-    int accion = -1; //-1 libre. 1 ataque. 2 wave.
-    int frameActual = -1;
-    int tipo;
-    int jump = 0;
-    Box BBox;
-
-    Cacho head;
-    Cacho body;
-
-    double distance(double point1x, double point1y, double point2x, double point2y) {
-        double rectHeight = abs(point1y - point2y);
-        double rectWidth = abs(point1x - point2x);
-        return sqrt(pow(rectHeight, 2.0) + pow(rectWidth, 2.0));
-    }
-
-    array<double,2> moveToPoint(double point1x, double point1y, double point2x, double point2y){
-        double dirVecX, dirVecY;
-        point2x = point2x - point1x;
-        point2y = point2y - point1y;
-        double distancia = distance(point1x, point1y, point2x, point2y);
-        if (distancia>0) {
-            dirVecX = point2x / distancia;
-            dirVecY = point2y / distancia;
-        }else{
-            dirVecX = 0;
-            dirVecY = 1;
-        }
-        array<double, 2> cosa;
-        cosa[0] = dirVecX;
-        cosa[1] = dirVecY;
-        return cosa;
-    }
-
-    void newFrameMovePoints() {
-        bool colX = false;
-        double colY = -1;
-        double newX, newY;
-
-        newX = getPosition()[0] + body.speed[0];
-        newY = getPosition()[1] + body.speed[1];
-
-        head.position[0] = head.position[0] + head.speed[0];
-        head.position[1] = head.position[1] + head.speed[1];
-
-        double airFriction = 0.98;
-        double grav = 0.5;
-        body.speed[0] = body.speed[0] * airFriction;
-        body.speed[1] = (body.speed[1] * airFriction)-grav;
-
-        for(int i = 0; i < plataformas.size(); i++){
-            if(plataformas[i].Overlaps(Box({newX,getPosition()[1]},{3,3}))){
-                colX = true;
-            }
-            if(plataformas[i].Overlaps(Box({getPosition()[0],newY},{3,3}))) {
-                colY = i;
-            }
-        }
-        if(!colX){
-            body.position[0] = newX;
-        }
-        if(colY == -1){
-            body.position[1] = newY;
-        }else{
-            //Si esta pisando la plataforma
-            if(getPosition()[1] > plataformas[colY].center[1]){
-                setPosition(getPosition()[0], plataformas[colY].center[1]+plataformas[colY].halfSize[1]+4);
-                jump = 0;
-                body.speed[1] = 0;
-            }else{ //Si la esta tocando por abajo
-                setPosition(getPosition()[1], plataformas[colY].center[1]-plataformas[colY].halfSize[1]-4);
-                body.speed[1] = 0;
-
-            }
-        }
-        if(getPosition()[1] < -100){
-            body.position = {20,200};
-            head.position = {20.206};
-        }
-        head.moveToPoint(getPosition()[0],getPosition()[1]+6, 1.0);
-    }
-
-    void moveToPoint(double x, double y,double speed){
-        double vecX = x - this->body.position[0];
-        double vecY = y - this->body.position[1];
-        double mod = sqrt(pow(vecX,2)+pow(vecY,2));
-        vecX = (vecX*speed)/mod;
-        vecY = (vecY*speed)/mod;
-        this->setPosition(this->body.position[0]+vecX, this->body.position[1]+vecY);
-    }
-
-    void attack() {
-        if (accion == -1) {
-            cout << "ataco\n";
-            accion = 1;
-            frameActual = 0;
-        }
-    }
-
-    void wave() {
-        if (accion == -1) {
-            cout << "wave-o\n";
-            accion = 2;
-            frameActual = 0;
-        }
-    }
-
-    void setPosition(double x, double y){
-        bool b1 = true, b2 = true;
-        if (!world.inrangey(y)) {
-            b1 = false;
-        }
-        if (!world.inrangex(x)) {
-            b2 = false;
-        }
-        if (b1 and b2){
-            body.position[0] = x;
-            body.position[1] = y;
-        }else{
-            cout << "1 o las 2 coordenadas son incorrectas\n";
-        }
-
-    }
-
-    array<double, 2> getPosition(){
-        return body.position;
-    }
-
-    Entity() {
-
-    }
-    Entity(string nombreEntidad, double x, double y, int tipoo) {
-        nombre = nombreEntidad;
-        setPosition(x, y);
-        body.speed[0] = 0;
-        body.speed[1] = 0;
-        head.speed[0] = 0;
-        head.speed[1] = 0;
-        head.position[0] = x;
-        head.position[1] = y+6;
-        BBox = Box({x,y}, {3,3});
-        tipo = tipoo;
-        actions.push_back(Action("actionAttack", (char*)"Animaciones/attack.anim"));
-        actions.push_back(Action("actionWave", (char*)"Animaciones/wave.anim"));
-    }
-};
-
-class Player : public Entity {
-public:
-    Player(string nombreEntidad, int x, int y, int tipoo) : Entity(nombreEntidad, x, y, tipoo) {
-    }
-};
-
-class Enemy : public Entity {
-public:
-    Enemy(string nombreEntidad, double x, double y, int tipoo) {
-        nombre = nombreEntidad;
-        setPosition(x, y);
-        tipo = tipoo;
-    }
-
-    Enemy() {
-    }
-};
-
-Player player = Player("player", 20, 200, 1);
-std::vector<Enemy> enemies;
+Entity player = Entity("player", 20, 200, 1);
+std::vector<Entity> enemies;
 
 void keyPressed(unsigned char key, int x, int y) {
     keyStates[key] = true;
@@ -268,9 +90,9 @@ void keyOperations(void) {
 
 int main(int argc, char **argv) {
 
-    player.nombre = "Manolo";
+    player.name="Manolo";
     for (int i = 0; i < 15; i++) {
-        enemies.push_back(Enemy("enemigo", random_range(10,world.W),random_range (10,world.H), 2));
+        enemies.push_back(Entity("enemigo", random_range(10,world.W),random_range (10,world.H), 2));
     }
     loadLevel("Levels/level0.txt");
 
@@ -303,7 +125,6 @@ int main(int argc, char **argv) {
 
 void drawPlayer() {
 
-    //Dibujo el jugador
     glColor3f(1.0, 0.0, 0.0);
     drawFilledCircle(player.getPosition()[0], player.getPosition()[1], 3);
 
@@ -312,11 +133,11 @@ void drawPlayer() {
 
 
     //Dibujo la accion, si la hay
-    if (player.accion != -1) {
+    if (player.actualAction != -1) {
 
         glColor3f(0.8f, 0.8f, 0.0f);
-        int cosaQuePlayerHace = player.accion - 1;
-        int frameDeLaCosa = player.frameActual;
+        int cosaQuePlayerHace = player.actualAction - 1;
+        int frameDeLaCosa = player.actualFrame;
 
         for (int j = 0; j < player.actions[cosaQuePlayerHace].animacion.frames.at((unsigned int)frameDeLaCosa).numDots; j++) {
             glVertex2f(player.actions[cosaQuePlayerHace].animacion.frames.at((unsigned int)frameDeLaCosa).dots.at((unsigned int)j).x + player.body.position[0],
@@ -324,10 +145,10 @@ void drawPlayer() {
         }
 
         if (frameDeLaCosa == player.actions[cosaQuePlayerHace].animacion.numFrames - 1) {
-            player.accion = -1;
-            player.frameActual = -1;
+            player.actualAction=-1;
+            player.actualFrame=-1;
         } else {
-            player.frameActual++;
+            player.actualFrame++;
         }
     }
 }
@@ -343,14 +164,14 @@ void drawEnemies() {
 
 void drawPlataforms(){
     glBegin(GL_TRIANGLES);
-    for(int i = 0; i < plataformas.size(); i++){
-        glVertex2f(plataformas[i].center[0]+plataformas[i].halfSize[0], plataformas[i].center[1]+plataformas[i].halfSize[1]);
-        glVertex2f(plataformas[i].center[0]-plataformas[i].halfSize[0], plataformas[i].center[1]+plataformas[i].halfSize[1]);
-        glVertex2f(plataformas[i].center[0]-plataformas[i].halfSize[0], plataformas[i].center[1]-plataformas[i].halfSize[1]);
+    for(int i = 0; i < world.getPlatforms().size(); i++){
+        glVertex2f(world.getPlatforms()[i].center[0]+world.getPlatforms()[i].halfSize[0], world.getPlatforms()[i].center[1]+world.getPlatforms()[i].halfSize[1]);
+        glVertex2f(world.getPlatforms()[i].center[0]-world.getPlatforms()[i].halfSize[0], world.getPlatforms()[i].center[1]+world.getPlatforms()[i].halfSize[1]);
+        glVertex2f(world.getPlatforms()[i].center[0]-world.getPlatforms()[i].halfSize[0], world.getPlatforms()[i].center[1]-world.getPlatforms()[i].halfSize[1]);
 
-        glVertex2f(plataformas[i].center[0]+plataformas[i].halfSize[0], plataformas[i].center[1]+plataformas[i].halfSize[1]);
-        glVertex2f(plataformas[i].center[0]-plataformas[i].halfSize[0], plataformas[i].center[1]-plataformas[i].halfSize[1]);
-        glVertex2f(plataformas[i].center[0]+plataformas[i].halfSize[0], plataformas[i].center[1]-plataformas[i].halfSize[1]);
+        glVertex2f(world.getPlatforms()[i].center[0]+world.getPlatforms()[i].halfSize[0], world.getPlatforms()[i].center[1]+world.getPlatforms()[i].halfSize[1]);
+        glVertex2f(world.getPlatforms()[i].center[0]-world.getPlatforms()[i].halfSize[0], world.getPlatforms()[i].center[1]-world.getPlatforms()[i].halfSize[1]);
+        glVertex2f(world.getPlatforms()[i].center[0]+world.getPlatforms()[i].halfSize[0], world.getPlatforms()[i].center[1]-world.getPlatforms()[i].halfSize[1]);
     }
 
     glEnd();
@@ -387,7 +208,7 @@ void logic() {
 }
 
 void playerUpdate(){
-    player.newFrameMovePoints();
+    player.newFrameMovePoints(world);
 }
 
 void update(int value) {
@@ -440,7 +261,7 @@ void loadLevel(string level){
     file >> x;
     for(int i = 0; i < x; i++){
         file >> a >> b >> c >> d;
-        plataformas.push_back(Box({a,b},{c,d}));
+        world.getPlatforms().push_back(Box({a,b},{c,d}));
     }
     file.close();
 }

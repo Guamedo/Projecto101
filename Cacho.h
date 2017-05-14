@@ -16,4 +16,11 @@ public:
     int radio;
     std::array<double,2> position;
     std::array<double,2> speed;
+
+    int getRadio() const;
+    void setRadio(int radio);
+    const std::array<double, 2> &getPosition() const;
+    void setPosition(const std::array<double, 2> &position);
+    const std::array<double, 2> &getSpeed() const;
+    void setSpeed(const std::array<double, 2> &speed);
 };

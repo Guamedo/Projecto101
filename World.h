@@ -1,5 +1,6 @@
-#pragma once
 #include <string>
+#include "Box.h"
+#include <vector>
 
 class World
 {
@@ -10,9 +11,12 @@ public:
 
 	bool inrangex(double val);
 	bool inrangey(double val);
+	std::vector<Box> getPlatforms();
 
 	std::string name = "El mundo de J";
 	int H = 200, W = 200;
 	float gravity = 9.8;
+	std::vector<Box> platforms;
+
 };
 
