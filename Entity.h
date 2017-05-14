@@ -22,6 +22,7 @@ public:
     Box BBox;
     Cacho head;
     vector<Cacho> tail;
+    vector<Cacho> tailBody;
     Cacho body;
 
     void reset();

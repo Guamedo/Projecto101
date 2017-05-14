@@ -71,11 +71,11 @@ void Entity::newFrameMovePoints2(World world) {
     }
 
 
-    Ax = Ax - correcionX;
+   /* Ax = Ax - correcionX;
     sAx = sAx - correcionX;
 
     Ay = Ay - correcionY;
-    sAy = sAy - correcionY;
+    sAy = sAy - correcionY;*/
 
     Bx = Bx + correcionX;
     sBx = sBx + correcionX;
@@ -95,10 +95,10 @@ void Entity::newFrameMovePoints2(World world) {
     }
 
     for(int i = 0; i < world.platforms.size(); i++){
-        if(world.platforms[i].Overlaps(Box({(int)Ax,(int)getPosition()[1]},{3,3}))){
+        if(world.platforms[i].Overlaps(Box({Ax,getPosition()[1]},{3,3}))){
             colX = true;
         }
-        if(world.platforms[i].Overlaps(Box({(int)getPosition()[0],(int)Ay},{3,3}))) {
+        if(world.platforms[i].Overlaps(Box({getPosition()[0],Ay},{3,3}))) {
             colY = i;
         }
     }
@@ -198,9 +198,16 @@ void Entity::newFrameMovePoints(World world) {
     //head.moveToPoint(getPosition()[0],getPosition()[1]+6, 1.0);
     for (int i =0 ; i<6; i++){
         if (i == 0){
-            tail[i].moveToPoint(head.position[0],head.position[1], 1.0);
+            tail[i].moveToPoint(head.position[0],head.position[1], 0.8);
         }else{
-            tail[i].moveToPoint(tail[i-1].position[0],tail[i-1].position[1], 1.0);
+            tail[i].moveToPoint(tail[i-1].position[0],tail[i-1].position[1], 0.8);
+        }
+    }
+    for (int i =0 ; i<6; i++){
+        if (i == 0){
+            tailBody[i].moveToPoint(body.position[0],body.position[1], 0.8);
+        }else{
+            tailBody[i].moveToPoint(tailBody[i-1].position[0],tailBody[i-1].position[1], 0.8);
         }
     }
 }
@@ -276,6 +283,7 @@ Entity::Entity(string entityName, double x, double y, int entityType) {
         tail[i].position[1] = y+6;
         tail[i].speed[0] = 0;
         tail[i].speed[1] = 0;
+        this->tailBody.push_back(Cacho());
     }
     this->actions.push_back(Action("actionAttack", (char*)"Animaciones/attack.anim"));
     this->actions.push_back(Action("actionWave", (char*)"Animaciones/wave.anim"));
