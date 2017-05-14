@@ -36,8 +36,8 @@ void Entity::newFrameMovePoints2(World world) {
     double sAx = body.speed[0] * 0.98;
     double sAy = (body.speed[1]* 0.98) - 0.5;
 
-    double sBx = head.speed[0] * 0.98;
-    double sBy = (head.speed[1] * 0.98);
+    double sBx = head.speed[0] * 0.7;
+    double sBy = (head.speed[1] * 0.7);
 
     array<double, 6> Cx;
     array<double, 6> Cy;
@@ -46,20 +46,20 @@ void Entity::newFrameMovePoints2(World world) {
     for (int i=0; i<6; i++){
         Cx[i] = tail[i].position[0] +tail[i].speed[0];
         Cy[i] = tail[i].position[1] +tail[i].speed[1];
-        sCx[i] = tail[i].speed[0] *0.98;
-        sCy[i] = tail[i].speed[1] *0.98;
+        sCx[i] = tail[i].speed[0] *0.86;
+        sCy[i] = (tail[i].speed[1] *0.86) - 0.02;
     }
 
     double dist = distance(Ax, Ay+4, Bx, By);
     array<double,2> rtrn = moveToPoint(Ax, Ay+4, Bx, By);
-    double getToDiag = 0;
-    double valor = 0.5;
+    double getToDiag = -50;
+    double valor = 1;
     double correcionX = (getToDiag-dist)*rtrn[0]*valor;
     double correcionY = (getToDiag-dist)*rtrn[1]*valor;
 
     array<double,6> distM;
     array<array<double,2>,6> rtrnM;
-    valor = 0.98;
+    valor = 0.9;
     for (int i=0; i<6; i++) {
         if (i == 0) {
             distM[i] = distance(Bx, By, Cx[i], Cy[i]);
@@ -82,16 +82,31 @@ void Entity::newFrameMovePoints2(World world) {
 
     By = By + correcionY;
     sBy = sBy + correcionY;
-
     for (int i=0; i<6; i++){
-        correcionX = (getToDiag-distM[i])*rtrnM[i][0]*valor;
-        correcionY = (getToDiag-distM[i])*rtrnM[i][1]*valor;
+        if (i==5){
+            correcionX = (getToDiag-distM[i])*rtrnM[i][0]*valor;
+            correcionY = (getToDiag-distM[i])*rtrnM[i][1]*valor;
 
-        Cx[i] = Cx[i] + correcionX;
-        sCx[i] = sCx[i] + correcionX;
+            Cx[i] = Cx[i] + correcionX;
+            sCx[i] = sCx[i] + correcionX;
 
-        Cy[i] = Cy[i] + correcionY;
-        sCy[i] = sCy[i] + correcionY;
+            Cy[i] = Cy[i] + correcionY;
+            sCy[i] = sCy[i] + correcionY;
+        }
+        else{
+            correcionX = (getToDiag-distM[i])*rtrnM[i][0]*valor;
+            correcionY = (getToDiag-distM[i])*rtrnM[i][1]*valor;
+
+            double correcionX2 = (getToDiag-distM[i+1])*rtrnM[i+1][0]*valor;
+            double correcionY2 = (getToDiag-distM[i+1])*rtrnM[i+1][1]*valor;
+
+            Cx[i] = Cx[i] + correcionX - correcionX2;
+            sCx[i] = sCx[i] + correcionX - correcionX2;
+
+            Cy[i] = Cy[i] + correcionY - correcionY2;
+            sCy[i] = sCy[i] + correcionY - correcionY2;
+        }
+
     }
 
     for(int i = 0; i < world.platforms.size(); i++){

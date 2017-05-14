@@ -34,7 +34,7 @@ const unsigned int interval = 1000 / 30;
 World world = World("El mundo de J", 400, 400, 1);
 double grados = 0.0;
 
-Entity player = Entity("player", 20, 200, 1);
+Entity player = Entity("player", 200, 200, 1);
 std::vector<Entity> enemies;
 
 void keyPressed(unsigned char key, int x, int y) {
@@ -252,7 +252,7 @@ void logic() {
 }
 
 void playerUpdate() {
-    player.newFrameMovePoints(world);
+    player.newFrameMovePoints2(world);
 }
 
 void update(int value) {
