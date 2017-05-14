@@ -30,7 +30,7 @@ void enable2D(int width, int height);
 
 bool *keyStates = new bool[256];
 bool *keySpecialStates = new bool[246];
-const unsigned int interval = 1000 / 30;
+const unsigned int interval = 1000 / 5;
 World world = World("El mundo de J", 400, 400, 1);
 double grados = 0.0;
 
@@ -136,23 +136,26 @@ void drawPlayer() {
     glColor3f(1.0, 0.0, 0.0);
     drawFilledCircle(player.getPosition()[0], player.getPosition()[1], 3);
 
+
+
+    glColor3f(1.0f, 0.0f, 1.0f);
+    for (int i = 0; i<6 ; i++){
+        drawFilledCircle(player.tail[i].position[0], player.tail[i].position[1], 1.5);
+    }
+
     glColor3f(1.0f, 1.0f, 0.0f);
     drawFilledCircle(player.head.position[0], player.head.position[1], 1.5);
 
-
     //Dibujo la accion, si la hay
     if (player.actualAction != -1) {
-
+    cout<<"z";
         glColor3f(0.8f, 0.8f, 0.0f);
         int cosaQuePlayerHace = player.actualAction - 1;
         int frameDeLaCosa = player.actualFrame;
 
-        for (int j = 0;
-             j < player.actions[cosaQuePlayerHace].animacion.frames.at((unsigned int) frameDeLaCosa).numDots; j++) {
-            glVertex2f(player.actions[cosaQuePlayerHace].animacion.frames.at((unsigned int) frameDeLaCosa).dots.at(
-                    (unsigned int) j).x + player.body.position[0],
-                       player.actions[cosaQuePlayerHace].animacion.frames.at((unsigned int) frameDeLaCosa).dots.at(
-                               (unsigned int) j).y + player.body.position[1]);
+        for (int j = 0; j < player.actions[cosaQuePlayerHace].animacion.frames.at((unsigned int) frameDeLaCosa).numDots; j++) {
+            glVertex2f(player.actions[cosaQuePlayerHace].animacion.frames.at((unsigned int) frameDeLaCosa).dots.at((unsigned int) j).x + player.body.position[0],
+                       player.actions[cosaQuePlayerHace].animacion.frames.at((unsigned int) frameDeLaCosa).dots.at((unsigned int) j).y + player.body.position[1]);
         }
 
         if (frameDeLaCosa == player.actions[cosaQuePlayerHace].animacion.numFrames - 1) {
@@ -225,7 +228,7 @@ void logic() {
 }
 
 void playerUpdate() {
-    player.newFrameMovePoints(world);
+    player.newFrameMovePoints2(world);
 }
 
 void update(int value) {

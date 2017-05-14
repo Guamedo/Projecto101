@@ -1,4 +1,3 @@
-#include <iostream>
 #include "Entity.h"
 
 double Entity::distance(double point1x, double point1y, double point2x, double point2y) {
@@ -23,6 +22,82 @@ array<double,2> Entity::moveToPoint(double point1x, double point1y, double point
     cosa[0] = dirVecX;
     cosa[1] = dirVecY;
     return cosa;
+}
+void Entity::newFrameMovePoints2(World world) {
+    bool colX = false;
+    double colY = -1;
+
+    double Ax = body.position[0] + body.speed[0];
+    double Ay = body.position[1] + body.speed[1];
+
+    double Bx = head.position[0] + head.speed[0];
+    double By = head.position[1] + head.speed[1];
+
+    double sAx = body.speed[0] * 0.98;
+    double sAy = (body.speed[1]* 0.98) - 0.5;
+
+    double sBx = head.speed[0] * 0.98;
+    double sBy = (head.speed[1] * 0.98);
+
+    double dist = distance(Ax, Ay, Bx, By);
+    array<double,2> rtrn = moveToPoint(Ax, Ay+4, Bx, By);
+    double getToDiag = 0;
+    double valor = 10;
+    double correcionX = (getToDiag-dist)*rtrn[0]*valor;
+    double correcionY = (getToDiag-dist)*rtrn[1]*valor;
+/*
+    Ax = Ax - correcionX;
+    sAx = sAx - correcionX;
+
+    Ay = Ay - correcionY;
+    sAy = sAy - correcionY;
+
+    Bx = Bx + correcionX;
+    sBx = sBx + correcionX;
+
+    By = By + correcionY;
+    sBy = sBy + correcionY;
+*/
+
+    Bx = Bx + correcionX;
+    sBx = sBx + correcionX;
+
+    By = By + correcionY;
+    sBy = sBy + correcionY;
+
+
+    for(int i = 0; i < world.platforms.size(); i++){
+        if(world.platforms[i].Overlaps(Box({(int)Ax,(int)getPosition()[1]},{3,3}))){
+            colX = true;
+        }
+        if(world.platforms[i].Overlaps(Box({(int)getPosition()[0],(int)Ay},{3,3}))) {
+            colY = i;
+        }
+    }
+    if(!colX){
+        body.position[0] = Ax;
+        body.speed[0] = sAx;
+
+        head.position[0] = Bx;
+        head.speed[0] = sBx;
+    }
+    if(colY == -1){
+        body.position[1] = Ay;
+        body.speed[1] = sAy;
+
+        head.position[1] = By;
+        head.speed[1] = sBy;
+    }else{
+        //Si esta pisando la plataforma
+        if(getPosition()[1] > world.platforms[colY].center[1]){
+            setPosition(getPosition()[0], world.platforms[colY].center[1]+world.platforms[colY].halfSize[1]+4);
+            jump = 0;
+            body.speed[1] = 0;
+        }else{ //Si la esta tocando por abajo
+            setPosition(getPosition()[1], world.platforms[colY].center[1]-world.platforms[colY].halfSize[1]-4);
+            body.speed[1] = 0;
+        }
+    }
 }
 
 void Entity::newFrameMovePoints(World world) {
@@ -85,6 +160,14 @@ void Entity::newFrameMovePoints(World world) {
             }
         }
     }
+    //head.moveToPoint(getPosition()[0],getPosition()[1]+6, 1.0);
+    for (int i =0 ; i<6; i++){
+        if (i == 0){
+            tail[i].moveToPoint(head.position[0],head.position[1], 1.0);
+        }else{
+            tail[i].moveToPoint(tail[i-1].position[0],tail[i-1].position[1], 1.0);
+        }
+    }
 }
 
 void Entity::moveToPoint(double x, double y,double speed){
@@ -97,14 +180,21 @@ void Entity::moveToPoint(double x, double y,double speed){
 }
 
 void Entity::attack() {
+    cout<<"a";
     if (actualAction == -1) {
+        cout<<"b";
+
         actualAction = 1;
         actualFrame = 0;
     }
 }
 
 void Entity::wave() {
+    cout<<"c";
+
     if (actualAction == -1) {
+        std::cout<<"d";
+
         actualAction = 2;
         actualFrame = 0;
     }
@@ -126,6 +216,8 @@ Entity::~Entity(){
 
 }
 Entity::Entity(string entityName, double x, double y, int entityType) {
+    this->actualAction=-1;
+    this->actualFrame=-1;
     this->name = entityName;
     this->setPosition(x, y);
     this->body.speed[0] = 0;
@@ -136,6 +228,9 @@ Entity::Entity(string entityName, double x, double y, int entityType) {
     this->head.position[1] = y+6;
     this->BBox = Box({x,y}, {3,3});
     this->type = entityType;
+    for(int i=0; i<6 ; i++){
+        this->tail.push_back(Cacho(1));
+    }
     this->actions.push_back(Action("actionAttack", (char*)"Animaciones/attack.anim"));
     this->actions.push_back(Action("actionWave", (char*)"Animaciones/wave.anim"));
 }

@@ -10,6 +10,7 @@ class Cacho
 {
 public:
     Cacho();
+    Cacho(int r);
     ~Cacho();
     void moveToPoint(double x, double y,double speed);
 

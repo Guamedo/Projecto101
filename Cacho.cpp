@@ -6,6 +6,10 @@
 Cacho::Cacho()
 {
 }
+Cacho::Cacho(int r)
+{
+    radio=r;
+}
 Cacho::~Cacho()
 {
 }
