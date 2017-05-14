@@ -33,8 +33,8 @@ void loadLevel(string level);
 static const double PI = 4*atan(1);
 bool *keyStates = new bool[256];
 bool *keySpecialStates = new bool[246];
-const unsigned int interval = 1000 / 3;
-static World world = World("El mundo de J", 400, 400, 2);
+const unsigned int interval = 1000 / 30;
+static World world = World("El mundo de J", 400, 400, 0.5);
 static double grados = 0.0;
 static vector<Box> plataformas;
 
@@ -55,16 +55,16 @@ public:
     Cacho body;
 
     double distance(double point1x, double point1y, double point2x, double point2y) {
-        double rectHeight = point1y - point2y;
-        double rectWidth = point1x - point2x;
-        return pow(pow(rectHeight, 2) + pow(rectWidth, 2), 0.5);
+        double rectHeight = abs(point1y - point2y);
+        double rectWidth = abs(point1x - point2x);
+        return sqrt(pow(rectHeight, 2.0) + pow(rectWidth, 2.0));
     }
 
     array<double,2> moveToPoint(double point1x, double point1y, double point2x, double point2y){
         double dirVecX, dirVecY;
         point2x = point2x - point1x;
         point2y = point2y - point1y;
-        double distancia = distance(0, 0, point2x, point2y);
+        double distancia = distance(point1x, point1y, point2x, point2y);
         if (distancia>0) {
             dirVecX = point2x / distancia;
             dirVecY = point2y / distancia;
@@ -81,59 +81,32 @@ public:
     void newFrameMovePoints() {
         bool colX = false;
         double colY = -1;
+        double newX, newY;
 
-        double Ax = getPosition()[0] + body.speed[0];
-        double Ay = getPosition()[1] + body.speed[1];
+        newX = getPosition()[0] + body.speed[0];
+        newY = getPosition()[1] + body.speed[1];
 
-        double Bx = head.position[0] + head.speed[0];
-        double By = head.position[1] + head.speed[1];
+        head.position[0] = head.position[0] + head.speed[0];
+        head.position[1] = head.position[1] + head.speed[1];
 
-        double sAx = body.speed[0] * 0.98;
-        double sAy = (body.speed[1]*0.98) - world.gravity;
-
-        double sBx = head.speed[0] * 0.98;
-        double sBy = (head.speed[0] * 0.98) - world.gravity;
-
-        double dist = distance(Ax, Ay, Bx, By);
-        array<double,2> rtrn = moveToPoint(Ax, Ay, Bx, By);
-        double getToDiag = 3.5;
-        double correcionX = (getToDiag-dist)*rtrn[0]*0.37;
-        double correcionY = (getToDiag-dist)*rtrn[1]*0.37;
-
-        Ax = Ax - correcionX;
-        sAx = sAx - correcionY;
-
-        Ay = Ay - correcionX;
-        sAy = sAy - correcionY;
-
-        Bx = Bx + correcionX;
-        sBx = sBx + correcionY;
-
-        By = By + correcionX;
-        sBy = sBy + correcionY;
-
+        double airFriction = 0.98;
+        double grav = 0.5;
+        body.speed[0] = body.speed[0] * airFriction;
+        body.speed[1] = (body.speed[1] * airFriction)-grav;
 
         for(int i = 0; i < plataformas.size(); i++){
-            if(plataformas[i].Overlaps(Box({(int)Ax,(int)getPosition()[1]},{3,3}))){
+            if(plataformas[i].Overlaps(Box({newX,getPosition()[1]},{3,3}))){
                 colX = true;
             }
-            if(plataformas[i].Overlaps(Box({(int)getPosition()[0],(int)Ay},{3,3}))) {
+            if(plataformas[i].Overlaps(Box({getPosition()[0],newY},{3,3}))) {
                 colY = i;
             }
         }
         if(!colX){
-            setPosition(Ax, getPosition()[1]);
-            body.speed[0] = sAx;
-
-            head.position[0] = Bx;
-            head.speed[0] = sBx;
+            body.position[0] = newX;
         }
         if(colY == -1){
-            setPosition(getPosition()[1], Ay);
-            body.speed[1] = sAy;
-
-            head.position[1] = By;
-            head.speed[1] = sBy;
+            body.position[1] = newY;
         }else{
             //Si esta pisando la plataforma
             if(getPosition()[1] > plataformas[colY].center[1]){
@@ -143,8 +116,14 @@ public:
             }else{ //Si la esta tocando por abajo
                 setPosition(getPosition()[1], plataformas[colY].center[1]-plataformas[colY].halfSize[1]-4);
                 body.speed[1] = 0;
+
             }
         }
+        if(getPosition()[1] < -100){
+            body.position = {20,200};
+            head.position = {20.206};
+        }
+        head.moveToPoint(getPosition()[0],getPosition()[1]+6, 1.0);
     }
 
     void moveToPoint(double x, double y,double speed){
@@ -230,7 +209,7 @@ public:
     }
 };
 
-Player player = Player("player", 200, 200, 1);
+Player player = Player("player", 20, 200, 1);
 std::vector<Enemy> enemies;
 
 void keyPressed(unsigned char key, int x, int y) {
@@ -457,7 +436,7 @@ void drawFilledCircle(GLfloat x, GLfloat y, GLfloat radius){
 void loadLevel(string level){
     std::fstream file;
     file.open(level);
-    int x, a, b, c, d;
+    double x, a, b, c, d;
     file >> x;
     for(int i = 0; i < x; i++){
         file >> a >> b >> c >> d;

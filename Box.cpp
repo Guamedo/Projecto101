@@ -6,7 +6,7 @@
 
 Box::Box() {}
 
-Box::Box(std::array<int, 2> c, std::array<int, 2> h) {
+Box::Box(std::array<double, 2> c, std::array<double, 2> h) {
     this->center = c;
     this->halfSize = h;
 }
