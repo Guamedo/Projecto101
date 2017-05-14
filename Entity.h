@@ -24,6 +24,7 @@ public:
     vector<Cacho> tail;
     Cacho body;
 
+    void reset();
     void setSpeed(double x, double y);
     void setPosition(double x, double y);
     array<double, 2> getPosition();

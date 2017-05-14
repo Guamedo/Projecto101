@@ -30,7 +30,7 @@ void enable2D(int width, int height);
 
 bool *keyStates = new bool[256];
 bool *keySpecialStates = new bool[246];
-const unsigned int interval = 1000 / 5;
+const unsigned int interval = 1000 / 30;
 World world = World("El mundo de J", 400, 400, 1);
 double grados = 0.0;
 
@@ -56,7 +56,7 @@ void keySpecialUp(int key, int x, int y) {
 void keyOperations(void) {
     if (keyStates[32]/*SPACE*/) {
         if (player.jump == 0 || player.jump == 2) {
-            player.body.speed[1] = 10;
+            player.body.speed[1] += 10;
             if(player.jump == 2){
                 if(player.body.getSpeed()[0] >= 0){
                     player.flip = 1;
@@ -78,6 +78,9 @@ void keyOperations(void) {
         } else {
             player.wave();
         }
+    }
+    if (keyStates['r'] || keyStates['R']) {
+        player.reset();
     }
     if (keyStates['a'] || keyStates['A']) {
         player.body.speed[0] = -5;
@@ -135,21 +138,21 @@ void drawPlayer() {
 
     glColor3f(1.0, 0.0, 0.0);
     drawFilledCircle(player.getPosition()[0], player.getPosition()[1], 3);
-
-
-
-    glColor3f(1.0f, 0.0f, 1.0f);
+    glBegin(GL_POINTS);
+    glColor3f(1.0f, 1.0f, 1.0f);
     for (int i = 0; i<6 ; i++){
-        drawFilledCircle(player.tail[i].position[0], player.tail[i].position[1], 1.5);
+        cout << player.tail[i].position[0] << " " << player.tail[i].position[1] <<"\n";
+        glVertex2f(player.tail[i].position[0], player.tail[i].position[1]);
     }
+    glEnd();
 
     glColor3f(1.0f, 1.0f, 0.0f);
     drawFilledCircle(player.head.position[0], player.head.position[1], 1.5);
 
-    //Dibujo la accion, si la hay
     if (player.actualAction != -1) {
-    cout<<"z";
-        glColor3f(0.8f, 0.8f, 0.0f);
+        glBegin(GL_POINTS);
+
+        glColor3f(1.0f, 1.0f, 1.0f);
         int cosaQuePlayerHace = player.actualAction - 1;
         int frameDeLaCosa = player.actualFrame;
 
@@ -164,7 +167,10 @@ void drawPlayer() {
         } else {
             player.actualFrame++;
         }
+        glEnd();
+
     }
+
 }
 
 void drawEnemies() {

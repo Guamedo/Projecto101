@@ -39,13 +39,38 @@ void Entity::newFrameMovePoints2(World world) {
     double sBx = head.speed[0] * 0.98;
     double sBy = (head.speed[1] * 0.98);
 
-    double dist = distance(Ax, Ay, Bx, By);
+    array<double, 6> Cx;
+    array<double, 6> Cy;
+    array<double, 6> sCx;
+    array<double, 6> sCy;
+    for (int i=0; i<6; i++){
+        Cx[i] = tail[i].position[0] +tail[i].speed[0];
+        Cy[i] = tail[i].position[1] +tail[i].speed[1];
+        sCx[i] = tail[i].speed[0] *0.98;
+        sCy[i] = tail[i].speed[1] *0.98;
+    }
+
+    double dist = distance(Ax, Ay+4, Bx, By);
     array<double,2> rtrn = moveToPoint(Ax, Ay+4, Bx, By);
     double getToDiag = 0;
-    double valor = 10;
+    double valor = 0.5;
     double correcionX = (getToDiag-dist)*rtrn[0]*valor;
     double correcionY = (getToDiag-dist)*rtrn[1]*valor;
-/*
+
+    array<double,6> distM;
+    array<array<double,2>,6> rtrnM;
+    valor = 0.98;
+    for (int i=0; i<6; i++) {
+        if (i == 0) {
+            distM[i] = distance(Bx, By, Cx[i], Cy[i]);
+            rtrnM[i] = moveToPoint(Bx, By, Cx[i], Cy[i]);
+        } else {
+            distM[i] = distance(Cx[i - 1], Cy[i - 1], Cx[i], Cy[i]);
+            rtrnM[i] = moveToPoint(Cx[i - 1], Cy[i - 1], Cx[i], Cy[i]);
+        }
+    }
+
+
     Ax = Ax - correcionX;
     sAx = sAx - correcionX;
 
@@ -57,14 +82,17 @@ void Entity::newFrameMovePoints2(World world) {
 
     By = By + correcionY;
     sBy = sBy + correcionY;
-*/
 
-    Bx = Bx + correcionX;
-    sBx = sBx + correcionX;
+    for (int i=0; i<6; i++){
+        correcionX = (getToDiag-distM[i])*rtrnM[i][0]*valor;
+        correcionY = (getToDiag-distM[i])*rtrnM[i][1]*valor;
 
-    By = By + correcionY;
-    sBy = sBy + correcionY;
+        Cx[i] = Cx[i] + correcionX;
+        sCx[i] = sCx[i] + correcionX;
 
+        Cy[i] = Cy[i] + correcionY;
+        sCy[i] = sCy[i] + correcionY;
+    }
 
     for(int i = 0; i < world.platforms.size(); i++){
         if(world.platforms[i].Overlaps(Box({(int)Ax,(int)getPosition()[1]},{3,3}))){
@@ -78,15 +106,11 @@ void Entity::newFrameMovePoints2(World world) {
         body.position[0] = Ax;
         body.speed[0] = sAx;
 
-        head.position[0] = Bx;
-        head.speed[0] = sBx;
     }
     if(colY == -1){
         body.position[1] = Ay;
         body.speed[1] = sAy;
 
-        head.position[1] = By;
-        head.speed[1] = sBy;
     }else{
         //Si esta pisando la plataforma
         if(getPosition()[1] > world.platforms[colY].center[1]){
@@ -97,6 +121,17 @@ void Entity::newFrameMovePoints2(World world) {
             setPosition(getPosition()[1], world.platforms[colY].center[1]-world.platforms[colY].halfSize[1]-4);
             body.speed[1] = 0;
         }
+    }
+
+    head.position[0] = Bx;
+    head.speed[0] = sBx;
+    head.position[1] = By;
+    head.speed[1] = sBy;
+    for (int i=0; i<6; i++){
+        tail[i].position[0] = Cx[i];
+        tail[i].speed[0] = sCx[i];
+        tail[i].position[1] = Cy[i];
+        tail[i].speed[1] = sCy[i];
     }
 }
 
@@ -180,21 +215,14 @@ void Entity::moveToPoint(double x, double y,double speed){
 }
 
 void Entity::attack() {
-    cout<<"a";
     if (actualAction == -1) {
-        cout<<"b";
-
         actualAction = 1;
         actualFrame = 0;
     }
 }
 
 void Entity::wave() {
-    cout<<"c";
-
     if (actualAction == -1) {
-        std::cout<<"d";
-
         actualAction = 2;
         actualFrame = 0;
     }
@@ -215,6 +243,20 @@ Entity::Entity() {
 Entity::~Entity(){
 
 }
+
+void Entity::reset(){
+    double x = 20;
+    double y = 200;
+    this->actualAction=-1;
+    this->actualFrame=-1;
+    this->setPosition(x, y);
+    this->body.speed[0] = 0;
+    this->body.speed[1] = 0;
+    this->head.speed[0] = 0;
+    this->head.speed[1] = 0;
+    this->head.position[0] = x;
+    this->head.position[1] = y+6;
+}
 Entity::Entity(string entityName, double x, double y, int entityType) {
     this->actualAction=-1;
     this->actualFrame=-1;
@@ -230,6 +272,10 @@ Entity::Entity(string entityName, double x, double y, int entityType) {
     this->type = entityType;
     for(int i=0; i<6 ; i++){
         this->tail.push_back(Cacho(1));
+        tail[i].position[0] = x;
+        tail[i].position[1] = y+6;
+        tail[i].speed[0] = 0;
+        tail[i].speed[1] = 0;
     }
     this->actions.push_back(Action("actionAttack", (char*)"Animaciones/attack.anim"));
     this->actions.push_back(Action("actionWave", (char*)"Animaciones/wave.anim"));
