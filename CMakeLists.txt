@@ -19,6 +19,8 @@ add_executable(Project101   Project101.cpp
                             Box.cpp
                             Box.h
                             Entity.cpp
-                            Entity.h)
+                            Entity.h
+                            Vector2.cpp
+                            Vector2.h)
                             
 target_link_libraries(Project101 glut32.lib -lopengl32 -lglu32)

@@ -142,12 +142,19 @@ void Entity::newFrameMovePoints2(World world) {
     head.speed[0] = sBx;
     head.position[1] = By;
     head.speed[1] = sBy;
-    for (int i=0; i<6; i++){
+    for (int i =0 ; i<6; i++){
+        if (i == 0){
+            tail[i].moveToPoint(head.position[0],head.position[1], 0.8);
+        }else{
+            tail[i].moveToPoint(tail[i-1].position[0],tail[i-1].position[1], 0.8);
+        }
+    }
+/*    for (int i=0; i<6; i++){
         tail[i].position[0] = Cx[i];
         tail[i].speed[0] = sCx[i];
         tail[i].position[1] = Cy[i];
         tail[i].speed[1] = sCy[i];
-    }
+    }*/
 }
 
 void Entity::newFrameMovePoints(World world) {
