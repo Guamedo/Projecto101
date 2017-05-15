@@ -1,16 +1,16 @@
 #include "Entity.h"
 
-double Entity::distance(double point1x, double point1y, double point2x, double point2y) {
-    double rectHeight = abs(point1y - point2y);
-    double rectWidth = abs(point1x - point2x);
-    return sqrt(pow(rectHeight, 2.0) + pow(rectWidth, 2.0));
+float Entity::distance(float point1x, float point1y, float point2x, float point2y) {
+    float rectHeight = abs(point1y - point2y);
+    float rectWidth = abs(point1x - point2x);
+    return sqrtf(powf(rectHeight, 2.0) + powf(rectWidth, 2.0));
 }
 
-array<double,2> Entity::moveToPoint(double point1x, double point1y, double point2x, double point2y){
-    double dirVecX, dirVecY;
+Vector2 Entity::moveToPoint(float point1x, float point1y, float point2x, float point2y){
+    float dirVecX, dirVecY;
     point2x = point2x - point1x;
     point2y = point2y - point1y;
-    double distancia = distance(point1x, point1y, point2x, point2y);
+    float distancia = distance(point1x, point1y, point2x, point2y);
     if (distancia>0) {
         dirVecX = point2x / distancia;
         dirVecY = point2y / distancia;
@@ -18,47 +18,47 @@ array<double,2> Entity::moveToPoint(double point1x, double point1y, double point
         dirVecX = 0;
         dirVecY = 1;
     }
-    array<double, 2> cosa;
+    Vector2 cosa;
     cosa[0] = dirVecX;
     cosa[1] = dirVecY;
     return cosa;
 }
 void Entity::newFrameMovePoints2(World world) {
     bool colX = false;
-    double colY = -1;
+    float colY = -1;
 
-    double Ax = body.position[0] + body.speed[0];
-    double Ay = body.position[1] + body.speed[1];
+    float Ax = body.position[0] + body.speed[0];
+    float Ay = body.position[1] + body.speed[1];
 
-    double Bx = head.position[0] + head.speed[0];
-    double By = head.position[1] + head.speed[1];
+    float Bx = head.position[0] + head.speed[0];
+    float By = head.position[1] + head.speed[1];
 
-    double sAx = body.speed[0] * 0.98;
-    double sAy = (body.speed[1]* 0.98) - 0.5;
+    float sAx = body.speed[0] * 0.98f;
+    float sAy = (body.speed[1]* 0.98f) - 0.5f;
 
-    double sBx = head.speed[0] * 0.7;
-    double sBy = (head.speed[1] * 0.7);
+    float sBx = head.speed[0] * 0.7f;
+    float sBy = (head.speed[1] * 0.7f);
 
-    array<double, 6> Cx;
-    array<double, 6> Cy;
-    array<double, 6> sCx;
-    array<double, 6> sCy;
+    array<float, 6> Cx;
+    array<float, 6> Cy;
+    array<float, 6> sCx;
+    array<float, 6> sCy;
     for (int i=0; i<6; i++){
         Cx[i] = tail[i].position[0] +tail[i].speed[0];
         Cy[i] = tail[i].position[1] +tail[i].speed[1];
-        sCx[i] = tail[i].speed[0] *0.86;
-        sCy[i] = (tail[i].speed[1] *0.86) - 0.02;
+        sCx[i] = tail[i].speed[0] * 0.86f;
+        sCy[i] = (tail[i].speed[1] *0.86f) - 0.02f;
     }
 
-    double dist = distance(Ax, Ay+4, Bx, By);
-    array<double,2> rtrn = moveToPoint(Ax, Ay+4, Bx, By);
-    double getToDiag = -50;
-    double valor = 1;
-    double correcionX = (getToDiag-dist)*rtrn[0]*valor;
-    double correcionY = (getToDiag-dist)*rtrn[1]*valor;
+    float dist = distance(Ax, Ay+4, Bx, By);
+    Vector2 rtrn = moveToPoint(Ax, Ay+4, Bx, By);
+    float getToDiag = -50.0f;
+    float valor = 1.0f;
+    float correcionX = (getToDiag-dist)*rtrn.x()*valor;
+    float correcionY = (getToDiag-dist)*rtrn.y()*valor;
 
-    array<double,6> distM;
-    array<array<double,2>,6> rtrnM;
+    array<float,6> distM;
+    array<Vector2,6> rtrnM;
     valor = 0.9;
     for (int i=0; i<6; i++) {
         if (i == 0) {
@@ -97,8 +97,8 @@ void Entity::newFrameMovePoints2(World world) {
             correcionX = (getToDiag-distM[i])*rtrnM[i][0]*valor;
             correcionY = (getToDiag-distM[i])*rtrnM[i][1]*valor;
 
-            double correcionX2 = (getToDiag-distM[i+1])*rtrnM[i+1][0]*valor;
-            double correcionY2 = (getToDiag-distM[i+1])*rtrnM[i+1][1]*valor;
+            float correcionX2 = (getToDiag-distM[i+1])*rtrnM[i+1][0]*valor;
+            float correcionY2 = (getToDiag-distM[i+1])*rtrnM[i+1][1]*valor;
 
             Cx[i] = Cx[i] + correcionX - correcionX2;
             sCx[i] = sCx[i] + correcionX - correcionX2;
@@ -159,8 +159,8 @@ void Entity::newFrameMovePoints2(World world) {
 
 void Entity::newFrameMovePoints(World world) {
     bool colX = false;
-    double colY = -1;
-    double newX, newY;
+    float colY = -1;
+    float newX, newY;
     vector<Box> platforms = *world.getPlatforms();
 
     newX = getPosition()[0] + body.speed[0];
@@ -169,7 +169,7 @@ void Entity::newFrameMovePoints(World world) {
     head.position[0] = head.position[0] + head.speed[0];
     head.position[1] = head.position[1] + head.speed[1];
 
-    double airFriction = 0.98;
+    float airFriction = 0.98f;
     body.speed[0] = body.speed[0] * airFriction;
     body.speed[1] = (body.speed[1] * airFriction)-world.gravity;
 
@@ -210,7 +210,7 @@ void Entity::newFrameMovePoints(World world) {
             }else{
                 flipGrades+=0.8;
             }
-            head.position = {getPosition()[0] + cos(flipGrades) * 6, getPosition()[1] + sin(flipGrades) * 6};
+            head.position = Vector2(getPosition()[0] + cosf((float)flipGrades) * 6, getPosition()[1] + sinf((float)flipGrades) * 6);
             if(flipGrades >= 5*M_PI/2 || flipGrades <= -3*M_PI/2){
                 flipGrades = M_PI/2;
                 flip = 0;
@@ -234,10 +234,10 @@ void Entity::newFrameMovePoints(World world) {
     }
 }
 
-void Entity::moveToPoint(double x, double y,double speed){
-    double vecX = x - this->body.position[0];
-    double vecY = y - this->body.position[1];
-    double mod = sqrt(pow(vecX,2)+pow(vecY,2));
+void Entity::moveToPoint(float x, float y, float speed){
+    float vecX = x - this->body.position[0];
+    float vecY = y - this->body.position[1];
+    float mod = sqrtf(powf(vecX,2)+powf(vecY,2));
     vecX = (vecX*speed)/mod;
     vecY = (vecY*speed)/mod;
     this->setPosition(this->body.position[0]+vecX, this->body.position[1]+vecY);
@@ -257,12 +257,12 @@ void Entity::wave() {
     }
 }
 
-void Entity::setPosition(double x, double y){
-        body.position[0] = x;
-        body.position[1] = y;
+void Entity::setPosition(float x, float y){
+        body.position.x() = x;
+        body.position.y() = y;
 }
 
-array<double, 2> Entity::getPosition(){
+Vector2 Entity::getPosition(){
     return body.position;
 }
 
@@ -274,8 +274,8 @@ Entity::~Entity(){
 }
 
 void Entity::reset(){
-    double x = 20;
-    double y = 200;
+    float x = 20;
+    float y = 200;
     this->actualAction=-1;
     this->actualFrame=-1;
     this->setPosition(x, y);
@@ -286,7 +286,7 @@ void Entity::reset(){
     this->head.position[0] = x;
     this->head.position[1] = y+6;
 }
-Entity::Entity(string entityName, double x, double y, int entityType) {
+Entity::Entity(string entityName, float x, float y, int entityType) {
     this->actualAction=-1;
     this->actualFrame=-1;
     this->name = entityName;
@@ -311,7 +311,7 @@ Entity::Entity(string entityName, double x, double y, int entityType) {
     this->actions.push_back(Action("actionWave", (char*)"Animaciones/wave.anim"));
 }
 
-void Entity::setSpeed(double x, double y){
-    body.speed[0] = x;
-    body.speed[1] = y;
+void Entity::setSpeed(float x, float y){
+    body.speed.x() = x;
+    body.speed.y() = y;
 }

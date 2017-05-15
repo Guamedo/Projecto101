@@ -18,7 +18,7 @@ public:
     int type;
     int jump = 0;
     int flip = 0;
-    double flipGrades = M_PI/2;
+    double flipGrades = M_PI/2.0f;
     Box BBox;
     Cacho head;
     vector<Cacho> tail;
@@ -26,19 +26,19 @@ public:
     Cacho body;
 
     void reset();
-    void setSpeed(double x, double y);
-    void setPosition(double x, double y);
-    array<double, 2> getPosition();
-    double distance(double point1x, double point1y, double point2x, double point2y);
-    array<double,2> moveToPoint(double point1x, double point1y, double point2x, double point2y);
+    void setSpeed(float x, float y);
+    void setPosition(float x, float y);
+    Vector2 getPosition();
+    float distance(float point1x, float point1y, float point2x, float point2y);
+    Vector2 moveToPoint(float point1x, float point1y, float point2x, float point2y);
     void newFrameMovePoints(World world);
     void newFrameMovePoints2(World world);
 
-    void moveToPoint(double x, double y,double speed);
+    void moveToPoint(float x, float y, float speed);
     void attack();
     void wave();
 
     Entity();
     ~Entity();
-    Entity(string entityName, double x, double y, int entityType);
+    Entity(string entityName, float x, float y, int entityType);
 };

@@ -7,7 +7,7 @@
 
 
 class Vector2 {
-
+public:
     static const float epsilon;
 
     // Constructors

@@ -202,7 +202,7 @@ void drawEnemies() {
 
 void drawPlataforms() {
     glBegin(GL_TRIANGLES);
-    for (int i = 0; i < world.getPlatforms()->size(); i++) {
+    for (unsigned int i = 0; i < world.getPlatforms()->size(); i++) {
         glVertex2f(world.getPlatforms()->at(i).center[0] + world.getPlatforms()->at(i).halfSize[0],
                    world.getPlatforms()->at(i).center[1] + world.getPlatforms()->at(i).halfSize[1]);
         glVertex2f(world.getPlatforms()->at(i).center[0] - world.getPlatforms()->at(i).halfSize[0],
@@ -235,9 +235,9 @@ void draw() {
 
 
 void logic() {
-    int x = 200 + sin(grados) * 120;
-    int y = 200 + cos(grados) * 120;
-    double vAngular = 8.0 / 120.0;
+    float x = 200.0f + sinf((float)grados) * 120.0f;
+    float y = 200.0f + cosf((float)grados) * 120.0f;
+    float vAngular = 8.0f / 120.0f;
     for (int i = 0; i < enemies.size(); i++) {
         enemies[i].moveToPoint(x + random_range(-100, 100), y + random_range(-100, 100), random_range(6, 10));
         if (abs(enemies[i].getPosition()[0] - player.getPosition()[0]) < 3 &&
@@ -246,13 +246,13 @@ void logic() {
         }
     }
     if (grados >= 360) {
-        grados == 0;
+        grados = 0;
     }
     grados -= vAngular;
 }
 
 void playerUpdate() {
-    player.newFrameMovePoints2(world);
+    player.newFrameMovePoints(world);
 }
 
 void update(int value) {

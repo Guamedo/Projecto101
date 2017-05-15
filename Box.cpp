@@ -2,20 +2,20 @@
 // Created by GPA on 13/05/2017.
 //
 #include <stdlib.h>
+#include <cmath>
 #include "Box.h"
 
 Box::Box() {}
 
-Box::Box(std::array<double, 2> c, std::array<double, 2> h) {
+Box::Box(Vector2 c, Vector2 h) {
     this->center = c;
     this->halfSize = h;
 }
 
 bool Box::Overlaps(Box other) {
-    if ( abs(center[0] - other.center[0]) > halfSize[0] + other.halfSize[0] ){
+    if ( fabs(center.x() - other.center.x()) > halfSize.x() + other.halfSize.x()){
         return false;
-    }
-    if ( abs(center[1] - other.center[1]) > halfSize[1] + other.halfSize[1] ){
+    }else if ( fabs(center.y() - other.center.y()) > halfSize.y() + other.halfSize.y() ){
         return false;
     }
     return true;

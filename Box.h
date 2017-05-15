@@ -6,15 +6,16 @@
 #define PROJECT101_BOX_H
 
 #include <array>
+#include "Vector2.h"
 
 class Box {
 public:
     Box();
-    Box(std::array<double, 2> c, std::array<double, 2> h);
+    Box(Vector2 c, Vector2 h);
     bool Overlaps(Box other);
 
-    std::array<double, 2> center;
-    std::array<double, 2> halfSize;
+    Vector2 center;
+    Vector2 halfSize;
 };
 
 

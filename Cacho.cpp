@@ -14,17 +14,17 @@ Cacho::~Cacho()
 {
 }
 
-void Cacho::moveToPoint(double x, double y,double speed){
-    double vecX = x - this->position[0];
-    double vecY = y - this->position[1];
-    double mod = sqrt(pow(vecX,2)+pow(vecY,2));
-    double val = 1.5;
-    if(mod >= 1){
+void Cacho::moveToPoint(float x, float y, float speed){
+    float vecX = x - position.x();
+    float vecY = y - position.y();
+    float mod = sqrtf(powf(vecX,2)+powf(vecY,2));
+    float val = 1.5;
+    if(mod >= Vector2::epsilon){
         vecX = (vecX*speed)/mod;
         vecY = (vecY*speed)/mod;
-        this->position = {this->position[0]+vecX*0.5*std::abs(mod+val), this->position[1]+vecY*0.5*std::abs(mod+val)};
+        this->position = Vector2(this->position.x()+vecX*0.5f*std::fabs(mod+val), this->position.y()+vecY*0.5f*std::fabs(mod+val));
     }else{
-        this->position = {x,y};
+        this->position = Vector2(x, y);
     }
 }
 
@@ -36,18 +36,18 @@ void Cacho::setRadio(int radio) {
     Cacho::radio = radio;
 }
 
-const std::array<double, 2> &Cacho::getPosition() const {
+const Vector2 &Cacho::getPosition() const {
     return position;
 }
 
-void Cacho::setPosition(const std::array<double, 2> &position) {
-    Cacho::position = position;
+void Cacho::setPosition(const Vector2 &position) {
+    this->position = position;
 }
 
-const std::array<double, 2> &Cacho::getSpeed() const {
+const Vector2 &Cacho::getSpeed() const {
     return speed;
 }
 
-void Cacho::setSpeed(const std::array<double, 2> &speed) {
-    Cacho::speed = speed;
+void Cacho::setSpeed(const Vector2 &speed) {
+    this->speed = speed;
 }
