@@ -2,9 +2,7 @@
 // Created by zztop9 on 13-May-17.
 //
 #pragma once
-#include <array>
 #include <string>
-#include <vector>
 #include "Vector2.h"
 
 class Cacho

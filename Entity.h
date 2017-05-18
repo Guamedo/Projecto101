@@ -1,5 +1,4 @@
 #pragma once
-#include "Entity.h"
 #include "Box.h"
 #include "Action.h"
 #include "Cacho.h"
@@ -11,19 +10,10 @@ using namespace std;
 
 class Entity {
 public:
-    string name;
-    vector<Action> actions;
-    int actualAction = -1;
-    int actualFrame = -1;
-    int type;
-    int jump = 0;
-    int flip = 0;
-    double flipGrades = M_PI/2.0f;
-    Box BBox;
-    Cacho head;
-    vector<Cacho> tail;
-    vector<Cacho> tailBody;
-    Cacho body;
+
+    Entity();
+    ~Entity();
+    Entity(string entityName, float x, float y, int entityType);
 
     void reset();
     void setSpeed(float x, float y);
@@ -38,7 +28,18 @@ public:
     void attack();
     void wave();
 
-    Entity();
-    ~Entity();
-    Entity(string entityName, float x, float y, int entityType);
+    string name;
+    vector<Action> actions;
+    int actualAction = -1;
+    int actualFrame = -1;
+    int type;
+    int jump = 0;
+    int flip = 0;
+    double flipGrades = M_PI/2.0f;
+    Box BBox;
+    Cacho head;
+    vector<Cacho> tail;
+    vector<Cacho> tailBody;
+    Cacho body;
+
 };

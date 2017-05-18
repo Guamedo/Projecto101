@@ -55,7 +55,6 @@ public:
 
 private:
     float m_v[2];
-
 };
 
 

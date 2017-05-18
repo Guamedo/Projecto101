@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <stdio.h>
 #include "Vector2.h"
 
 const float Vector2::epsilon = 0.0001f;

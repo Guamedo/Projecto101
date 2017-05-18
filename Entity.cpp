@@ -8,12 +8,12 @@ float Entity::distance(float point1x, float point1y, float point2x, float point2
 
 Vector2 Entity::moveToPoint(float point1x, float point1y, float point2x, float point2y){
     float dirVecX, dirVecY;
-    point2x = point2x - point1x;
-    point2y = point2y - point1y;
+    float p2x = point2x - point1x;
+    float p2y = point2y - point1y;
     float distancia = distance(point1x, point1y, point2x, point2y);
     if (distancia>0) {
-        dirVecX = point2x / distancia;
-        dirVecY = point2y / distancia;
+        dirVecX = p2x / distancia;
+        dirVecY = p2y / distancia;
     }else{
         dirVecX = 0;
         dirVecY = 1;
@@ -34,7 +34,7 @@ void Entity::newFrameMovePoints2(World world) {
     float By = head.getPosition().y() + head.getSpeed().y();
 
     float sAx = body.getSpeed().x() * 0.98f;
-    float sAy = (body.getSpeed().y()* 0.98f) - 0.5f;
+    float sAy = (body.getSpeed().y()* 0.98f) - world.gravity;
 
     float sBx = head.getSpeed().x() * 0.7f;
     float sBy = (head.getSpeed().y() * 0.7f);
@@ -52,8 +52,8 @@ void Entity::newFrameMovePoints2(World world) {
 
     float dist = distance(Ax, Ay+4, Bx, By);
     Vector2 rtrn = moveToPoint(Ax, Ay+4, Bx, By);
-    float getToDiag = -50.0f;
-    float valor = 1.0f;
+    float getToDiag = 0.0f;
+    float valor = 0.1f;
     float correcionX = (getToDiag-dist)*rtrn.x()*valor;
     float correcionY = (getToDiag-dist)*rtrn.y()*valor;
 
@@ -137,7 +137,7 @@ void Entity::newFrameMovePoints2(World world) {
             body.setSpeedY(0);
             //body.speed[1] = 0;
         }else{ //Si la esta tocando por abajo
-            setPosition(getPosition()[1], world.platforms[colY].center[1]-world.platforms[colY].halfSize[1]-4);
+            setPosition(getPosition()[0], world.platforms[colY].center[1]-world.platforms[colY].halfSize[1]-4);
             body.setSpeedY(0);
             //body.speed[1] = 0;
         }
@@ -196,7 +196,8 @@ void Entity::newFrameMovePoints(World world) {
             jump = 0;
             body.setSpeedY(0);
         }else{ //Si la esta tocando por abajo
-            setPosition(getPosition()[1], platforms[colY].center[1]-platforms[colY].halfSize[1]-4);
+            body.setPositionY(platforms[colY].center[1]-platforms[colY].halfSize[1]-4);
+            //setPosition(getPosition()[0], platforms[colY].center[1]-platforms[colY].halfSize[1]-4);
             body.setSpeedY(0);
 
         }

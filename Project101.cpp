@@ -11,28 +11,25 @@
 #include "GL/glut.h"
 
 #define _USE_MATH_DEFINES
-
 #include <cmath>
 #include "entity.h"
-
 
 using namespace std;
 
 void draw();
-
 void drawFilledCircle(GLfloat x, GLfloat y, GLfloat radius);
-
 int random_range(int min, int max);
-
 void update(int value);
-
+void updateCamera(int width, int height);
 void enable2D(int width, int height);
+void resize(int width, int height);
 
 bool *keyStates = new bool[256];
 bool *keySpecialStates = new bool[246];
 const unsigned int interval = 1000 / 30;
 World world = World("El mundo de J", 400, 400, 1);
 double grados = 0.0;
+static Vector2 pos(0.0f, 0.0f);
 
 Entity player = Entity("player", 200, 200, 1);
 std::vector<Entity> enemies;
@@ -100,7 +97,18 @@ void keyOperations(void) {
 }
 
 void keySpecialOperations(){
-
+    if(keySpecialStates[GLUT_KEY_LEFT]){
+        pos.x()-=5;
+    }
+    if(keySpecialStates[GLUT_KEY_RIGHT]){
+        pos.x()+=5;
+    }
+    if(keySpecialStates[GLUT_KEY_UP]){
+        pos.y()+=5;
+    }
+    if(keySpecialStates[GLUT_KEY_DOWN]){
+        pos.y()-=5;
+    }
 }
 
 int main(int argc, char **argv) {
@@ -109,7 +117,7 @@ int main(int argc, char **argv) {
     for (int i = 0; i < 15; i++) {
         enemies.push_back(Entity("enemigo", random_range(10, world.W), random_range(10, world.H), 2));
     }
-    world.loadLevel("Levels/level0.txt");
+    world.loadLevel("Levels/level1.txt");
 
     srand((unsigned int) time(NULL));
     glutInit(&argc, argv);
@@ -126,7 +134,7 @@ int main(int argc, char **argv) {
     std::fill_n(keySpecialStates, 246, false);
 
     glutDisplayFunc(draw);
-
+    glutReshapeFunc(resize);
     glutKeyboardFunc(keyPressed);
     glutKeyboardUpFunc(keyUp);
 
@@ -206,6 +214,7 @@ void drawEnemies() {
 
 void drawPlataforms() {
     glBegin(GL_TRIANGLES);
+    glColor3f(0.42f, 0.6f, 0.5f);
     for (unsigned int i = 0; i < world.getPlatforms()->size(); i++) {
         glVertex2f(world.getPlatforms()->at(i).center[0] + world.getPlatforms()->at(i).halfSize[0],
                    world.getPlatforms()->at(i).center[1] + world.getPlatforms()->at(i).halfSize[1]);
@@ -262,10 +271,22 @@ void playerUpdate() {
 void update(int value) {
     keyOperations();
     keySpecialOperations();
+    updateCamera(world.W,world.H);
     playerUpdate();
     logic();
     glutTimerFunc(interval, update, 0);
     glutPostRedisplay();
+}
+
+void updateCamera(int width, int height){
+    glViewport(0, 0, width, height);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    float newX = player.getPosition().x() - (world.W/2);
+    float newY = player.getPosition().y() - (world.H/2) + 150;
+    glOrtho(0.0f + newX, width + newX, 0.0f + newY, height + newY, 0.0f, 1.0f);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
 }
 
 void enable2D(int width, int height) {
@@ -278,12 +299,18 @@ void enable2D(int width, int height) {
 }
 
 void resize(int width, int height) {
-    glViewport(0, 0, width, height);
+    world.W = width;
+    world.H = height;
+    //glViewport(0, 0, width, height);
+    //glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
     glOrtho(0.0f, width, 0.0f, height, 0.0f, 1.0f);
+    //glMatrixMode(GL_MODELVIEW);
+    //glLoadIdentity();
 }
 
 int random_range(int min, int max) {
-    return min + (rand() % (int) (max - min + 1));
+    return min + (rand() % (max - min + 1));
 }
 
 
