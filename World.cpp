@@ -40,12 +40,14 @@ std::vector<Box> *World::getPlatforms(){
 
 void World::loadLevel(std::string level) {
     std::fstream file;
-    file.open(level);
-    float x, a, b, c, d;
-    file >> x;
-    for (int i = 0; i < x; i++) {
-        file >> a >> b >> c >> d;
-        platforms.push_back(Box({a, b}, {c, d}));
-    }
-    file.close();
+	std::string line;
+	file.open(level);
+	float a, b, c, d;
+	while(getline(file,line)){
+		if(!line.empty() && line[0] != '#' && isdigit(line[0])){
+			sscanf(line.c_str(),"%f %f %f %f", &a, &b, &c, &d);
+			platforms.push_back(Box({a, b}, {c, d}));
+		}
+	}
+	file.close();
 }

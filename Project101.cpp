@@ -1,5 +1,4 @@
 #include <string>
-#include <windows.h>
 #include <iostream>
 #include <vector>
 #include <time.h>
@@ -12,7 +11,7 @@
 
 #define _USE_MATH_DEFINES
 #include <cmath>
-#include "entity.h"
+#include "Entity.h"
 
 using namespace std;
 
