@@ -1,12 +1,13 @@
 #pragma once
+#define _USE_MATH_DEFINES
+#include <cmath>
 #include "Entity.h"
 #include "Box.h"
 #include "Action.h"
 #include "Cacho.h"
 #include "World.h"
 #include <iostream>
-#define _USE_MATH_DEFINES
-#include <cmath>
+
 using namespace std;
 
 class Entity {

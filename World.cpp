@@ -41,7 +41,7 @@ std::vector<Box> *World::getPlatforms(){
 void World::loadLevel(std::string level) {
     std::fstream file;
     file.open(level);
-    double x, a, b, c, d;
+    float x, a, b, c, d;
     file >> x;
     for (int i = 0; i < x; i++) {
         file >> a >> b >> c >> d;

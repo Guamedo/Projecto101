@@ -2,8 +2,7 @@
 // Created by GPA on 15/05/2017.
 //
 
-#include <algorithm>
-#include <cassert>
+
 #include "Vector2.h"
 
 const float Vector2::epsilon = 0.0001f;

@@ -1,7 +1,9 @@
 //
 // Created by GPA on 15/05/2017.
 //
-
+#include <algorithm>
+#include <cassert>
+#include <stdio.h>
 #ifndef PROJECT101_VECTOR2_H
 #define PROJECT101_VECTOR2_H
 

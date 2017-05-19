@@ -7,21 +7,18 @@ float Entity::distance(float point1x, float point1y, float point2x, float point2
 }
 
 Vector2 Entity::moveToPoint(float point1x, float point1y, float point2x, float point2y){
-    float dirVecX, dirVecY;
-    point2x = point2x - point1x;
-    point2y = point2y - point1y;
+    Vector2 result;
+    float p2x = point2x - point1x;
+    float p2y = point2y - point1y;
     float distancia = distance(point1x, point1y, point2x, point2y);
     if (distancia>0) {
-        dirVecX = point2x / distancia;
-        dirVecY = point2y / distancia;
+        result[0] = p2x / distancia;
+        result[1] = p2y / distancia;
     }else{
-        dirVecX = 0;
-        dirVecY = 1;
+        result[0] = 0;
+        result[1] = 1;
     }
-    Vector2 cosa;
-    cosa[0] = dirVecX;
-    cosa[1] = dirVecY;
-    return cosa;
+    return result;
 }
 void Entity::newFrameMovePoints2(World world) {
     bool colX = false;
@@ -34,7 +31,7 @@ void Entity::newFrameMovePoints2(World world) {
     float By = head.getPosition().y() + head.getSpeed().y();
 
     float sAx = body.getSpeed().x() * 0.98f;
-    float sAy = (body.getSpeed().y()* 0.98f) - 0.5f;
+    float sAy = (body.getSpeed().y()* 0.98f) - world.gravity;
 
     float sBx = head.getSpeed().x() * 0.7f;
     float sBy = (head.getSpeed().y() * 0.7f);
@@ -47,19 +44,18 @@ void Entity::newFrameMovePoints2(World world) {
         Cx[i] = tail[i].getPosition().x() +tail[i].getSpeed().x();
         Cy[i] = tail[i].getPosition().y() +tail[i].getSpeed().y();
         sCx[i] = tail[i].getSpeed().x() * 0.86f;
-        sCy[i] = (tail[i].getSpeed().y() *0.86f) - 0.02f;
+        sCy[i] = (tail[i].getSpeed().y() *0.86f);
     }
 
     float dist = distance(Ax, Ay+4, Bx, By);
     Vector2 rtrn = moveToPoint(Ax, Ay+4, Bx, By);
-    float getToDiag = -50.0f;
-    float valor = 1.0f;
+    float getToDiag = 1.0f;
+    float valor = 0.3f;
     float correcionX = (getToDiag-dist)*rtrn.x()*valor;
     float correcionY = (getToDiag-dist)*rtrn.y()*valor;
 
     array<float,6> distM;
     array<Vector2,6> rtrnM;
-    valor = 0.9;
     for (int i=0; i<6; i++) {
         if (i == 0) {
             distM[i] = distance(Bx, By, Cx[i], Cy[i]);
@@ -149,19 +145,19 @@ void Entity::newFrameMovePoints2(World world) {
     head.speed[0] = sBx;
     head.position[1] = By;
     head.speed[1] = sBy;*/
-    for (int i =0 ; i<6; i++){
+    /*for (int i =0 ; i<6; i++){
         if (i == 0){
             tail[i].moveToPoint(head.getPosition().x(),head.getPosition().y(), 0.8);
         }else{
             tail[i].moveToPoint(tail[i-1].getPosition().x(),tail[i-1].getPosition().y(), 0.8);
         }
-    }
-/*    for (int i=0; i<6; i++){
-        tail[i].position[0] = Cx[i];
-        tail[i].speed[0] = sCx[i];
-        tail[i].position[1] = Cy[i];
-        tail[i].speed[1] = sCy[i];
     }*/
+    for (int i=0; i<6; i++){
+        tail[i].setPositionX(Cx[i]);
+        tail[i].setSpeedX(sCx[i]);
+        tail[i].setPositionY(Cy[i]);
+        tail[i].setSpeedY(sCy[i]);
+    }
 }
 
 void Entity::newFrameMovePoints(World world) {

@@ -21,6 +21,7 @@ add_executable(Project101   Project101.cpp
                             Entity.cpp
                             Entity.h
                             Vector2.cpp
-                            Vector2.h)
+                            Vector2.h SpriteRenderer.cpp SpriteRenderer.h Shader.cpp Shader.h
+                            SOIL/SOIL.h Texture2D.cpp Texture2D.h)
                             
 target_link_libraries(Project101 glut32.lib -lopengl32 -lglu32)
