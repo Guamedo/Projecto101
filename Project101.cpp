@@ -1,4 +1,6 @@
 #include <string>
+#include <stdio.h>
+#include <stdlib.h>
 #include <iostream>
 #include <vector>
 #include <time.h>
@@ -52,7 +54,8 @@ void keySpecialUp(int key, int x, int y) {
 void keyOperations(void) {
     if (keyStates[32]/*SPACE*/) {
         if (player.jump == 0 || player.jump == 2) {
-            player.body.setSpeedY(10);
+            //player.body.setSpeedY(10);
+            player.body.setSpeedY(player.body.getSpeed().y()+10);
             if(player.jump == 2){
                 if(player.body.getSpeed()[0] >= 0){
                     player.flip = 1;
@@ -79,16 +82,33 @@ void keyOperations(void) {
         player.reset();
     }
     if (keyStates['a'] || keyStates['A']) {
-        player.body.setSpeedX(-5);
+        if (player.getDash() == 0 || player.getDash() > 0) {
+            player.body.setSpeedX(-5);
+            player.setDash(0);
+        }else if (player.getDash() < 0){
+            player.body.setSpeedX(-5*8);
+            player.setDash(0);
+        }
     }
     if (!keyStates['a'] && !keyStates['A'] && player.body.getSpeed().x() < 0.0) {
-        player.body.setSpeedX(0);
+        //player.body.setSpeedX(0);
+        if (player.getDash()==0) {
+            player.setDash(-1);
+        }
     }
     if (keyStates['d'] || keyStates['D']) {
-        player.body.setSpeedX(5);
+        if (player.getDash() == 0 || player.getDash() < 0) {
+            player.body.setSpeedX(5);
+            player.setDash(0);
+        }else if (player.getDash() > 0){
+            player.body.setSpeedX(5*8);
+            player.setDash(0);
+        }
     }
     if (!keyStates['d'] && !keyStates['D'] && player.body.getSpeed().x() > 0.0) {
-        player.body.setSpeedX(0);
+        if (player.getDash()==0) {
+            player.setDash(1);
+        }
     }
     if (keyStates[27]/*ESC*/) {
         exit(1);
@@ -150,33 +170,37 @@ int main(int argc, char **argv) {
 
 void drawPlayer() {
     //cosas de gon
-    GLfloat alpha = 1.0f;
+    /*GLfloat alpha = 1.0f;
     for (int i = 0; i<player.tailBody.size() ; i++){
         glColor4f(0.36f, 0.43f, 0.95f, alpha);
         alpha -= max((1.0f/(float)player.tail.size()),0.0f);
         drawFilledCircle(player.tailBody[i].getPosition().x(), player.tailBody[i].getPosition().y(), 3);
-    }
+    }*/
     //cosas de gon
-    alpha = 1.0f;
+    /*alpha = 1.0f;
     for (int i = 0; i<player.tail.size() ; i++){
         glColor4f(0.36f, 0.43f, 0.95f, alpha);
         alpha -= max((1.0f/(float)player.tail.size()),0.0f);
         drawFilledCircle(player.tail[i].getPosition().x(), player.tail[i].getPosition().y(), 1.5);
-    }
+    }*/
 
+
+    //body
     glColor3f(1.0, 0.0, 0.0);
     drawFilledCircle(player.getPosition()[0], player.getPosition()[1], 3);
-    // Mi version de dibujar la tail
-    /*glBegin(GL_POINTS);
-    glColor3f(1.0f, 1.0f, 1.0f);
-    for (int i = 0; i<6 ; i++){
-        cout << player.tail[i].position[0] << " " << player.tail[i].position[1] <<"\n";
-        glVertex2f(player.tail[i].position[0], player.tail[i].position[1]);
-    }
-    glEnd();
-    */
+
+    //head
     glColor3f(1.0f, 1.0f, 0.0f);
     drawFilledCircle(player.head.getPosition().x(), player.head.getPosition().y(), 1.5);
+
+    //Tail
+    glBegin(GL_POINTS);
+    glColor3f(1.0f, 1.0f, 1.0f);
+    for (int i = 0; i<6 ; i++){
+        //cout << player.tail[i].getPosition().x() << " " << player.tail[i].getPosition().y()<<"\n";
+        glVertex2f(player.tail[i].getPosition().x(), player.tail[i].getPosition().y());
+    }
+    glEnd();
 
     if (player.actualAction != -1) {
         glBegin(GL_POINTS);
@@ -233,9 +257,9 @@ void drawPlataforms() {
 }
 
 void drawEntity() {
+    drawPlataforms();
     drawPlayer();
     drawEnemies();
-    drawPlataforms();
 }
 
 void draw() {
@@ -247,6 +271,18 @@ void draw() {
 
 
 void logic() {
+    player.newFrameMovePoints2(world);
+
+    if (player.getDash()>0){
+        player.setDash(player.getDash() + 1);
+    }else if (player.getDash()<0){
+        player.setDash(player.getDash() - 1);
+    }
+
+    if (player.getDash() > 2 || player.getDash() < 2){
+        player.setDash(0);
+    }
+
     float x = 200.0f + sinf((float)grados) * 120.0f;
     float y = 200.0f + cosf((float)grados) * 120.0f;
     float vAngular = 8.0f / 120.0f;
@@ -263,15 +299,10 @@ void logic() {
     grados -= vAngular;
 }
 
-void playerUpdate() {
-    player.newFrameMovePoints2(world);
-}
-
 void update(int value) {
     keyOperations();
     keySpecialOperations();
     updateCamera(world.W,world.H);
-    playerUpdate();
     logic();
     glutTimerFunc(interval, update, 0);
     glutPostRedisplay();

@@ -30,85 +30,10 @@ void Entity::newFrameMovePoints2(World world) {
     float Ax = body.getPosition().x() + body.getSpeed().x();
     float Ay = body.getPosition().y() + body.getSpeed().y();
 
-    float Bx = head.getPosition().x() + head.getSpeed().x();
-    float By = head.getPosition().y() + head.getSpeed().y();
-
-    float sAx = body.getSpeed().x() * 0.98f;
+    float sAx = body.getSpeed().x() * 0.66f;
     float sAy = (body.getSpeed().y()* 0.98f) - world.gravity;
 
-    float sBx = head.getSpeed().x() * 0.7f;
-    float sBy = (head.getSpeed().y() * 0.7f);
-
-    array<float, 6> Cx;
-    array<float, 6> Cy;
-    array<float, 6> sCx;
-    array<float, 6> sCy;
-    for (int i=0; i<6; i++){
-        Cx[i] = tail[i].getPosition().x() +tail[i].getSpeed().x();
-        Cy[i] = tail[i].getPosition().y() +tail[i].getSpeed().y();
-        sCx[i] = tail[i].getSpeed().x() * 0.86f;
-        sCy[i] = (tail[i].getSpeed().y() *0.86f) - 0.02f;
-    }
-
-    float dist = distance(Ax, Ay+4, Bx, By);
-    Vector2 rtrn = moveToPoint(Ax, Ay+4, Bx, By);
-    float getToDiag = 0.0f;
-    float valor = 0.1f;
-    float correcionX = (getToDiag-dist)*rtrn.x()*valor;
-    float correcionY = (getToDiag-dist)*rtrn.y()*valor;
-
-    array<float,6> distM;
-    array<Vector2,6> rtrnM;
-    valor = 0.9;
-    for (int i=0; i<6; i++) {
-        if (i == 0) {
-            distM[i] = distance(Bx, By, Cx[i], Cy[i]);
-            rtrnM[i] = moveToPoint(Bx, By, Cx[i], Cy[i]);
-        } else {
-            distM[i] = distance(Cx[i - 1], Cy[i - 1], Cx[i], Cy[i]);
-            rtrnM[i] = moveToPoint(Cx[i - 1], Cy[i - 1], Cx[i], Cy[i]);
-        }
-    }
-
-
-   /* Ax = Ax - correcionX;
-    sAx = sAx - correcionX;
-
-    Ay = Ay - correcionY;
-    sAy = sAy - correcionY;*/
-
-    Bx = Bx + correcionX;
-    sBx = sBx + correcionX;
-
-    By = By + correcionY;
-    sBy = sBy + correcionY;
-    for (int i=0; i<6; i++){
-        if (i==5){
-            correcionX = (getToDiag-distM[i])*rtrnM[i][0]*valor;
-            correcionY = (getToDiag-distM[i])*rtrnM[i][1]*valor;
-
-            Cx[i] = Cx[i] + correcionX;
-            sCx[i] = sCx[i] + correcionX;
-
-            Cy[i] = Cy[i] + correcionY;
-            sCy[i] = sCy[i] + correcionY;
-        }
-        else{
-            correcionX = (getToDiag-distM[i])*rtrnM[i][0]*valor;
-            correcionY = (getToDiag-distM[i])*rtrnM[i][1]*valor;
-
-            float correcionX2 = (getToDiag-distM[i+1])*rtrnM[i+1][0]*valor;
-            float correcionY2 = (getToDiag-distM[i+1])*rtrnM[i+1][1]*valor;
-
-            Cx[i] = Cx[i] + correcionX - correcionX2;
-            sCx[i] = sCx[i] + correcionX - correcionX2;
-
-            Cy[i] = Cy[i] + correcionY - correcionY2;
-            sCy[i] = sCy[i] + correcionY - correcionY2;
-        }
-
-    }
-
+    //Colisiones del cuerpo principal con las plataformas
     for(int i = 0; i < world.platforms.size(); i++){
         if(world.platforms[i].Overlaps(Box({Ax,getPosition()[1]},{3,3}))){
             colX = true;
@@ -120,48 +45,101 @@ void Entity::newFrameMovePoints2(World world) {
     if(!colX){
         body.setPositionX(Ax);
         body.setSpeedX(sAx);
-        //body.position[0] = Ax;
-        //body.speed[0] = sAx;
+    }else{
+        body.setSpeedX(0);
     }
     if(colY == -1){
         body.setPositionY(Ay);
         body.setSpeedY(sAy);
-        //body.position[1] = Ay;
-        //body.speed[1] = sAy;
-
     }else{
         //Si esta pisando la plataforma
         if(getPosition()[1] > world.platforms[colY].center[1]){
             setPosition(getPosition()[0], world.platforms[colY].center[1]+world.platforms[colY].halfSize[1]+4);
             jump = 0;
             body.setSpeedY(0);
-            //body.speed[1] = 0;
         }else{ //Si la esta tocando por abajo
             setPosition(getPosition()[0], world.platforms[colY].center[1]-world.platforms[colY].halfSize[1]-4);
             body.setSpeedY(0);
-            //body.speed[1] = 0;
         }
+    }
+
+    float sBx = head.getSpeed().x() * 0.78f;
+    float sBy = (head.getSpeed().y() * 0.78f);
+
+    float Bx = head.getPosition().x() + head.getSpeed().x();
+    float By = head.getPosition().y() + head.getSpeed().y();
+
+    array<float, 6> Cx;
+    array<float, 6> Cy;
+    array<float, 6> sCx;
+    array<float, 6> sCy;
+
+    for (int i=0; i<6; i++){
+        Cx[i] = tail[i].getPosition().x() +tail[i].getSpeed().x();
+        Cy[i] = tail[i].getPosition().y() +tail[i].getSpeed().y();
+        sCx[i] = tail[i].getSpeed().x() * 0.78f;
+        sCy[i] = (tail[i].getSpeed().y() *0.78f) - world.gravity;
+    }
+    //Dist entre el punto en el que se encuentra la cabeza, y el punto en el que queremos que esté la cabeza
+    float dist = distance(body.getPosition().x(), body.getPosition().y()+4, Bx, By);
+    //Un vector que apunta de la posicion de la cabeza a la posicion en la que queremos que esté
+    Vector2 rtrn = moveToPoint(body.getPosition().x(), body.getPosition().y()+4, Bx, By);
+    //Valor de distancia a la que queremos que este la cabeza de el punto en el que queremos que este, al ser 0, significa que queremos que este justo en un punto concreto, si el valor es 1, queremos que este en cualquier punto que este a 1 de distance
+    float getToDiag = 0.05f;
+    //Factor por el que se aplica la fuerza calculada
+    float valor = 0.55f;
+    //Resultado final
+    float correcionX = (getToDiag-dist)*rtrn.x()*valor;
+    float correcionY = (getToDiag-dist)*rtrn.y()*valor;
+
+    //Aplicar la correccion
+    Bx = Bx + correcionX;
+    sBx = sBx + correcionX;
+
+    By = By + correcionY;
+    sBy = sBy + correcionY;
+
+    //Calculamos los mismos valores para la tail.
+    array<float,6> distM;
+    array<Vector2,6> rtrnM;
+
+    getToDiag = 4;
+    valor = 1;
+
+    for (int i=0; i<6; i++) {
+        if (i == 0) {
+
+            distM[i] = distance(body.getPosition().x(), body.getPosition().y(), Cx[i], Cy[i]); //cambiado B por A
+            rtrnM[i] = moveToPoint(body.getPosition().x(), body.getPosition().y(), Cx[i], Cy[i]);
+
+        } else {
+
+            distM[i] = distance(Cx[i - 1], Cy[i - 1], Cx[i], Cy[i]);
+            rtrnM[i] = moveToPoint(Cx[i - 1], Cy[i - 1], Cx[i], Cy[i]);
+
+        }
+        correcionX = (getToDiag-distM[i])*rtrnM[i][0]*valor;
+        correcionY = (getToDiag-distM[i])*rtrnM[i][1]*valor;
+
+        Cx[i] = Cx[i] + correcionX;
+        sCx[i] = sCx[i] + correcionX;
+
+        Cy[i] = Cy[i] + correcionY;
+        sCy[i] = sCy[i] + correcionY;
+
+        colX = false;
+        colY = -1;
     }
 
     head.setPosition(Vector2(Bx,By));
     head.setSpeed(Vector2(sBx,sBy));
-    /*head.position[0] = Bx;
-    head.speed[0] = sBx;
-    head.position[1] = By;
-    head.speed[1] = sBy;*/
-    for (int i =0 ; i<6; i++){
-        if (i == 0){
-            tail[i].moveToPoint(head.getPosition().x(),head.getPosition().y(), 0.8);
-        }else{
-            tail[i].moveToPoint(tail[i-1].getPosition().x(),tail[i-1].getPosition().y(), 0.8);
-        }
+
+    for (int i=0; i<6; i++){
+        tail[i].setPositionX(Cx[i]);
+        tail[i].setSpeedX(sCx[i]);
+        tail[i].setPositionY(Cy[i]);
+        tail[i].setSpeedY(sCy[i]);
     }
-/*    for (int i=0; i<6; i++){
-        tail[i].position[0] = Cx[i];
-        tail[i].speed[0] = sCx[i];
-        tail[i].position[1] = Cy[i];
-        tail[i].speed[1] = sCy[i];
-    }*/
 }
 
 void Entity::newFrameMovePoints(World world) {
@@ -271,6 +249,13 @@ Vector2 Entity::getPosition(){
     return body.getPosition();
 }
 
+int Entity::getDash(){
+    return dash;
+}
+void Entity::setDash(int x){
+    dash = x;
+}
+
 Entity::Entity() {
 
 }
@@ -297,6 +282,7 @@ void Entity::reset(){
 Entity::Entity(string entityName, float x, float y, int entityType) {
     this->actualAction=-1;
     this->actualFrame=-1;
+    this->dash = 0;
     this->name = entityName;
     this->setPosition(x, y);
     this->body.setSpeed(Vector2(0,0));

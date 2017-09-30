@@ -23,6 +23,8 @@ public:
     Vector2 moveToPoint(float point1x, float point1y, float point2x, float point2y);
     void newFrameMovePoints(World world);
     void newFrameMovePoints2(World world);
+    int getDash();
+    void setDash(int val);
 
     void moveToPoint(float x, float y, float speed);
     void attack();
@@ -30,6 +32,7 @@ public:
 
     string name;
     vector<Action> actions;
+    int dash = 0;
     int actualAction = -1;
     int actualFrame = -1;
     int type;
