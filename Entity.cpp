@@ -249,11 +249,12 @@ Vector2 Entity::getPosition(){
     return body.getPosition();
 }
 
-int Entity::getDash(){
-    return dash;
+const string &Entity::getTonterias() const {
+    return tonterias;
 }
-void Entity::setDash(int x){
-    dash = x;
+
+void Entity::setTonterias(const string &tonterias) {
+    Entity::tonterias = tonterias;
 }
 
 Entity::Entity() {
@@ -278,12 +279,13 @@ void Entity::reset(){
     this->head.setPosition(Vector2(x, y+6));
     //this->head.position[0] = x;
     //this->head.position[1] = y+6;
+    this->tonterias = "y me reseteo!";
 }
 Entity::Entity(string entityName, float x, float y, int entityType) {
     this->actualAction=-1;
     this->actualFrame=-1;
-    this->dash = 0;
     this->name = entityName;
+    this->tonterias = "Digo tonterias :D";
     this->setPosition(x, y);
     this->body.setSpeed(Vector2(0,0));
     this->head.setSpeed(Vector2(0,0));
@@ -296,7 +298,7 @@ Entity::Entity(string entityName, float x, float y, int entityType) {
         tail[i].setSpeed(Vector2(0,0));
         this->tailBody.push_back(Cacho());
     }
-    this->actions.push_back(Action("actionAttack", (char*)"Animaciones/attack.anim"));
+    this->actions.push_back(Action("actionAttack", (char*)"Animaciones/ataqueBien.anim"));
     this->actions.push_back(Action("actionWave", (char*)"Animaciones/wave.anim"));
 }
 

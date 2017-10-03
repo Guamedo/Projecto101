@@ -24,10 +24,14 @@ void update(int value);
 void updateCamera(int width, int height);
 void enable2D(int width, int height);
 void resize(int width, int height);
+void displayInfo();
+void displayInfo(const std::string &string);
+void renderString(GLdouble x, GLdouble y, const std::string &string);
 
 bool *keyStates = new bool[256];
 bool *keySpecialStates = new bool[246];
-const unsigned int interval = 1000 / 30;
+int keyPresionadoRecientemente[256];
+const unsigned int interval = 1000 / 60;
 World world = World("El mundo de J", 400, 400, 1);
 double grados = 0.0;
 static Vector2 pos(0.0f, 0.0f);
@@ -71,47 +75,29 @@ void keyOperations(void) {
             player.jump++;
         }
     }
-    if (keyStates['j'] || keyStates['J']) {
-        if (rand() % 2 == 1) {
-            player.attack();
-        } else {
-            player.wave();
-        }
-    }
     if (keyStates['r'] || keyStates['R']) {
         player.reset();
     }
     if (keyStates['a'] || keyStates['A']) {
-        if (player.getDash() == 0 || player.getDash() > 0) {
-            player.body.setSpeedX(-5);
-            player.setDash(0);
-        }else if (player.getDash() < 0){
-            player.body.setSpeedX(-5*8);
-            player.setDash(0);
-        }
+        player.body.setSpeedX(-5);
+
     }
     if (!keyStates['a'] && !keyStates['A'] && player.body.getSpeed().x() < 0.0) {
-        //player.body.setSpeedX(0);
-        if (player.getDash()==0) {
-            player.setDash(-1);
-        }
+
     }
     if (keyStates['d'] || keyStates['D']) {
-        if (player.getDash() == 0 || player.getDash() < 0) {
-            player.body.setSpeedX(5);
-            player.setDash(0);
-        }else if (player.getDash() > 0){
-            player.body.setSpeedX(5*8);
-            player.setDash(0);
-        }
+        player.body.setSpeedX(5);
+
     }
     if (!keyStates['d'] && !keyStates['D'] && player.body.getSpeed().x() > 0.0) {
-        if (player.getDash()==0) {
-            player.setDash(1);
-        }
     }
     if (keyStates[27]/*ESC*/) {
         exit(1);
+    }
+    if (keyStates['j'] || keyStates['J']) {
+        if (player.body.getSpeed().x()!=0){
+            player.body.setSpeedX(player.body.getSpeed().x()*2);
+        }
     }
 }
 
@@ -135,6 +121,9 @@ int main(int argc, char **argv) {
     player.name = "Manolo";
     for (int i = 0; i < 15; i++) {
         enemies.push_back(Entity("enemigo", random_range(10, world.W), random_range(10, world.H), 2));
+    }
+    for (int i =0;i<256;i++){
+        keyPresionadoRecientemente[i]=0;
     }
     world.loadLevel("Levels/level1.txt");
 
@@ -201,6 +190,8 @@ void drawPlayer() {
         glVertex2f(player.tail[i].getPosition().x(), player.tail[i].getPosition().y());
     }
     glEnd();
+    //Escribir cosas del debug
+    displayInfo();
 
     if (player.actualAction != -1) {
         glBegin(GL_POINTS);
@@ -273,16 +264,6 @@ void draw() {
 void logic() {
     player.newFrameMovePoints2(world);
 
-    if (player.getDash()>0){
-        player.setDash(player.getDash() + 1);
-    }else if (player.getDash()<0){
-        player.setDash(player.getDash() - 1);
-    }
-
-    if (player.getDash() > 2 || player.getDash() < 2){
-        player.setDash(0);
-    }
-
     float x = 200.0f + sinf((float)grados) * 120.0f;
     float y = 200.0f + cosf((float)grados) * 120.0f;
     float vAngular = 8.0f / 120.0f;
@@ -297,6 +278,9 @@ void logic() {
         grados = 0;
     }
     grados -= vAngular;
+
+    //Cosas debug
+    displayInfo();
 }
 
 void update(int value) {
@@ -357,5 +341,23 @@ void drawFilledCircle(GLfloat x, GLfloat y, GLfloat radius) {
         );
     }
     glEnd();
+}
+
+void displayInfo() {
+    renderString(player.getPosition().x()-75, player.getPosition().y()+8, player.getTonterias());
+}
+
+void displayInfo(const std::string &string) {
+    renderString(player.getPosition().x()-75, player.getPosition().y()+8, string);
+}
+
+void renderString(GLdouble x, GLdouble y, const std::string &string)
+{
+    glColor3d(1.0, 1.0, 1.0);
+    glRasterPos2d(x, y);
+    int size = string.size();
+    for (int n=0; n<size; ++n) {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10, string[n]);
+    }
 }
 
