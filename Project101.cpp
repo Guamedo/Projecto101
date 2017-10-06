@@ -24,17 +24,18 @@ void update(int value);
 void updateCamera(int width, int height);
 void enable2D(int width, int height);
 void resize(int width, int height);
-void displayInfo();
-void displayInfo(const std::string &string);
 void renderString(GLdouble x, GLdouble y, const std::string &string);
+int frames = 0;
 
 bool *keyStates = new bool[256];
 bool *keySpecialStates = new bool[246];
 int keyPresionadoRecientemente[256];
-const unsigned int interval = 1000 / 60;
+const unsigned int interval = 1000 / 30;
 World world = World("El mundo de J", 400, 400, 1);
 double grados = 0.0;
 static Vector2 pos(0.0f, 0.0f);
+int timeSinceStart = 0;
+int timeEspecial = 0;
 
 Entity player = Entity("player", 200, 200, 1);
 std::vector<Entity> enemies;
@@ -79,14 +80,20 @@ void keyOperations(void) {
         player.reset();
     }
     if (keyStates['a'] || keyStates['A']) {
-        player.body.setSpeedX(-5);
+        if (player.getSprint()==0)
+            player.body.setSpeedX(-5);
+        else
+            player.body.setSpeedX(-12);
 
     }
     if (!keyStates['a'] && !keyStates['A'] && player.body.getSpeed().x() < 0.0) {
 
     }
     if (keyStates['d'] || keyStates['D']) {
-        player.body.setSpeedX(5);
+        if (player.getSprint()==0)
+            player.body.setSpeedX(5);
+        else
+            player.body.setSpeedX(12);
 
     }
     if (!keyStates['d'] && !keyStates['D'] && player.body.getSpeed().x() > 0.0) {
@@ -95,9 +102,10 @@ void keyOperations(void) {
         exit(1);
     }
     if (keyStates['j'] || keyStates['J']) {
-        if (player.body.getSpeed().x()!=0){
-            player.body.setSpeedX(player.body.getSpeed().x()*2);
-        }
+        player.setSprint(1);
+    }
+    if (!keyStates['j'] && !keyStates['J']) {
+        player.setSprint(0);
     }
 }
 
@@ -153,27 +161,24 @@ int main(int argc, char **argv) {
 
     enable2D(world.W, world.H);
 
+    timeSinceStart = glutGet(GLUT_ELAPSED_TIME);
+    cout << timeSinceStart << "\n";
+
+
     glutMainLoop();
     return 0;
 }
 
 void drawPlayer() {
     //cosas de gon
-    /*GLfloat alpha = 1.0f;
-    for (int i = 0; i<player.tailBody.size() ; i++){
-        glColor4f(0.36f, 0.43f, 0.95f, alpha);
-        alpha -= max((1.0f/(float)player.tail.size()),0.0f);
-        drawFilledCircle(player.tailBody[i].getPosition().x(), player.tailBody[i].getPosition().y(), 3);
-    }*/
-    //cosas de gon
-    /*alpha = 1.0f;
-    for (int i = 0; i<player.tail.size() ; i++){
-        glColor4f(0.36f, 0.43f, 0.95f, alpha);
-        alpha -= max((1.0f/(float)player.tail.size()),0.0f);
-        drawFilledCircle(player.tail[i].getPosition().x(), player.tail[i].getPosition().y(), 1.5);
-    }*/
-
-
+    if (player.getSprint() == 1) {
+        GLfloat alpha = 1.0f;
+        for (int i = 0; i < player.tailBody.size(); i++) {
+            glColor4f(random_range(0, 1), random_range(0, 1), random_range(0, 1), alpha);
+            alpha -= max((1.0f / (float) player.tail.size()), 0.0f);
+            drawFilledCircle(player.tailBody[i].getPosition().x(), player.tailBody[i].getPosition().y(), 3);
+        }
+    }
     //body
     glColor3f(1.0, 0.0, 0.0);
     drawFilledCircle(player.getPosition()[0], player.getPosition()[1], 3);
@@ -190,9 +195,8 @@ void drawPlayer() {
         glVertex2f(player.tail[i].getPosition().x(), player.tail[i].getPosition().y());
     }
     glEnd();
-    //Escribir cosas del debug
-    displayInfo();
 
+    renderString(player.getPosition().x()-75,player.getPosition().y()+10, player.getTonterias());
     if (player.actualAction != -1) {
         glBegin(GL_POINTS);
 
@@ -278,9 +282,6 @@ void logic() {
         grados = 0;
     }
     grados -= vAngular;
-
-    //Cosas debug
-    displayInfo();
 }
 
 void update(int value) {
@@ -290,6 +291,15 @@ void update(int value) {
     logic();
     glutTimerFunc(interval, update, 0);
     glutPostRedisplay();
+    timeEspecial = glutGet(GLUT_ELAPSED_TIME) - timeSinceStart;
+    if (timeEspecial > 1000){
+        ostringstream strng;
+        strng << frames;
+        player.setTonterias(strng.str());
+        frames = 0;
+        timeSinceStart = glutGet(GLUT_ELAPSED_TIME);
+    }
+    frames++;
 }
 
 void updateCamera(int width, int height){
@@ -301,6 +311,7 @@ void updateCamera(int width, int height){
     glOrtho(0.0f + newX, width + newX, 0.0f + newY, height + newY, 0.0f, 1.0f);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
+
 }
 
 void enable2D(int width, int height) {
@@ -343,21 +354,14 @@ void drawFilledCircle(GLfloat x, GLfloat y, GLfloat radius) {
     glEnd();
 }
 
-void displayInfo() {
-    renderString(player.getPosition().x()-75, player.getPosition().y()+8, player.getTonterias());
-}
-
-void displayInfo(const std::string &string) {
-    renderString(player.getPosition().x()-75, player.getPosition().y()+8, string);
-}
-
 void renderString(GLdouble x, GLdouble y, const std::string &string)
 {
-    glColor3d(1.0, 1.0, 1.0);
+    glColor3d(random_range(0,1), random_range(0,1), random_range(0,1));
     glRasterPos2d(x, y);
     int size = string.size();
     for (int n=0; n<size; ++n) {
-        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10, string[n]);
+        //glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10, string[n]);
+        glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, string[n]);
     }
 }
 

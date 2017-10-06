@@ -69,6 +69,7 @@ void Entity::newFrameMovePoints2(World world) {
     float Bx = head.getPosition().x() + head.getSpeed().x();
     float By = head.getPosition().y() + head.getSpeed().y();
 
+    //Tail
     array<float, 6> Cx;
     array<float, 6> Cy;
     array<float, 6> sCx;
@@ -139,6 +140,14 @@ void Entity::newFrameMovePoints2(World world) {
         tail[i].setSpeedX(sCx[i]);
         tail[i].setPositionY(Cy[i]);
         tail[i].setSpeedY(sCy[i]);
+    }
+
+    for (int i =0 ; i<6; i++){
+        if (i == 0){
+            tailBody[i].moveToPoint(body.getPosition().x(),body.getPosition().y(), 0.92);
+        }else{
+            tailBody[i].moveToPoint(tailBody[i-1].getPosition().x(),tailBody[i-1].getPosition().y(), 0.92);
+        }
     }
 }
 
@@ -257,6 +266,13 @@ void Entity::setTonterias(const string &tonterias) {
     Entity::tonterias = tonterias;
 }
 
+void Entity::setSprint(int val){
+    sprint = val;
+}
+int Entity::getSprint(){
+    return sprint;
+}
+
 Entity::Entity() {
 
 }
@@ -280,6 +296,8 @@ void Entity::reset(){
     //this->head.position[0] = x;
     //this->head.position[1] = y+6;
     this->tonterias = "y me reseteo!";
+    this->sprint = 0;
+
 }
 Entity::Entity(string entityName, float x, float y, int entityType) {
     this->actualAction=-1;
@@ -292,11 +310,14 @@ Entity::Entity(string entityName, float x, float y, int entityType) {
     this->head.setPosition(Vector2(x, y+6));
     this->BBox = Box({x,y}, {3,3});
     this->type = entityType;
+    this->sprint = 0;
     for(int i=0; i<6 ; i++){
         this->tail.push_back(Cacho(1));
         tail[i].setPosition(Vector2(x,y+6));
         tail[i].setSpeed(Vector2(0,0));
         this->tailBody.push_back(Cacho());
+        tailBody[i].setPosition(Vector2(x, y));
+        tailBody[i].setSpeed(Vector2(0,0));
     }
     this->actions.push_back(Action("actionAttack", (char*)"Animaciones/ataqueBien.anim"));
     this->actions.push_back(Action("actionWave", (char*)"Animaciones/wave.anim"));
