@@ -15,6 +15,7 @@ void Agent::draw() {
     int triangleAmount = 20; //# of triangles used to draw circle
     GLfloat twicePi = (GLfloat) (2.0f * 4 * atan(1));
     glBegin(GL_TRIANGLE_FAN);
+    glColor3f(1.0f, 0.0f, 0.0f);
     float x = _position.x + (float)AGENT_WIDTH / 2.0f;
     float y = _position.y + (float)AGENT_WIDTH / 2.0f;
     float radius = (float)AGENT_WIDTH/2.0f;
@@ -74,14 +75,19 @@ void Agent::collideWithLevel(const std::vector<std::string> &levelData) {
             if(xDepth < yDepth){
                 if(distVec.x < 0){
                     _position.x -= xDepth;
+                    _speed.x = 0;
                 }else{
                     _position.x += xDepth;
+                    _speed.x = 0;
                 }
             }else{
                 if(distVec.y < 0){
                     _position.y -= yDepth;
+                    _speed.y = 0;
                 }else{
                     _position.y += yDepth;
+                    _speed.y = 0;
+                    _jump = 0;
                 }
             }
         }
@@ -90,4 +96,12 @@ void Agent::collideWithLevel(const std::vector<std::string> &levelData) {
 
 const glm::vec2 &Agent::getPosition() const {
     return _position;
+}
+
+void Agent::setPosition(const glm::vec2 &position) {
+    _position = position;
+}
+
+void Agent::setSpeed(const glm::vec2 &speed) {
+    _speed = speed;
 }

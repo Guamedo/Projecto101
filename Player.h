@@ -8,10 +8,12 @@ public:
     Player();
     ~Player();
 
-    void init(glm::vec2 pos, glm::vec2 speed);
+    void init(glm::vec2 pos, bool** keyStates, bool** speccialkeysStates);
 
     void update(const std::vector<std::string> & levelData);
 private:
+    bool** _keyStates;
+    bool** _speccialkeysStates;
 };
 
 

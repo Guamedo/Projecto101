@@ -6,6 +6,7 @@
 #include <glm/glm.hpp>
 
 const int AGENT_WIDTH = 30;
+const int STEP = 10;
 
 class Agent {
 public:
@@ -20,9 +21,14 @@ public:
 
     const glm::vec2 &getPosition() const;
 
+    void setPosition(const glm::vec2 &position);
+
+    void setSpeed(const glm::vec2 &speed);
+
 protected:
     glm::vec2 _position;
     glm::vec2 _speed;
+    int _jump;
 };
 
 

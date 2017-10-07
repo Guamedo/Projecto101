@@ -61,6 +61,7 @@ void keySpecialUp(int key, int x, int y) {
 }
 
 void keyOperations(void) {
+    //playerV2.setSpeed(glm::vec2(0.0f));
     if (keyStates[32]/*SPACE*/) {
         if (player.jump == 0 || player.jump == 2) {
             //player.body.setSpeedY(10);
@@ -84,21 +85,21 @@ void keyOperations(void) {
         player.reset();
     }
     if (keyStates['a'] || keyStates['A']) {
-        if (player.getSprint()==0)
+        if (player.getSprint()==0) {
             player.body.setSpeedX(-5);
-        else
+        }else {
             player.body.setSpeedX(-12);
-
+        }
     }
     if (!keyStates['a'] && !keyStates['A'] && player.body.getSpeed().x() < 0.0) {
 
     }
     if (keyStates['d'] || keyStates['D']) {
-        if (player.getSprint()==0)
+        if (player.getSprint()==0) {
             player.body.setSpeedX(5);
-        else
+        }else {
             player.body.setSpeedX(12);
-
+        }
     }
     if (!keyStates['d'] && !keyStates['D'] && player.body.getSpeed().x() > 0.0) {
     }
@@ -139,7 +140,7 @@ int main(int argc, char **argv) {
     }
     world.loadLevel("Levels/level0.txt");
     _level.loadLevel("Levels/LevelTest.txt");
-    playerV2.init(_level.getPlayerInitialPos(), glm::vec2(5.0f));
+    playerV2.init(_level.getPlayerInitialPos(), &keyStates, &keySpecialStates);
 
     player.setPosition(_level.getPlayerInitialPos().x, _level.getPlayerInitialPos().y);
 
