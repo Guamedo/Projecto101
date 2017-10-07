@@ -1,4 +1,5 @@
 #include "Entity.h"
+#include "Level.h"
 
 float Entity::distance(float point1x, float point1y, float point2x, float point2y) {
     float rectHeight = abs(point1y - point2y);
@@ -53,12 +54,12 @@ void Entity::newFrameMovePoints2(World world) {
         body.setSpeedY(sAy);
     }else{
         //Si esta pisando la plataforma
-        if(getPosition()[1] > world.platforms[colY].center[1]){
-            setPosition(getPosition()[0], world.platforms[colY].center[1]+world.platforms[colY].halfSize[1]+4);
+        if(getPosition()[1] > world.platforms[colY].getCenter()[1]){
+            setPosition(getPosition()[0], world.platforms[colY].getCenter()[1]+world.platforms[colY].getHalfSize()[1]+4);
             jump = 0;
             body.setSpeedY(0);
         }else{ //Si la esta tocando por abajo
-            setPosition(getPosition()[0], world.platforms[colY].center[1]-world.platforms[colY].halfSize[1]-4);
+            setPosition(getPosition()[0], world.platforms[colY].getCenter()[1]-world.platforms[colY].getHalfSize()[1]-4);
             body.setSpeedY(0);
         }
     }
@@ -102,7 +103,7 @@ void Entity::newFrameMovePoints2(World world) {
 
     //Calculamos los mismos valores para la tail.
     array<float,6> distM;
-    array<Vector2,6> rtrnM;
+    array<Vector2, 6> rtrnM;
 
     getToDiag = 4;
     valor = 1;
@@ -178,15 +179,14 @@ void Entity::newFrameMovePoints(World world) {
         body.setPositionY(newY);
     }else{
         //Si esta pisando la plataforma
-        if(getPosition()[1] > platforms[colY].center[1]){
-            setPosition(getPosition()[0], platforms[colY].center[1]+platforms[colY].halfSize[1]+4);
+        if(getPosition()[1] > platforms[colY].getCenter()[1]){
+            setPosition(getPosition()[0], platforms[colY].getCenter()[1]+platforms[colY].getHalfSize()[1]+4);
             jump = 0;
             body.setSpeedY(0);
         }else{ //Si la esta tocando por abajo
-            body.setPositionY(platforms[colY].center[1]-platforms[colY].halfSize[1]-4);
+            body.setPositionY(platforms[colY].getCenter()[1]-platforms[colY].getHalfSize()[1]-4);
             //setPosition(getPosition()[0], platforms[colY].center[1]-platforms[colY].halfSize[1]-4);
             body.setSpeedY(0);
-
         }
     }
     if(getPosition()[1] < -100){
@@ -325,4 +325,79 @@ Entity::Entity(string entityName, float x, float y, int entityType) {
 
 void Entity::setSpeed(float x, float y){
     body.setSpeed(Vector2(x,y));
+}
+
+void Entity::update(const std::vector<std::string> & levelData) {
+    body.setPosition(Vector2(body.getPosition().x() + body.getSpeed().x(), body.getPosition().y() + body.getSpeed().y()));
+    body.setSpeedY(- 1);
+    this->collideWithLevel(levelData);
+}
+
+void Entity::collideWithLevel(const std::vector<std::string> &levelData) {
+    std::vector<Vector2> collideTilePositions;
+
+    //Check for corners
+    Vector2 vec = Vector2(floorf(body.getPosition().x() / (float)TILE_SIZE),
+                              floorf(body.getPosition().y() / (float)TILE_SIZE));
+
+    cout << "X=" << vec.x() << "Y=" << vec.y() <<"\n";
+
+    if(levelData[vec.y()][vec.x()] != '.'){
+        collideTilePositions.push_back(vec * (float)TILE_SIZE + Vector2((float)TILE_SIZE/ 2.0f, (float)TILE_SIZE/ 2.0f));
+    }
+
+    vec = Vector2(floorf((body.getPosition().x() + body.getRadio()*2) / (float)TILE_SIZE),
+                          floorf(body.getPosition().y() / (float)TILE_SIZE));
+
+    cout << "X=" << vec.x() << "Y=" << vec.y() <<"\n";
+
+    if(levelData[vec.y()][vec.x()] != '.'){
+        collideTilePositions.push_back(vec * (float)TILE_SIZE + Vector2((float)TILE_SIZE/ 2.0f, (float)TILE_SIZE/ 2.0f));
+    }
+
+    vec = Vector2(floorf(body.getPosition().x() / (float)TILE_SIZE),
+                          floorf((body.getPosition().y() + body.getRadio()*2)/ (float)TILE_SIZE));
+
+    if(levelData[vec.y()][vec.x()] != '.'){
+        collideTilePositions.push_back(vec * (float)TILE_SIZE + Vector2((float)TILE_SIZE/ 2.0f, (float)TILE_SIZE/ 2.0f));
+    }
+
+    vec = Vector2(floorf((body.getPosition().x() + body.getRadio()*2) / (float)TILE_SIZE),
+                          floorf((body.getPosition().y() + body.getRadio()*2) / (float)TILE_SIZE));
+
+    if(levelData[vec.y()][vec.x()] != '.'){
+        collideTilePositions.push_back(vec * (float)TILE_SIZE + Vector2((float)TILE_SIZE/ 2.0f, (float)TILE_SIZE/ 2.0f));
+    }
+
+    float minDist = (float)TILE_SIZE / 2.0f + (float)body.getRadio();
+
+    for(Vector2 pos : collideTilePositions){
+        cout << "hay colision\n";
+        Vector2 agentCenterPos = Vector2(body.getPosition().x() + (float)TILE_SIZE / 2.0f,
+                                         body.getPosition().y() + (float)TILE_SIZE / 2.0f);
+        Vector2 distVec = agentCenterPos - pos;
+
+        float xDepth = minDist - fabsf(distVec.x());
+        float yDepth = minDist - fabsf(distVec.y());
+
+        if(xDepth > 0 || yDepth > 0){
+            if(xDepth < yDepth){
+                if(distVec.x() < 0){
+                    body.setPositionX(body.getPosition().x()-xDepth);
+                    body.setSpeedX(0);
+                }else{
+                    body.setPositionX(body.getPosition().x()+xDepth);
+                    body.setSpeedX(0);
+                }
+            }else{
+                if(distVec.y() < 0){
+                    body.setPositionY(body.getPosition().y()-yDepth);
+                    body.setSpeedY(0);
+                }else{
+                    body.setPositionY(body.getPosition().y()+yDepth);
+                    body.setSpeedY(0);
+                }
+            }
+        }
+    }
 }

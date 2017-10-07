@@ -20,3 +20,11 @@ bool Box::Overlaps(Box other) {
     }
     return true;
 }
+
+const Vector2 &Box::getCenter() const {
+    return center;
+}
+
+const Vector2 &Box::getHalfSize() const {
+    return halfSize;
+}

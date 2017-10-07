@@ -14,6 +14,8 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 #include "Entity.h"
+#include "Level.h"
+#include "Player.h"
 
 using namespace std;
 
@@ -32,12 +34,14 @@ bool *keySpecialStates = new bool[246];
 int keyPresionadoRecientemente[256];
 const unsigned int interval = 1000 / 30;
 World world = World("El mundo de J", 400, 400, 1);
+Level _level;
 double grados = 0.0;
 static Vector2 pos(0.0f, 0.0f);
 int timeSinceStart = 0;
 int timeEspecial = 0;
 
 Entity player = Entity("player", 200, 200, 1);
+Player playerV2 = Player();
 std::vector<Entity> enemies;
 
 void keyPressed(unsigned char key, int x, int y) {
@@ -133,7 +137,11 @@ int main(int argc, char **argv) {
     for (int i =0;i<256;i++){
         keyPresionadoRecientemente[i]=0;
     }
-    world.loadLevel("Levels/level1.txt");
+    world.loadLevel("Levels/level0.txt");
+    _level.loadLevel("Levels/LevelTest.txt");
+    playerV2.init(_level.getPlayerInitialPos(), glm::vec2(5.0f));
+
+    player.setPosition(_level.getPlayerInitialPos().x, _level.getPlayerInitialPos().y);
 
     srand((unsigned int) time(NULL));
     glutInit(&argc, argv);
@@ -162,7 +170,7 @@ int main(int argc, char **argv) {
     enable2D(world.W, world.H);
 
     timeSinceStart = glutGet(GLUT_ELAPSED_TIME);
-    cout << timeSinceStart << "\n";
+    //cout << timeSinceStart << "\n";
 
 
     glutMainLoop();
@@ -234,26 +242,28 @@ void drawPlataforms() {
     glBegin(GL_TRIANGLES);
     glColor3f(0.42f, 0.6f, 0.5f);
     for (unsigned int i = 0; i < world.getPlatforms()->size(); i++) {
-        glVertex2f(world.getPlatforms()->at(i).center[0] + world.getPlatforms()->at(i).halfSize[0],
-                   world.getPlatforms()->at(i).center[1] + world.getPlatforms()->at(i).halfSize[1]);
-        glVertex2f(world.getPlatforms()->at(i).center[0] - world.getPlatforms()->at(i).halfSize[0],
-                   world.getPlatforms()->at(i).center[1] + world.getPlatforms()->at(i).halfSize[1]);
-        glVertex2f(world.getPlatforms()->at(i).center[0] - world.getPlatforms()->at(i).halfSize[0],
-                   world.getPlatforms()->at(i).center[1] - world.getPlatforms()->at(i).halfSize[1]);
+        glVertex2f(world.getPlatforms()->at(i).getCenter()[0] + world.getPlatforms()->at(i).getHalfSize()[0],
+                   world.getPlatforms()->at(i).getCenter()[1] + world.getPlatforms()->at(i).getHalfSize()[1]);
+        glVertex2f(world.getPlatforms()->at(i).getCenter()[0] - world.getPlatforms()->at(i).getHalfSize()[0],
+                   world.getPlatforms()->at(i).getCenter()[1] + world.getPlatforms()->at(i).getHalfSize()[1]);
+        glVertex2f(world.getPlatforms()->at(i).getCenter()[0] - world.getPlatforms()->at(i).getHalfSize()[0],
+                   world.getPlatforms()->at(i).getCenter()[1] - world.getPlatforms()->at(i).getHalfSize()[1]);
 
-        glVertex2f(world.getPlatforms()->at(i).center[0] + world.getPlatforms()->at(i).halfSize[0],
-                   world.getPlatforms()->at(i).center[1] + world.getPlatforms()->at(i).halfSize[1]);
-        glVertex2f(world.getPlatforms()->at(i).center[0] - world.getPlatforms()->at(i).halfSize[0],
-                   world.getPlatforms()->at(i).center[1] - world.getPlatforms()->at(i).halfSize[1]);
-        glVertex2f(world.getPlatforms()->at(i).center[0] + world.getPlatforms()->at(i).halfSize[0],
-                   world.getPlatforms()->at(i).center[1] - world.getPlatforms()->at(i).halfSize[1]);
+        glVertex2f(world.getPlatforms()->at(i).getCenter()[0] + world.getPlatforms()->at(i).getHalfSize()[0],
+                   world.getPlatforms()->at(i).getCenter()[1] + world.getPlatforms()->at(i).getHalfSize()[1]);
+        glVertex2f(world.getPlatforms()->at(i).getCenter()[0] - world.getPlatforms()->at(i).getHalfSize()[0],
+                   world.getPlatforms()->at(i).getCenter()[1] - world.getPlatforms()->at(i).getHalfSize()[1]);
+        glVertex2f(world.getPlatforms()->at(i).getCenter()[0] + world.getPlatforms()->at(i).getHalfSize()[0],
+                   world.getPlatforms()->at(i).getCenter()[1] - world.getPlatforms()->at(i).getHalfSize()[1]);
     }
     glEnd();
 }
 
 void drawEntity() {
-    drawPlataforms();
-    drawPlayer();
+    //drawPlataforms();
+    _level.drawLevel();
+    //drawPlayer();
+    playerV2.draw();
     drawEnemies();
 }
 
@@ -266,8 +276,8 @@ void draw() {
 
 
 void logic() {
-    player.newFrameMovePoints2(world);
-
+    //player.newFrameMovePoints2(world);
+    playerV2.update(_level.getLevelData());
     float x = 200.0f + sinf((float)grados) * 120.0f;
     float y = 200.0f + cosf((float)grados) * 120.0f;
     float vAngular = 8.0f / 120.0f;
@@ -306,12 +316,11 @@ void updateCamera(int width, int height){
     glViewport(0, 0, width, height);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    float newX = player.getPosition().x() - (world.W/2);
-    float newY = player.getPosition().y() - (world.H/2) + 150;
+    float newX = playerV2.getPosition().x - (world.W/2);
+    float newY = playerV2.getPosition().y - (world.H/2) + 150;
     glOrtho(0.0f + newX, width + newX, 0.0f + newY, height + newY, 0.0f, 1.0f);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-
 }
 
 void enable2D(int width, int height) {
@@ -337,7 +346,6 @@ void resize(int width, int height) {
 int random_range(int min, int max) {
     return min + (rand() % (max - min + 1));
 }
-
 
 void drawFilledCircle(GLfloat x, GLfloat y, GLfloat radius) {
     int i;

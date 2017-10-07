@@ -14,6 +14,11 @@ public:
     Box(Vector2 c, Vector2 h);
     bool Overlaps(Box other);
 
+    const Vector2 &getCenter() const;
+
+    const Vector2 &getHalfSize() const;
+
+private:
     Vector2 center;
     Vector2 halfSize;
 };

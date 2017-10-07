@@ -21,10 +21,16 @@ public:
     Vector2 getPosition();
     float distance(float point1x, float point1y, float point2x, float point2y);
     Vector2 moveToPoint(float point1x, float point1y, float point2x, float point2y);
+
     void newFrameMovePoints(World world);
     void newFrameMovePoints2(World world);
+
+    void update(const std::vector<std::string> & levelData);
+
     void setSprint(int val);
     int getSprint();
+
+    void collideWithLevel(const std::vector<std::string> & levelData);
 
     void moveToPoint(float x, float y, float speed);
     void attack();
