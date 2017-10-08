@@ -2,6 +2,7 @@
 #include <fstream>
 #include <iostream>
 #include <GL/gl.h>
+#include <algorithm>
 
 Level::Level() {
 
@@ -24,10 +25,7 @@ void Level::loadLevel(const std::string &levelPath) {
     while(std::getline(file, tmp)){
         _levelData.push_back(tmp);
     }
-
-    for(int i = 0; i < _levelData.size(); i++){
-        std::cout << _levelData[i] << "\n";
-    }
+    std::reverse(_levelData.begin(), _levelData.end());
 
     for(int y = 0; y < _levelData.size(); y++){
         for(int x = 0; x < _levelData[y].size(); x++){

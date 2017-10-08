@@ -15,7 +15,7 @@ public:
 
     virtual void update(const std::vector<std::string> & levelData);
 
-    void draw();
+    virtual void draw();
 
     void collideWithLevel(const std::vector<std::string> & levelData);
 

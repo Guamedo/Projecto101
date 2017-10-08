@@ -37,6 +37,6 @@ add_executable(Project101   Project101.cpp
                             Entity.cpp
                             Entity.h
                             Vector2.cpp
-                            Vector2.h Level.cpp Level.h Agent.cpp Agent.h Player.cpp Player.h)
+                            Vector2.h Level.cpp Level.h Agent.cpp Agent.h Player.cpp Player.h MainGame.cpp MainGame.h)
                             
 target_link_libraries(Project101 ${OPENGL_LIBRARIES} ${GLUT_LIBRARY})
