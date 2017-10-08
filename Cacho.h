@@ -3,7 +3,7 @@
 //
 #pragma once
 #include <string>
-#include "Vector2.h"
+#include <glm/glm.hpp>
 
 class Cacho
 {
@@ -16,15 +16,15 @@ public:
     int getRadio() const;
     void setRadio(int radio);
 
-    const Vector2 &getPosition() const;
-    void setPosition(const Vector2 &position);
+    const glm::vec2 &getPosition() const;
+    void setPosition(const glm::vec2 &position);
 
     void setPositionX(const float positionX);
 
     void setPositionY(const float positionY);
 
-    const Vector2 &getSpeed() const;
-    void setSpeed(const Vector2 &speed);
+    const glm::vec2 &getSpeed() const;
+    void setSpeed(const glm::vec2 &speed);
 
     void setSpeedX(const float speedX);
 
@@ -32,7 +32,7 @@ public:
 
 private:
     int radio;
-    Vector2 position;
-    Vector2 speed;
+    glm::vec2 position;
+    glm::vec2 speed;
 
 };

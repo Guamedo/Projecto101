@@ -1,26 +1,21 @@
-//
-// Created by GPA on 13/05/2017.
-//
-
 #ifndef PROJECT101_BOX_H
 #define PROJECT101_BOX_H
 
-#include <array>
-#include "Vector2.h"
+#include <glm/glm.hpp>
 
 class Box {
 public:
     Box();
-    Box(Vector2 c, Vector2 h);
-    bool Overlaps(Box other);
+    Box(glm::vec2 pos, float width);
+    ~Box();
 
-    const Vector2 &getCenter() const;
+    const glm::vec2 &getPosition() const;
 
-    const Vector2 &getHalfSize() const;
+    float getWidth() const;
 
 private:
-    Vector2 center;
-    Vector2 halfSize;
+    glm::vec2 _position;
+    float _width;
 };
 
 

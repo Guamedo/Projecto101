@@ -32,8 +32,15 @@ void MainGame::initSystems(int argc, char* argv[]) {
     _level.loadLevel("Levels/LevelTest.txt");
 
     //Init the player
-    _playerV2.init(_level.getPlayerInitialPos(), &_keyStates, &_keySpecialStates);
+    _playerV2 = new Player;
+    _playerV2->init(_level.getPlayerInitialPos(), &_keyStates, &_keySpecialStates);
 
+    //Init enemys
+    for(glm::vec2 enemyPos : _level.getEnemyInitialPositions()){
+        Enemy* newEnemy = new Enemy;
+        newEnemy->init(enemyPos);
+        _enemys.push_back(newEnemy);
+    }
 
     /*************
      * Init GLUT *
@@ -73,7 +80,11 @@ void MainGame::draw() {
     glLoadIdentity();
 
     _level.drawLevel();
-    _playerV2.draw();
+    _playerV2->draw();
+
+    for(Enemy* enemy : _enemys){
+        enemy->draw();
+    }
 
     glutSwapBuffers();
 }
@@ -85,7 +96,7 @@ void MainGame::update(int value) {
     glutPostRedisplay();
     _timeEspecial = glutGet(GLUT_ELAPSED_TIME) - _timeSinceStart;
     if (_timeEspecial > 1000){
-        ostringstream strng;
+        std::ostringstream strng;
         strng << _frames;
         //player.setTonterias(strng.str());
         glutSetWindowTitle(("FPS = " + strng.str()).c_str());
@@ -99,15 +110,15 @@ void MainGame::updateCamera(int width, int height){
     glViewport(0, 0, width, height);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    float newX = _playerV2.getPosition().x - (_windowWidth/2);
-    float newY = _playerV2.getPosition().y - (_windowHeight/2) + 150;
+    float newX = _playerV2->getPosition().x - (_windowWidth/2);
+    float newY = _playerV2->getPosition().y - (_windowHeight/2) + 150;
     glOrtho(0.0f + newX, width + newX, 0.0f + newY, height + newY, 0.0f, 1.0f);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 }
 
 void MainGame::logic() {
-    _playerV2.update(_level.getLevelData());
+    _playerV2->update(_level.getLevelData());
 }
 
 void MainGame::resizeWindow(int width, int height) {

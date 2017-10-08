@@ -15,7 +15,7 @@ void Agent::draw() {
     int triangleAmount = 20; //# of triangles used to draw circle
     GLfloat twicePi = (GLfloat) (2.0f * 4 * atan(1));
     glBegin(GL_TRIANGLE_FAN);
-    glColor3f(1.0f, 0.0f, 0.0f);
+    glColor3f(0.0f, 0.0f, 1.0f);
     float x = _position.x + (float)AGENT_WIDTH / 2.0f;
     float y = _position.y + (float)AGENT_WIDTH / 2.0f;
     float radius = (float)AGENT_WIDTH/2.0f;
@@ -36,28 +36,28 @@ void Agent::collideWithLevel(const std::vector<std::string> &levelData) {
     glm::vec2 vec = glm::vec2(floorf(_position.x / (float)TILE_SIZE),
                               floorf(_position.y / (float)TILE_SIZE));
 
-    if(levelData[vec.y][vec.x] != '.'){
+    if(levelData[vec.y][vec.x] == 'B'){
         collideTilePositions.push_back(vec * (float)TILE_SIZE + glm::vec2((float)TILE_SIZE/ 2.0f));
     }
 
     vec = glm::vec2(floorf((_position.x + AGENT_WIDTH) / (float)TILE_SIZE),
                     floorf(_position.y / (float)TILE_SIZE));
 
-    if(levelData[vec.y][vec.x] != '.'){
+    if(levelData[vec.y][vec.x] == 'B'){
         collideTilePositions.push_back(vec * (float)TILE_SIZE + glm::vec2((float)TILE_SIZE/ 2.0f));
     }
 
     vec = glm::vec2(floorf(_position.x / (float)TILE_SIZE),
                     floorf((_position.y + AGENT_WIDTH) / (float)TILE_SIZE));
 
-    if(levelData[vec.y][vec.x] != '.'){
+    if(levelData[vec.y][vec.x] == 'B'){
         collideTilePositions.push_back(vec * (float)TILE_SIZE + glm::vec2((float)TILE_SIZE/ 2.0f));
     }
 
     vec = glm::vec2(floorf((_position.x + AGENT_WIDTH) / (float)TILE_SIZE),
                     floorf((_position.y + AGENT_WIDTH) / (float)TILE_SIZE));
 
-    if(levelData[vec.y][vec.x] != '.'){
+    if(levelData[vec.y][vec.x] == 'B'){
         collideTilePositions.push_back(vec * (float)TILE_SIZE + glm::vec2((float)TILE_SIZE/ 2.0f));
     }
 

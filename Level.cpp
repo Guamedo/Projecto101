@@ -1,4 +1,5 @@
 #include "Level.h"
+#include "Enemy.h"
 #include <fstream>
 #include <iostream>
 #include <GL/gl.h>
@@ -32,13 +33,15 @@ void Level::loadLevel(const std::string &levelPath) {
             char tile = _levelData[y][x];
             switch (tile){
                 case 'B':
-                    _levelDrawData.emplace_back(Vector2(x * TILE_SIZE + TILE_SIZE/2, y * TILE_SIZE + TILE_SIZE/2),
-                                                Vector2(TILE_SIZE/2, TILE_SIZE/2));
+                    _levelDrawData.emplace_back(glm::vec2(x * TILE_SIZE, y * TILE_SIZE), TILE_SIZE);
                     break;
                 case '@':
                     _playerInitialPos = glm::vec2(x * TILE_SIZE, y * TILE_SIZE);
                     break;
                 case '.':
+                    break;
+                case 'E':
+                    _enemyInitialPositions.emplace_back(x * TILE_SIZE, y * TILE_SIZE);
                     break;
                 default:
                     std::cout << "Invalide character: " << tile << "\n";
@@ -52,19 +55,19 @@ void Level::drawLevel() {
     glBegin(GL_TRIANGLES);
     glColor3f(0.42f, 0.6f, 0.5f);
     for(Box b : _levelDrawData){
-        glVertex2f(b.getCenter()[0] + b.getHalfSize()[0],
-                   b.getCenter()[1] + b.getHalfSize()[1]);
-        glVertex2f(b.getCenter()[0] - b.getHalfSize()[0],
-                   b.getCenter()[1] + b.getHalfSize()[1]);
-        glVertex2f(b.getCenter()[0] - b.getHalfSize()[0],
-                   b.getCenter()[1] - b.getHalfSize()[1]);
+        glVertex2f(b.getPosition().x,
+                   b.getPosition().y);
+        glVertex2f(b.getPosition().x,
+                   b.getPosition().y + b.getWidth());
+        glVertex2f(b.getPosition().x + b.getWidth(),
+                   b.getPosition().y);
 
-        glVertex2f(b.getCenter()[0] + b.getHalfSize()[0],
-                   b.getCenter()[1] + b.getHalfSize()[1]);
-        glVertex2f(b.getCenter()[0] - b.getHalfSize()[0],
-                   b.getCenter()[1] - b.getHalfSize()[1]);
-        glVertex2f(b.getCenter()[0] + b.getHalfSize()[0],
-                   b.getCenter()[1] - b.getHalfSize()[1]);
+        glVertex2f(b.getPosition().x + b.getWidth(),
+                   b.getPosition().y);
+        glVertex2f(b.getPosition().x,
+                   b.getPosition().y + b.getWidth());
+        glVertex2f(b.getPosition().x + b.getWidth(),
+                   b.getPosition().y + b.getWidth());
     }
     glEnd();
 }
@@ -75,4 +78,8 @@ const std::vector<std::string> &Level::getLevelData() const {
 
 const glm::vec2 &Level::getPlayerInitialPos() const {
     return _playerInitialPos;
+}
+
+const std::vector<glm::vec2> &Level::getEnemyInitialPositions() const {
+    return _enemyInitialPositions;
 }

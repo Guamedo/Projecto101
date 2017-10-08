@@ -15,16 +15,16 @@ Cacho::~Cacho()
 }
 
 void Cacho::moveToPoint(float x, float y, float speed){
-    float vecX = x - position.x();
-    float vecY = y - position.y();
+    float vecX = x - position.x;
+    float vecY = y - position.y;
     float mod = sqrtf(powf(vecX,2)+powf(vecY,2));
     float val = 1.5;
     if(mod >= 1){
         vecX = (vecX*speed)/mod;
         vecY = (vecY*speed)/mod;
-        this->position = Vector2(this->position.x()+vecX*0.5f*std::fabs(mod+val), this->position.y()+vecY*0.5f*std::fabs(mod+val));
+        this->position = glm::vec2(this->position.x+vecX*0.5f*std::fabs(mod+val), this->position.y+vecY*0.5f*std::fabs(mod+val));
     }else{
-        this->position = Vector2(x, y);
+        this->position = glm::vec2(x, y);
     }
 }
 
@@ -36,36 +36,36 @@ void Cacho::setRadio(int radio) {
     Cacho::radio = radio;
 }
 
-const Vector2 &Cacho::getPosition() const {
+const glm::vec2 &Cacho::getPosition() const {
     return position;
 }
 
-void Cacho::setPosition(const Vector2 &position) {
+void Cacho::setPosition(const glm::vec2 &position) {
 
     this->position = position;
 
 }
 
 void Cacho::setPositionX(const float positionX) {
-    this->position.x() = positionX;
+    this->position.x = positionX;
 }
 
 void Cacho::setPositionY(const float positionY) {
-    this->position.y() = positionY;
+    this->position.y = positionY;
 }
 
-const Vector2 &Cacho::getSpeed() const {
+const glm::vec2 &Cacho::getSpeed() const {
     return speed;
 }
 
-void Cacho::setSpeed(const Vector2 &speed) {
+void Cacho::setSpeed(const glm::vec2 &speed) {
     this->speed = speed;
 }
 
 void Cacho::setSpeedX(const float speedX) {
-    this->speed.x() = speedX;
+    this->speed.x = speedX;
 }
 
 void Cacho::setSpeedY(const float speedY) {
-    this->speed.y() = speedY;
+    this->speed.y = speedY;
 }

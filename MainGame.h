@@ -16,9 +16,9 @@
 
 #define _USE_MATH_DEFINES
 #include <cmath>
-#include "Entity.h"
 #include "Level.h"
 #include "Player.h"
+#include "Enemy.h"
 
 class MainGame {
 public:
@@ -78,7 +78,8 @@ private:
     int _timeEspecial;
 
     //Game agents
-    Player _playerV2;
+    Player* _playerV2;
+    std::vector<Enemy*> _enemys;
 };
 
 

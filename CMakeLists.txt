@@ -28,15 +28,17 @@ add_executable(Project101   Project101.cpp
                             Dot.cpp
                             Frame.h
                             Frame.cpp
-                            World.h
-                            World.cpp
                             Cacho.cpp
                             Cacho.h
                             Box.cpp
                             Box.h
-                            Entity.cpp
-                            Entity.h
-                            Vector2.cpp
-                            Vector2.h Level.cpp Level.h Agent.cpp Agent.h Player.cpp Player.h MainGame.cpp MainGame.h)
+                            Level.cpp
+                            Level.h
+                            Agent.cpp
+                            Agent.h
+                            Player.cpp
+                            Player.h
+                            MainGame.cpp
+                            MainGame.h Enemy.cpp Enemy.h)
                             
 target_link_libraries(Project101 ${OPENGL_LIBRARIES} ${GLUT_LIBRARY})
