@@ -9,14 +9,14 @@ EntityPrime::EntityPrime(Vector2 pos, Vector2 vel, int mode, float rad, World *w
     position = pos;
     velocity = vel;
     rozS = 0.66;
-    rozA = 0.97;
+    rozA = 1;
     world = wrld;
     jump = 0;
     id = i;
     radio = rad;
 
     if (mode == 1){ //mode == 1 cuando se esta haciendo el jugador
-        attached.push_back(new CachoPrime(Vector2(pos[0],pos[1]), Vector2(0,0), Vector2(0,4), 0.5, 0.55, 2, this, 64));
+        attached.push_back(new CachoPrime(Vector2(pos[0],pos[1]), Vector2(0,0), Vector2(0,4), 0.5, 0.55, 1.5, this, 64));
         attached.push_back(new CachoPrime(pos, Vector2(0,0), Vector2(0,0), 4, 1, 1, this, 11));
         attached.at(1)->addCacho(new CachoPrime(pos, Vector2(0,0), Vector2(0,0), 4, 1, 1, attached.at(1), 12));
         attached.at(1)->getAttached().at(0)->addCacho(new CachoPrime(pos, Vector2(0,0), Vector2(0,0), 4, 1, 1, attached.at(1)->getAttached().at(0), 13));
@@ -80,14 +80,20 @@ float EntityPrime::getRadio(){
 }
 
 void EntityPrime::reset(){
-
+    position[0] = 200;
+    position[1] = 200;
+    velocity[0] = 0;
+    velocity[1] = 0;
+    jump = 0;
+    sprint = 0;
+    tonterias = "Reset()";
 }
 
 void EntityPrime::newFrameMovement(){
     float mainx = position[0] + velocity[0];
     float mainy = position[1] + velocity[1];
     float smainx = velocity[0] * rozA * rozS;
-    float smainy = (velocity[1] *(float)0.98) - 1;
+    float smainy = (velocity[1] * (float)0.98) - 1;
 
     regularMovement(Vector2(mainx, mainy), Vector2(smainx,smainy));
 
@@ -120,12 +126,10 @@ void EntityPrime::regularMovement(Vector2 newPos, Vector2 newVel){
         velocity[1] = newVel[1];
     }else{
         if(position[1] > world->platforms[colY].center[1]){
-            //Si esta pisando la plataforma
-            position[1] =  world->platforms[colY].center[1] + world->platforms[colY].halfSize[1] + 4;
+            position[1] = world->platforms[colY].center[1] + world->platforms[colY].halfSize[1] + 4;
             jump = 0;
             velocity[1] = 0;
         }else{
-            //Si la esta tocando por abajo
             position[1] = world->platforms[colY].center[1] - world->platforms[colY].halfSize[1] - 4;
             velocity[1] = 0;
         }

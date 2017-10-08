@@ -10,7 +10,7 @@ CachoPrime::CachoPrime(Vector2 pos, Vector2 vel, Vector2 des, float mar, float f
     desv = des;
     marg = mar;
     rozS = 1;
-    rozA = 0.97;
+    rozA = 0.78;
     factorc = fc;
     tipo = 2;
     father2 = fath;
@@ -20,7 +20,6 @@ CachoPrime::CachoPrime(Vector2 pos, Vector2 vel, Vector2 des, float mar, float f
     std::cout << "Constructora cacho(cacho) " << i <<" -- " << fath->id<< "\n";
 }
 CachoPrime::CachoPrime(Vector2 pos, Vector2 vel, Vector2 des, float mar, float fc, float rad, EntityPrime *fath, int i){
-
     position = pos;
     velocity = vel;
     desv = des;
@@ -117,7 +116,7 @@ void CachoPrime::drawCacho(){
     for (unsigned int i=0; i < attached.size(); i++){
         attached.at(i)->drawCacho();
     }
-    glColor3f(1.0f, 1.0f, 0.0f);
+    glColor3f(1.0f, 1.0f, 1.0f);
     drawFilledCircle(position[0], position[1], radio);
 }
 

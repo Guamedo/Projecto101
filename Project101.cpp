@@ -34,7 +34,7 @@ const unsigned int interval = 1000 / 30;
 World world = World("El mundo de JPrime", 400, 400, 1);
 int timeSinceStart = 0;
 int timeEspecial = 0;
-EntityPrime player = EntityPrime(Vector2(200,200), Vector2(0,0), 1, 4, &world, 1337);
+EntityPrime player = EntityPrime(Vector2(200,200), Vector2(0,0), 1, 3, &world, 1337);
 int frames = 0;
 
 int main(int argc, char **argv) {
@@ -143,14 +143,14 @@ void keyOperations(void) {
     }
     if (keyStates['a'] || keyStates['A']) {
         if (player.getSprint() == 0)
-            player.setVelocity(-5, player.getVelocity()[1]);
+            player.setVelocity(-6, player.getVelocity()[1]);
         else
             player.setVelocity(-12, player.getVelocity()[1]);
 
     }
     if (keyStates['d'] || keyStates['D']) {
         if (player.getSprint() == 0)
-            player.setVelocity(5, player.getVelocity()[1]);
+            player.setVelocity(6, player.getVelocity()[1]);
         else
             player.setVelocity(12, player.getVelocity()[1]);
 
