@@ -41,6 +41,6 @@ add_executable(Project101   Project101.cpp
                             EntityPrime.cpp
                             EntityPrime.h
                             CachoPrime.cpp
-                            CachoPrime.h)
+                            CachoPrime.h Utiles.cpp Utiles.h)
                             
 target_link_libraries(Project101 ${OPENGL_LIBRARIES} ${GLUT_LIBRARY})

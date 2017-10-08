@@ -4,32 +4,7 @@
 
 #include "CachoPrime.h"
 
-//funciones auxiliares
-float distance(float point1x, float point1y, float point2x, float point2y) {
-    float rectHeight = std::abs(point1y - point2y);
-    float rectWidth = std::abs(point1x - point2x);
-    return sqrtf(powf(rectHeight, 2.0) + powf(rectWidth, 2.0));
-}
-
-Vector2 moveToPoint(float point1x, float point1y, float point2x, float point2y){
-    float dirVecX, dirVecY;
-    float p2x = point2x - point1x;
-    float p2y = point2y - point1y;
-    float distancia = distance(point1x, point1y, point2x, point2y);
-    if (distancia>0) {
-        dirVecX = p2x / distancia;
-        dirVecY = p2y / distancia;
-    }else{
-        dirVecX = 0;
-        dirVecY = 1;
-    }
-    Vector2 cosa;
-    cosa[0] = dirVecX;
-    cosa[1] = dirVecY;
-    return cosa;
-}
-
-CachoPrime::CachoPrime(Vector2 pos, Vector2 vel, Vector2 des, float mar, float fc, CachoPrime *fath){
+CachoPrime::CachoPrime(Vector2 pos, Vector2 vel, Vector2 des, float mar, float fc, float rad, CachoPrime *fath, int i){
     position = pos;
     velocity = vel;
     desv = des;
@@ -39,9 +14,13 @@ CachoPrime::CachoPrime(Vector2 pos, Vector2 vel, Vector2 des, float mar, float f
     factorc = fc;
     tipo = 2;
     father2 = fath;
+    radio = rad;
     updateObj();
+    id=i;
+    std::cout << "Constructora cacho(cacho) " << i <<" -- " << fath->id<< "\n";
 }
-CachoPrime::CachoPrime(Vector2 pos, Vector2 vel, Vector2 des, float mar, float fc, EntityPrime *fath){
+CachoPrime::CachoPrime(Vector2 pos, Vector2 vel, Vector2 des, float mar, float fc, float rad, EntityPrime *fath, int i){
+
     position = pos;
     velocity = vel;
     desv = des;
@@ -51,14 +30,16 @@ CachoPrime::CachoPrime(Vector2 pos, Vector2 vel, Vector2 des, float mar, float f
     factorc = fc;
     tipo = 1;
     father1 = fath;
-
+    radio = rad;
     updateObj();
+    id=i;
+    std::cout << "Constructora cacho(entity) " << i <<" -- " << "incaccesible"<< "\n";
 }
 CachoPrime::~CachoPrime(){
 
 }
 
-void CachoPrime::setPosition(int x, int y){
+void CachoPrime::setPosition(float x, float y){
     position[0] = x;
     position[1] = y;
 }
@@ -66,7 +47,7 @@ void CachoPrime::setPosition(Vector2 p){
     position[0] = p[0];
     position[1] = p[1];
 }
-void CachoPrime::setVelocity(int x, int y){
+void CachoPrime::setVelocity(float x, float y){
     velocity[0] = x;
     velocity[1] = y;
 }
@@ -76,6 +57,9 @@ void CachoPrime::setVelocity(Vector2 v){
 }
 void CachoPrime::setMarg(float margen){
     marg = margen;
+}
+void CachoPrime::setRadio(float rad){
+    radio = rad;
 }
 
 Vector2 CachoPrime::getPosition(){
@@ -87,8 +71,11 @@ Vector2 CachoPrime::GetVelocity(){
 float CachoPrime::getMarg(){
     return marg;
 }
-std::vector<CachoPrime>* CachoPrime::getAttached(){
+std::vector<CachoPrime*> CachoPrime::getAttached(){
     return attached;
+}
+float CachoPrime::getRadio(){
+    return radio;
 }
 
 void CachoPrime::updateObj(){
@@ -120,8 +107,28 @@ void CachoPrime::calcMovement(){
     velocity[1] = vely + correctiony;
 
 
-    for (int i=0; i < attached->size(); i++){
-        attached->at(i).updateObj();
-        attached->at(i).calcMovement();
+    for (int i=0; i < attached.size(); i++){
+        attached.at(i)->updateObj();
+        attached.at(i)->calcMovement();
     }
+}
+
+void CachoPrime::drawCacho(){
+    for (unsigned int i=0; i < attached.size(); i++){
+        attached.at(i)->drawCacho();
+    }
+    glColor3f(1.0f, 1.0f, 0.0f);
+    drawFilledCircle(position[0], position[1], radio);
+}
+
+void CachoPrime::print(){
+    std::cout << "cacho id "<< id <<"\n";
+    for (unsigned int i=0; i < attached.size(); i++){
+        std::cout << "     ->";
+        attached.at(i)->print();
+    }
+}
+
+void CachoPrime::addCacho(CachoPrime* cacho){
+    attached.push_back(cacho);
 }

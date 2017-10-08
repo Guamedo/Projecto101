@@ -4,7 +4,7 @@
 
 #include "EntityPrime.h"
 
-EntityPrime::EntityPrime(Vector2 pos, Vector2 vel, int mode, World *wrld){
+EntityPrime::EntityPrime(Vector2 pos, Vector2 vel, int mode, float rad, World *wrld, int i){
 
     position = pos;
     velocity = vel;
@@ -12,27 +12,23 @@ EntityPrime::EntityPrime(Vector2 pos, Vector2 vel, int mode, World *wrld){
     rozA = 0.97;
     world = wrld;
     jump = 0;
+    id = i;
+    radio = rad;
 
     if (mode == 1){ //mode == 1 cuando se esta haciendo el jugador
-        attached->push_back(CachoPrime(
-                //los datos del cacho correspondiente a la cabeza
-                Vector2(pos[0],pos[1]), Vector2(0,0), Vector2(4,0), (float)0.5, (float)0.55, this
-        ));
-
-        CachoPrime aux = CachoPrime(
-                //los datos del cacho correspondiente a el primer cacho de la tail
-                pos, Vector2(0,0), Vector2(0,0), 4, 1, this
-        );
-        //añadiendo segundo cacho de la tail
-        aux.getAttached()->push_back(CachoPrime(pos, Vector2(0,0), Vector2(0,0), (float)4, 1, &aux));
-        attached->push_back(aux);
+        attached.push_back(new CachoPrime(Vector2(pos[0],pos[1]), Vector2(0,0), Vector2(0,4), 0.5, 0.55, 2, this, 64));
+        attached.push_back(new CachoPrime(pos, Vector2(0,0), Vector2(0,0), 4, 1, 1, this, 11));
+        attached.at(1)->addCacho(new CachoPrime(pos, Vector2(0,0), Vector2(0,0), 4, 1, 1, attached.at(1), 12));
+        attached.at(1)->getAttached().at(0)->addCacho(new CachoPrime(pos, Vector2(0,0), Vector2(0,0), 4, 1, 1, attached.at(1)->getAttached().at(0), 13));
     }
+    std::cout << "Constructora Entity " << i << "\n";
+    print();
 }
 EntityPrime::~EntityPrime(){
 
 }
 
-void EntityPrime::setPosition(int x, int y){
+void EntityPrime::setPosition(float x, float y){
     position[0] = x;
     position[1] = y;
 }
@@ -40,7 +36,7 @@ void EntityPrime::setPosition(Vector2 p){
     position[0] = p[0];
     position[1] = p[1];
 }
-void EntityPrime::setVelocity(int x, int y){
+void EntityPrime::setVelocity(float x, float y){
     velocity[0] = x;
     velocity[1] = y;
 }
@@ -48,12 +44,39 @@ void EntityPrime::setVelocity(Vector2 v){
     velocity[0] = v[0];
     velocity[1] = v[1];
 }
+void EntityPrime::setTonterias(const std::string &tonteria){
+    tonterias = tonteria;
+}
+void EntityPrime::setJump(int val){
+    jump = val;
+}
+void EntityPrime::setSprint(int val){
+    sprint = val;
+}
+void EntityPrime::setRadio(float rad){
+    radio = rad;
+}
 
 Vector2 EntityPrime::getPosition(){
     return position;
 }
-Vector2 EntityPrime::GetVelocity(){
+Vector2 EntityPrime::getVelocity(){
     return velocity;
+}
+std::string EntityPrime::getTonterias(){
+    return tonterias;
+}
+std::vector<CachoPrime*> EntityPrime::getAttached(){
+    return attached;
+}
+int EntityPrime::getJump(){
+    return jump;
+}
+int EntityPrime::getSprint(){
+    return sprint;
+}
+float EntityPrime::getRadio(){
+    return radio;
 }
 
 void EntityPrime::reset(){
@@ -68,9 +91,9 @@ void EntityPrime::newFrameMovement(){
 
     regularMovement(Vector2(mainx, mainy), Vector2(smainx,smainy));
 
-    for (unsigned int i=0; i < attached->size(); i++){
-        attached->at(i).updateObj();
-        attached->at(i).calcMovement();
+    for (unsigned int i=0; i < attached.size(); i++){
+        attached.at(i)->updateObj();
+        attached.at(i)->calcMovement();
     }
 }
 
@@ -106,5 +129,22 @@ void EntityPrime::regularMovement(Vector2 newPos, Vector2 newVel){
             position[1] = world->platforms[colY].center[1] - world->platforms[colY].halfSize[1] - 4;
             velocity[1] = 0;
         }
+    }
+}
+
+void EntityPrime::drawEntity() {
+
+    glColor3f(1.0, 0.0, 0.0);
+    drawFilledCircle(position[0], position[1], radio);
+    for (unsigned int i=0; i < attached.size(); i++){
+        attached.at(i)->drawCacho();
+    }
+}
+
+void EntityPrime::print(){
+    std::cout << "Entity id "<< id <<"\n";
+    for (unsigned int i=0; i < attached.size(); i++){
+        std::cout << "L__{ ";
+        attached.at(i)->print();
     }
 }

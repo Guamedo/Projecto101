@@ -10,14 +10,15 @@ class EntityPrime;
 #include <cmath>
 #include "Vector2.h"
 #include "EntityPrime.h"
+#include "Utiles.h"
 
 class CachoPrime {
 
     Vector2 position;
     Vector2 velocity;
-    std::vector<CachoPrime> *attached;
+    std::vector<CachoPrime*> attached;
 
-    Vector2 obj; //Definirla en funcion de la posicion de otro Cacho/Entidad
+    Vector2 obj;
     Vector2 desv;
     float marg;
     EntityPrime *father1;
@@ -26,27 +27,34 @@ class CachoPrime {
     float rozS;
     float rozA;
     float factorc;
+    float radio;
+    int id;
 
 public:
 
-    CachoPrime(Vector2 pos, Vector2 vel, Vector2 des, float mar, float fc, CachoPrime *fath);
-    CachoPrime(Vector2 pos, Vector2 vel, Vector2 des, float mar, float fc, EntityPrime *fath);
+    CachoPrime(Vector2 pos, Vector2 vel, Vector2 des, float mar, float fc, float rad, CachoPrime *fath, int i);
+    CachoPrime(Vector2 pos, Vector2 vel, Vector2 des, float mar, float fc, float rad, EntityPrime *fath, int i);
     ~CachoPrime();
 
-    void setPosition(int x, int y);
+    void setPosition(float x, float y);
     void setPosition(Vector2 p);
-    void setVelocity(int x, int y);
+    void setVelocity(float x, float y);
     void setVelocity(Vector2 v);
     void setMarg(float margen);
+    void setRadio(float);
 
     Vector2 getPosition();
     Vector2 GetVelocity();
     float getMarg();
-    std::vector<CachoPrime>* getAttached();
+    std::vector<CachoPrime*> getAttached();
+    float getRadio();
+
 
     void updateObj();
     void calcMovement();
-
+    void drawCacho();
+    void print();
+    void addCacho(CachoPrime *cacho);
 };
 
 

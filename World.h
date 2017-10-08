@@ -1,3 +1,7 @@
+
+#ifndef PROJECT101_WORLD_H
+#define PROJECT101_WORLD_H
+
 #include <string>
 #include "Box.h"
 #include <vector>
@@ -21,3 +25,4 @@ public:
 
 };
 
+#endif
