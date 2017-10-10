@@ -1,4 +1,5 @@
 #include <GL/gl.h>
+#include <iostream>
 #include "Agent.h"
 #include "Level.h"
 
@@ -65,7 +66,7 @@ void Agent::collideWithLevel(const std::vector<std::string> &levelData) {
 
     for(glm::vec2 pos : collideTilePositions){
 
-        glm::vec2 agentCenterPos = _position + (float)AGENT_WIDTH / 2.0f;
+        glm::vec2 agentCenterPos = glm::vec2(_position.x + (float)AGENT_WIDTH / 2.0f, _position.y + (float)AGENT_WIDTH / 2.0f);
         glm::vec2 distVec = agentCenterPos - pos;
 
         float xDepth = minDist - fabsf(distVec.x);
@@ -83,10 +84,10 @@ void Agent::collideWithLevel(const std::vector<std::string> &levelData) {
             }else{
                 if(distVec.y < 0){
                     _position.y -= yDepth;
-                    _speed.y = 0;
+                    _speed.y *= 0.5;
                 }else{
                     _position.y += yDepth;
-                    _speed.y = 0;
+                    _speed.y *= 0.5;
                     _jump = 0;
                 }
             }

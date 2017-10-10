@@ -50,6 +50,8 @@ void Player::draw() {
 }
 
 void Player::update(const std::vector<std::string> &levelData) {
+
+
     _speed.x = 0;
     _speed.y -= 1;
     if((*_keyStates)['a'] || (*_keyStates)['A']){
@@ -61,7 +63,7 @@ void Player::update(const std::vector<std::string> &levelData) {
     if((*_keyStates)[32]/*SPACE*/){
         if (_jump == 0 || _jump == 2) {
             //player.body.setSpeedY(10);
-            _speed.y += 20;
+            _speed.y = 15;
             _jump++;
         }
     }
@@ -70,7 +72,6 @@ void Player::update(const std::vector<std::string> &levelData) {
             _jump++;
         }
     }
-
     _position += _speed;
 
     glm::vec2 dirVec = glm::vec2(_position.x, _position.y +20) - _headPosition;

@@ -17,7 +17,7 @@ public:
 
     virtual void draw();
 
-    void collideWithLevel(const std::vector<std::string> & levelData);
+    virtual void collideWithLevel(const std::vector<std::string> & levelData);
 
     const glm::vec2 &getPosition() const;
 

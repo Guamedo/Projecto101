@@ -2,8 +2,8 @@
 
 MainGame* MainGame::_instance = nullptr;
 
-MainGame::MainGame(): _windowHeight(400),
-                      _windowWidth(400),
+MainGame::MainGame(): _windowHeight(800),
+                      _windowWidth(800),
                       _windowName("El mundo de J"),
                       _interval(1000/60),
                       _timeSinceStart(0),
@@ -119,6 +119,9 @@ void MainGame::updateCamera(int width, int height){
 
 void MainGame::logic() {
     _playerV2->update(_level.getLevelData());
+    for(Enemy* e : _enemys){
+        e->update(_level.getLevelData(), _playerV2->getPosition());
+    }
 }
 
 void MainGame::resizeWindow(int width, int height) {
