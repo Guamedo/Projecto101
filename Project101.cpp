@@ -34,11 +34,10 @@ const unsigned int interval = 1000 / 30;
 World world = World("El mundo de JPrime", 400, 400, 1);
 int timeSinceStart = 0;
 int timeEspecial = 0;
-EntityPrime player = EntityPrime(Vector2(200,200), Vector2(0,0), 1, 3, &world, 1337);
+EntityPrime player = EntityPrime(Vector2(200,200), Vector2(0,0), 1, 3, &world, 1, 0.66, 1337);
 int frames = 0;
 
 int main(int argc, char **argv) {
-    std::cout << "holahola";
     world.loadLevel("Levels/level1.txt");
 
     srand((unsigned int) time(NULL));

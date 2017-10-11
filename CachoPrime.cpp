@@ -4,32 +4,32 @@
 
 #include "CachoPrime.h"
 
-CachoPrime::CachoPrime(Vector2 pos, Vector2 vel, Vector2 des, float mar, float fc, float rad, CachoPrime *fath, int i){
+CachoPrime::CachoPrime(Vector2 pos, Vector2 vel, Vector2 des, float mar, float fc, float rad, float roza, float rozs, CachoPrime *fath, int i){
     position = pos;
     velocity = vel;
     desv = des;
     marg = mar;
-    rozS = 1;
-    rozA = 0.78;
     factorc = fc;
     tipo = 2;
     father2 = fath;
     radio = rad;
+    rozA = roza;
+    rozS = rozs;
     updateObj();
     id=i;
     std::cout << "Constructora cacho(cacho) " << i <<" -- " << fath->id<< "\n";
 }
-CachoPrime::CachoPrime(Vector2 pos, Vector2 vel, Vector2 des, float mar, float fc, float rad, EntityPrime *fath, int i){
+CachoPrime::CachoPrime(Vector2 pos, Vector2 vel, Vector2 des, float mar, float fc, float rad, float roza, float rozs, EntityPrime *fath, int i){
     position = pos;
     velocity = vel;
     desv = des;
     marg = mar;
-    rozS = 1;
-    rozA = 0.97;
     factorc = fc;
     tipo = 1;
     father1 = fath;
     radio = rad;
+    rozA = roza;
+    rozS = rozs;
     updateObj();
     id=i;
     std::cout << "Constructora cacho(entity) " << i <<" -- " << "incaccesible"<< "\n";
@@ -92,7 +92,7 @@ void CachoPrime::calcMovement(){
     float posx = position[0] + velocity[0];
     float posy = position[1] + velocity[1];
     float velx = velocity[0] * rozA * rozS;
-    float vely = (velocity[1] *(float)0.98) - 1;
+    float vely = (velocity[1] *(float)0.78) - 1;
 
     float dist = distance(obj[0],obj[1], posx, posy);
     Vector2 vect = moveToPoint(obj[0],obj[1], posx, posy);

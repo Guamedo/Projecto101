@@ -4,22 +4,22 @@
 
 #include "EntityPrime.h"
 
-EntityPrime::EntityPrime(Vector2 pos, Vector2 vel, int mode, float rad, World *wrld, int i){
+EntityPrime::EntityPrime(Vector2 pos, Vector2 vel, int mode, float rad, World *wrld, float roza, float rozs, int i){
 
     position = pos;
     velocity = vel;
-    rozS = 0.66;
-    rozA = 1;
     world = wrld;
     jump = 0;
     id = i;
     radio = rad;
+    rozA = roza;
+    rozS = rozs;
 
     if (mode == 1){ //mode == 1 cuando se esta haciendo el jugador
-        attached.push_back(new CachoPrime(Vector2(pos[0],pos[1]), Vector2(0,0), Vector2(0,4), 0.5, 0.55, 1.5, this, 64));
-        attached.push_back(new CachoPrime(pos, Vector2(0,0), Vector2(0,0), 4, 1, 1, this, 11));
-        attached.at(1)->addCacho(new CachoPrime(pos, Vector2(0,0), Vector2(0,0), 4, 1, 1, attached.at(1), 12));
-        attached.at(1)->getAttached().at(0)->addCacho(new CachoPrime(pos, Vector2(0,0), Vector2(0,0), 4, 1, 1, attached.at(1)->getAttached().at(0), 13));
+        attached.push_back(new CachoPrime(Vector2(pos[0],pos[1]), Vector2(0,0), Vector2(0,4), 0.5, 0.55, 1.5, 0.97, 1, this, 64));
+        attached.push_back(new CachoPrime(pos, Vector2(0,0), Vector2(0,0), 4, 1, 1, 0.78, 1, this, 11));
+        attached.at(1)->addCacho(new CachoPrime(pos, Vector2(0,0), Vector2(0,0), 4, 1, 1, 0.78, 1, attached.at(1), 12));
+        attached.at(1)->getAttached().at(0)->addCacho(new CachoPrime(pos, Vector2(0,0), Vector2(0,0), 4, 1, 1, 0.78, 1, attached.at(1)->getAttached().at(0), 13));
     }
     std::cout << "Constructora Entity " << i << "\n";
     print();

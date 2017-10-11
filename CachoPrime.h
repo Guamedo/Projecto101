@@ -32,8 +32,8 @@ class CachoPrime {
 
 public:
 
-    CachoPrime(Vector2 pos, Vector2 vel, Vector2 des, float mar, float fc, float rad, CachoPrime *fath, int i);
-    CachoPrime(Vector2 pos, Vector2 vel, Vector2 des, float mar, float fc, float rad, EntityPrime *fath, int i);
+    CachoPrime(Vector2 pos, Vector2 vel, Vector2 des, float mar, float fc, float rad, float roza, float rozs, CachoPrime *fath, int i);
+    CachoPrime(Vector2 pos, Vector2 vel, Vector2 des, float mar, float fc, float rad, float roza, float rozs, EntityPrime *fath, int i);
     ~CachoPrime();
 
     void setPosition(float x, float y);

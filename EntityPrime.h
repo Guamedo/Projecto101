@@ -30,7 +30,7 @@ class EntityPrime {
 
 
 public:
-    EntityPrime(Vector2 pos, Vector2 vel, int mode, float rad, World *wrld, int id);
+    EntityPrime(Vector2 pos, Vector2 vel, int mode, float rad, World *wrld, float roza, float rozs, int id);
     ~EntityPrime();
 
     void setPosition(float x, float y);
