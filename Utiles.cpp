@@ -29,18 +29,25 @@ Vector2 moveToPoint(float point1x, float point1y, float point2x, float point2y){
 }
 
 void drawFilledCircle(GLfloat x, GLfloat y, GLfloat radius) {
-    int i;
-    int triangleAmount = 20; //# of triangles used to draw circle
-    GLfloat twicePi = (GLfloat) (2.0f * 4 * atan(1));
-    glBegin(GL_TRIANGLE_FAN);
-    glVertex2f(x, y); // center of circle
-    for (i = 0; i <= triangleAmount; i++) {
-        glVertex2f(
-                (GLfloat) (x + (radius * cos(i * twicePi / triangleAmount))),
-                (GLfloat) (y + (radius * sin(i * twicePi / triangleAmount)))
-        );
+    if (radius !=1 ) {
+        int i;
+        int triangleAmount = 20; //# of triangles used to draw circle
+        GLfloat twicePi = (GLfloat) (2.0f * 4 * atan(1));
+        glBegin(GL_TRIANGLE_FAN);
+        glVertex2f(x, y); // center of circle
+        for (i = 0; i <= triangleAmount; i++) {
+            glVertex2f(
+                    (GLfloat) (x + (radius * cos(i * twicePi / triangleAmount))),
+                    (GLfloat) (y + (radius * sin(i * twicePi / triangleAmount)))
+            );
+        }
+        glEnd();
     }
-    glEnd();
+    else{
+        glBegin(GL_POINTS);
+        glVertex2f(x,y);
+        glEnd();
+    }
 }
 
 int random_range(int min, int max) {

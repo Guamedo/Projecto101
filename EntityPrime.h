@@ -27,6 +27,8 @@ class EntityPrime {
     int sprint;
     float radio;
     int id;
+    float pisando;
+    int dir;
 
 
 public:
@@ -49,12 +51,15 @@ public:
     int getJump();
     int getSprint();
     float getRadio();
+    float getPisando();
 
     void reset();
     void newFrameMovement();
     void regularMovement(Vector2 newPos, Vector2 newVel);
     void drawEntity();
     void print();
+    void jumpAction();
+    void IA(EntityPrime obj);
 };
 
 

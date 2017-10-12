@@ -34,6 +34,7 @@ const unsigned int interval = 1000 / 30;
 World world = World("El mundo de JPrime", 400, 400, 1);
 int timeSinceStart = 0;
 int timeEspecial = 0;
+EntityPrime sombra = EntityPrime(Vector2(230, 200), Vector2(0,-10), 1, 3, &world, 1, 0.66, 7331);
 EntityPrime player = EntityPrime(Vector2(200,200), Vector2(0,0), 1, 3, &world, 1, 0.66, 1337);
 int frames = 0;
 
@@ -80,6 +81,7 @@ void draw() {
 void drawEntity() {
     drawPlataforms();
     player.drawEntity();
+    sombra.drawEntity();
     renderString(player.getPosition()[0]-75,player.getPosition()[1]+10, player.getTonterias());
 }
 
@@ -113,7 +115,7 @@ void update(int value) {
     timeEspecial = glutGet(GLUT_ELAPSED_TIME) - timeSinceStart;
     if (timeEspecial > 1000){
         std::ostringstream strng;
-        strng << frames;
+        strng << frames << " " << player.getPisando();
         player.setTonterias(strng.str());
         frames = 0;
         timeSinceStart = glutGet(GLUT_ELAPSED_TIME);
@@ -122,14 +124,15 @@ void update(int value) {
 }
 
 void logic() {
+    sombra.IA(player);
     player.newFrameMovement();
+    sombra.newFrameMovement();
 }
 
 void keyOperations(void) {
     if (keyStates[32]/*SPACE*/) {
         if (player.getJump() == 0 || player.getJump() == 2) {
-            player.setVelocity(player.getVelocity()[0], player.getVelocity()[1]+10);
-            player.setJump(player.getJump()+1);
+            player.jumpAction();
         }
     }
     if (!keyStates[32]/*SPACE_UP*/) {

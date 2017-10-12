@@ -14,6 +14,7 @@ EntityPrime::EntityPrime(Vector2 pos, Vector2 vel, int mode, float rad, World *w
     radio = rad;
     rozA = roza;
     rozS = rozs;
+    dir = 0;
 
     if (mode == 1){ //mode == 1 cuando se esta haciendo el jugador
         attached.push_back(new CachoPrime(Vector2(pos[0],pos[1]), Vector2(0,0), Vector2(0,4), 0.5, 0.55, 1.5, 0.97, 1, this, 64));
@@ -78,6 +79,9 @@ int EntityPrime::getSprint(){
 float EntityPrime::getRadio(){
     return radio;
 }
+float EntityPrime::getPisando(){
+    return pisando;
+}
 
 void EntityPrime::reset(){
     position[0] = 200;
@@ -90,6 +94,9 @@ void EntityPrime::reset(){
 }
 
 void EntityPrime::newFrameMovement(){
+    if(dir!=0){
+        velocity[0] = 4 * (dir);
+    }
     float mainx = position[0] + velocity[0];
     float mainy = position[1] + velocity[1];
     float smainx = velocity[0] * rozA * rozS;
@@ -126,8 +133,9 @@ void EntityPrime::regularMovement(Vector2 newPos, Vector2 newVel){
         velocity[1] = newVel[1];
     }else{
         if(position[1] > world->platforms[colY].center[1]){
-            position[1] = world->platforms[colY].center[1] + world->platforms[colY].halfSize[1] + 4;
+            position[1] = world->platforms[colY].center[1] + world->platforms[colY].halfSize[1] + radio + 1;
             jump = 0;
+            pisando = world->platforms[colY].center[1] + world->platforms[colY].halfSize[1];
             velocity[1] = 0;
         }else{
             position[1] = world->platforms[colY].center[1] - world->platforms[colY].halfSize[1] - 4;
@@ -150,5 +158,22 @@ void EntityPrime::print(){
     for (unsigned int i=0; i < attached.size(); i++){
         std::cout << "L__{ ";
         attached.at(i)->print();
+    }
+}
+
+void EntityPrime::jumpAction(){
+    velocity[1] += 10;
+    jump++;
+    pisando = -1;
+}
+
+void EntityPrime::IA(EntityPrime obj){
+    if (obj.getPosition()[0]-8>position[0]){
+        dir = 1;
+    }
+    else if (obj.getPosition()[0]+8<position[0]){
+        dir = -1;
+    }else{
+        dir = 0;
     }
 }
