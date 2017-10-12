@@ -20,23 +20,11 @@ if (NOT OPENGL_FOUND)
 endif (NOT OPENGL_FOUND)
 
 add_executable(Project101   Project101.cpp
-                            Action.h
-                            Action.cpp
-                            Animacion.h
-                            Animacion.cpp
-                            Dot.h
-                            Dot.cpp
-                            Frame.h
-                            Frame.cpp
-                            World.h
+        World.h
                             World.cpp
-                            Cacho.cpp
-                            Cacho.h
-                            Box.cpp
+        Box.cpp
                             Box.h
-                            Entity.cpp
-                            Entity.h
-                            Vector2.cpp
+        Vector2.cpp
                             Vector2.h
                             EntityPrime.cpp
                             EntityPrime.h

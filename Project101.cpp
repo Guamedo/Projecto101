@@ -13,7 +13,6 @@
 
 #define _USE_MATH_DEFINES
 #include <cmath>
-#include "Entity.h"
 #include "Utiles.h"
 #include "EntityPrime.h"
 
@@ -30,8 +29,8 @@ void keyOperations(void);
 void logic();
 
 bool *keyStates = new bool[256];
-const unsigned int interval = 1000 / 30;
-World world = World("El mundo de JPrime", 400, 400, 1);
+const unsigned int interval = 1000 / 40;
+World world = World("El mundo de JPrime", 1900, 500, 1);
 int timeSinceStart = 0;
 int timeEspecial = 0;
 EntityPrime sombra = EntityPrime(Vector2(230, 200), Vector2(0,-10), 1, 3, &world, 1, 0.66, 7331);
@@ -45,7 +44,7 @@ int main(int argc, char **argv) {
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
     glutInitWindowSize(world.H, world.W);
-    glutInitWindowPosition(100, 100);
+    glutInitWindowPosition(0, 100);
     glutCreateWindow(world.name.c_str());
 
     // To draw with RGBA
@@ -83,6 +82,12 @@ void drawEntity() {
     player.drawEntity();
     sombra.drawEntity();
     renderString(player.getPosition()[0]-75,player.getPosition()[1]+10, player.getTonterias());
+
+    std::ostringstream strInfo;
+    strInfo << "SPEED " << player.getVelocity()[0] << "  " << player.getVelocity()[1] << " | " <<
+            "POSITION " << player.getPosition()[0] << "  " << player.getPosition()[1] << " | " <<
+            "PISANDO " << player.getPisando() << " | " << "FPS " << player.getTonterias();
+    //renderString(player.getPosition()[0]-400,player.getPosition()[1]+250, strInfo.str());
 }
 
 void drawPlataforms() {
@@ -115,7 +120,7 @@ void update(int value) {
     timeEspecial = glutGet(GLUT_ELAPSED_TIME) - timeSinceStart;
     if (timeEspecial > 1000){
         std::ostringstream strng;
-        strng << frames << " " << player.getPisando();
+        strng << frames;
         player.setTonterias(strng.str());
         frames = 0;
         timeSinceStart = glutGet(GLUT_ELAPSED_TIME);
@@ -142,6 +147,7 @@ void keyOperations(void) {
     }
     if (keyStates['r'] || keyStates['R']) {
         player.reset();
+        sombra.reset();
     }
     if (keyStates['a'] || keyStates['A']) {
         if (player.getSprint() == 0)

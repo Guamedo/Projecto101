@@ -56,11 +56,11 @@ int random_range(int min, int max) {
 
 void renderString(GLdouble x, GLdouble y, const std::string &string)
 {
-    glColor3d(random_range(0,1), random_range(0,1), random_range(0,1));
+    glColor3d(1, 1, 1);
     glRasterPos2d(x, y);
     int size = string.size();
     for (int n=0; n<size; ++n) {
-        //glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10, string[n]);
-        glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, string[n]);
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10, string[n]);
+        //glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, string[n]);
     }
 }
