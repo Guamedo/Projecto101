@@ -9,6 +9,8 @@
 #include "GL/glut.h"
 #include <cmath>
 #include <vector>
+#include <malloc.h>
+#include <fstream>
 
 using namespace std;
 
@@ -27,21 +29,6 @@ public:
     }
 }lienzo(1800, 800);
 
-class Casilla {
-public:
-    int estado;
-
-    Casilla(int est){
-        /*
-         * 0 = free
-         * 1 = solid
-         */
-        estado = est;
-    }
-
-    void nada(){}
-};
-
 class Mapa {
 public:
     Vector2 tam;
@@ -51,7 +38,7 @@ public:
     Vector2 tamC;
     Vector2 numC;
     Vector2 sobreC;
-    //Casilla **data;
+    int *data;
 
     Mapa(Vector2 numCasillas, Vector2 tamaCasilla, Lienzo lienz){
         numC = numCasillas;
@@ -63,15 +50,15 @@ public:
         noVisto[0] = 0;
         noVisto[1] = 0;
 
-        /*for(int i = 0; i<numC[0]; i++){
+        data = (int*) malloc((int)numC[0]*(int)numC[1]*sizeof(int));
+        for(int i = 0; i<numC[0]; i++){
             for(int j = 0; j<numC[1]; j++){
-                data[i][j] = Casilla(0);
+                data[i*(int)numC[1] + j] = 0;
             }
-        }*/
+        }
     }
 
     void draw(){
-
         //marca el (0,0)
         glBegin(GL_POINTS);
         glColor3f(1.0f, 0.0f, 0.0f);
@@ -89,28 +76,29 @@ public:
         //Cuadricula
         for (int i = floor(noVisto[0]/tamC[0]); i < numC[0]; i++) {
             for (int j = floor(noVisto[1]/tamC[1]); j < numC[1]; j++){
+
                 glBegin(GL_LINES);
-                glColor4f(1.0f, 1.0f, 1.0f, 0.25f);
+                glColor4f(1.0f, 1.0f, 1.0f, 0.01f);
+
+                if (data[i * (int)numC[1] + j] == 1){
+                    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+                }
 
                 //topline
                 glVertex2f(i*tamC[0],
                            (-1)*(j*tamC[1]) + lienzo.tam[1]-1);
-
                 glVertex2f(i*tamC[0] + tamC[0],
                            (-1)*(j*tamC[1]) + lienzo.tam[1]-1);
-
                 //rightline
                 glVertex2f(i*tamC[0] + tamC[0],
                            (-1)*(j*tamC[1]) + lienzo.tam[1]-1);
                 glVertex2f(i*tamC[0] + tamC[0],
                            (-1)*(j*tamC[1] + tamC[1]) + lienzo.tam[1]-1);
-
                 //bottomLines
                 glVertex2f(i*tamC[0] + tamC[0],
                            (-1)*(j*tamC[1] + tamC[1]) + lienzo.tam[1]-1);
                 glVertex2f(i*tamC[0],
                            (-1)*(j*tamC[1] + tamC[1]) + lienzo.tam[1]-1);
-
                 //leftline
                 glVertex2f(i*tamC[0],
                            (-1)*(j*tamC[1] + tamC[1]) + lienzo.tam[1]-1);
@@ -124,6 +112,7 @@ public:
         //Contorno del mapa
         glBegin(GL_LINES);
         glColor3f(0,0,1);
+
         glVertex2f(0, lienzo.tam[1]-1);
         glVertex2f(0, (-1)*(tamC[1]*numC[1])+lienzo.tam[1]-1);
 
@@ -135,6 +124,7 @@ public:
 
         glVertex2f(tamC[0]*numC[0], lienzo.tam[1]-1);
         glVertex2f(0, lienzo.tam[1]-1);
+
         glEnd();
 
         //Resaltar sobreC
@@ -145,13 +135,10 @@ public:
         //triangulo superior izquierdo
         glVertex2f(i*tamC[0],
                    (-1)*(j*tamC[1]) + lienzo.tam[1]-1);
-
         glVertex2f(i*tamC[0] + tamC[0],
                    (-1)*(j*tamC[1]) + lienzo.tam[1]-1);
-
         glVertex2f(i*tamC[0],
                    (-1)*(j*tamC[1] + tamC[1]) + lienzo.tam[1]-1);
-
         //triangulo inferior derecho
         glVertex2f(i*tamC[0] + tamC[0],
                    (-1)*(j*tamC[1]) + lienzo.tam[1]-1);
@@ -165,6 +152,18 @@ public:
     Vector2 CasillaSeleccionada(){
         return Vector2(floor(posRaton[0]/tamC[0]),floor(posRaton[1]/tamC[1]));
     }
+
+    void save(const char* name){
+        ofstream myfile;
+        myfile.open(name);
+        for (int j = 0; j < numC[1]; j++) {
+            for (int i = 0; i < numC[0]; i++) {
+                myfile << data[i*(int)numC[1] + j];
+            }
+            myfile << "\n";
+        }
+        myfile.close();
+    }
 }mapa(Vector2(423, 28), Vector2(8,8), lienzo); //mario 423 * 28 (8*8)
 
 void draw();
@@ -176,10 +175,13 @@ void updateCamera(int width, int height);
 void enable2D(int width, int height);
 void keyOperations(void);
 void mouse(int x, int y);
-void mouseClicking(int x, int y);
+void mousePlusCosas(int x, int y);
+void mouseClicks(int button, int state, int x, int y);
 
 bool *keyStates = new bool[256];
 const unsigned int interval = 1000 / 60;
+int EstoyClickandoXD = 0;
+int modo = -1;
 
 int main (int argc, char **argv) {
 
@@ -195,8 +197,9 @@ int main (int argc, char **argv) {
 
     std::fill_n(keyStates, 256, false);
 
-    glutMotionFunc(mouseClicking);
+    glutMotionFunc(mouse);
     glutPassiveMotionFunc(mouse);
+    glutMouseFunc(mouseClicks);
 
     glutDisplayFunc(draw);
     glutReshapeFunc(resize);
@@ -232,10 +235,32 @@ void mouse(int x, int y){
     Vector2 cs = mapa.CasillaSeleccionada();
     cout << cs[0] << " " << cs[1] << "\n";
     mapa.sobreC = cs;
+    if (EstoyClickandoXD == 1){
+        if(modo == -1) {
+            if (mapa.data[(int) mapa.numC[1] * (int) mapa.sobreC[0] + (int) mapa.sobreC[1]] == 1) {
+                modo = 0;
+                mapa.data[(int) mapa.numC[1] * (int) mapa.sobreC[0] + (int) mapa.sobreC[1]] = 0;
+            } else {
+                modo = 1;
+                mapa.data[(int) mapa.numC[1] * (int) mapa.sobreC[0] + (int) mapa.sobreC[1]] = 1;
+            }
+        }
+        else if (modo == 1){
+            mapa.data[(int) mapa.numC[1] * (int) mapa.sobreC[0] + (int) mapa.sobreC[1]] = 1;
+        }
+        else if (modo == 0){
+            mapa.data[(int) mapa.numC[1] * (int) mapa.sobreC[0] + (int) mapa.sobreC[1]] = 0;
+        }
+    }
 }
 
-void mouseClicking(int x, int y){
-    cout << x << " " << y << " click\n";
+void mouseClicks(int button, int state, int x, int y) {
+    if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
+        EstoyClickandoXD = 1;
+    }else{
+        EstoyClickandoXD=0;
+        modo=-1;
+    }
 }
 
 void keyOperations(void) {
@@ -279,6 +304,9 @@ void keyOperations(void) {
             cout << mapa.noVisto[1] << "\n";
         }
 
+    }
+    if (keyStates['g'] || keyStates['G']) {
+        mapa.save("mapa1.txt");
     }
     if (keyStates[27]/*ESC*/) {
         exit(1);
