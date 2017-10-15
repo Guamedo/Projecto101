@@ -1,6 +1,10 @@
 #ifndef PROJECT101_MAINGAME_H
 #define PROJECT101_MAINGAME_H
 
+
+#include <GL/gl.h>
+#include <GL/glu.h>
+
 #include <string>
 #include <cstdio>
 #include <cstdlib>
@@ -9,13 +13,16 @@
 #include <ctime>
 #include <fstream>
 #include <sstream>
-#include <GL/gl.h>
-#include <GL/glu.h>
 #include <array>
-#include "GL/glut.h"
-
-#define _USE_MATH_DEFINES
 #include <cmath>
+
+#ifdef WIN32
+    #include <windows.h>
+    #include <GL/glut.h>
+#else
+    #include <GL/glut.h>
+#endif
+
 #include "Level.h"
 #include "Player.h"
 #include "Enemy.h"
