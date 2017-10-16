@@ -84,10 +84,10 @@ void Agent::collideWithLevel(const std::vector<std::string> &levelData) {
             }else{
                 if(distVec.y < 0){
                     _position.y -= yDepth;
-                    _speed.y *= 0.5;
+                    _speed.y = 0;
                 }else{
                     _position.y += yDepth;
-                    _speed.y *= 0.5;
+                    _speed.y = 0;
                     _jump = 0;
                 }
             }

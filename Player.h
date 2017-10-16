@@ -13,7 +13,15 @@ public:
     void draw();
 
     void update(const std::vector<std::string> & levelData);
+
 private:
+    void manageInput();
+
+    float diag(const glm::vec2 & point1,const glm::vec2 & point2);
+    glm::vec2 moveToPoint(const glm::vec2 & point1,const glm::vec2 & point2);
+
+    void collideWithBody();
+
     bool** _keyStates;
     bool** _speccialkeysStates;
 
