@@ -90,7 +90,9 @@ void Player::update(const std::vector<std::string> &levelData) {
     _headSpeed = glm::vec2(_headSpeed.x + (getToDiag - diag) * rtrn.x * 0.1f,
                            _headSpeed.y + (getToDiag - diag) * rtrn.y * 0.1f);
 
-    this->collideWithBody();
+
+    //this->collideWithBody();
+
     //Collide with level
     this->collideWithLevel(levelData);
     std::cout << "X= " << _speed.x << ", Y= " << _speed.y << "\n";

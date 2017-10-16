@@ -1,7 +1,6 @@
 #ifndef PROJECT101_MAINGAME_H
 #define PROJECT101_MAINGAME_H
 
-
 #include <GL/gl.h>
 #include <GL/glu.h>
 

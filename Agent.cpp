@@ -95,6 +95,34 @@ void Agent::collideWithLevel(const std::vector<std::string> &levelData) {
     }
 }
 
+void Agent::collideWithLevelV2(const std::vector<std::string> &levelData) {
+    // X Axes
+
+    //Check agent horizontal direction
+
+    glm::vec2 faceX[2];
+    if(_speed.x > 0/*Right face*/){
+        faceX[0] = glm::vec2(_position.x + AGENT_WIDTH, _position.y);
+        faceX[1] = glm::vec2(_position.x + AGENT_WIDTH, _position.y + AGENT_WIDTH);
+    }else/*Left face*/{
+        faceX[0] = glm::vec2(_position.x, _position.y);
+        faceX[1] = glm::vec2(_position.x, _position.y + AGENT_WIDTH);
+    }
+
+    // Y Axes
+
+    //Check agent vertical direction
+
+    glm::vec2 faceY[2];
+    if(_speed.y > 0/*Up face*/){
+        faceY[0] = glm::vec2(_position.x, _position.y);
+        faceY[1] = glm::vec2(_position.x + AGENT_WIDTH, _position.y);
+    }else/*Down face*/{
+        faceY[0] = glm::vec2(_position.x + AGENT_WIDTH, _position.y);
+        faceY[1] = glm::vec2(_position.x + AGENT_WIDTH, _position.y + AGENT_WIDTH);
+    }
+}
+
 const glm::vec2 &Agent::getPosition() const {
     return _position;
 }

@@ -19,6 +19,8 @@ public:
 
     virtual void collideWithLevel(const std::vector<std::string> & levelData);
 
+    virtual void collideWithLevelV2(const std::vector<std::string> & levelData);
+
     const glm::vec2 &getPosition() const;
 
     void setPosition(const glm::vec2 &position);
