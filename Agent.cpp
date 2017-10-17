@@ -32,37 +32,58 @@ void Agent::draw() {
 
 void Agent::collideWithLevel(const std::vector<std::string> &levelData) {
     std::vector<glm::vec2> collideTilePositions;
+    bool collPoints[4];
 
-    //Check for corners
+    for(int i = 0; i < 4; i++){
+        collPoints[i] = false;
+    }
+    /**Check for corners**/
+
+    // Top left point
     glm::vec2 vec = glm::vec2(floorf(_position.x / (float)TILE_SIZE),
                               floorf(_position.y / (float)TILE_SIZE));
 
     if(levelData[vec.y][vec.x] == 'B'){
         collideTilePositions.push_back(vec * (float)TILE_SIZE + glm::vec2((float)TILE_SIZE/ 2.0f));
+        collPoints[0] = true;
     }
 
+    // Top right
     vec = glm::vec2(floorf((_position.x + AGENT_WIDTH) / (float)TILE_SIZE),
                     floorf(_position.y / (float)TILE_SIZE));
 
     if(levelData[vec.y][vec.x] == 'B'){
         collideTilePositions.push_back(vec * (float)TILE_SIZE + glm::vec2((float)TILE_SIZE/ 2.0f));
+        collPoints[1] = true;
     }
 
+
+    // Bottom left
     vec = glm::vec2(floorf(_position.x / (float)TILE_SIZE),
                     floorf((_position.y + AGENT_WIDTH) / (float)TILE_SIZE));
 
     if(levelData[vec.y][vec.x] == 'B'){
         collideTilePositions.push_back(vec * (float)TILE_SIZE + glm::vec2((float)TILE_SIZE/ 2.0f));
+        collPoints[2] = true;
     }
 
+
+    // Bottom right
     vec = glm::vec2(floorf((_position.x + AGENT_WIDTH) / (float)TILE_SIZE),
                     floorf((_position.y + AGENT_WIDTH) / (float)TILE_SIZE));
 
     if(levelData[vec.y][vec.x] == 'B'){
         collideTilePositions.push_back(vec * (float)TILE_SIZE + glm::vec2((float)TILE_SIZE/ 2.0f));
+        collPoints[3] = true;
     }
 
     float minDist = (float)TILE_SIZE / 2.0f + (float)AGENT_WIDTH / 2.0f;
+    bool colWall = false;
+
+    if((collPoints[0] && collPoints[2]) ||
+            (collPoints[1] && collPoints[3])){
+        colWall = true;
+    }
 
     for(glm::vec2 pos : collideTilePositions){
 
@@ -74,52 +95,179 @@ void Agent::collideWithLevel(const std::vector<std::string> &levelData) {
 
         if(xDepth > 0 || yDepth > 0){
             if(xDepth < yDepth){
+                // X axe collision
                 if(distVec.x < 0){
                     _position.x -= xDepth;
-                    _speed.x = 0;
+                    //_speed.x = 0;
                 }else{
-                    _position.x += xDepth;
-                    _speed.x = 0;
+                    _position.x += xDepth ;
+                    //_speed.x = 0;
                 }
             }else{
+                // Y axe collision
                 if(distVec.y < 0){
                     _position.y -= yDepth;
-                    _speed.y = 0;
+                    if(!colWall){
+                        _speed.y = 0;
+                    }
                 }else{
                     _position.y += yDepth;
-                    _speed.y = 0;
+                    if(!colWall){
+                        _speed.y = 0;
+                    }
                     _jump = 0;
                 }
             }
         }
     }
+    if(colWall){
+        //_speed = glm::vec2(0.0f, _speed.y);
+    }else{
+        //_speed = glm::vec2(_speed.x, 0.0f);
+    }
+    std::cout << colWall << "\n";
 }
 
-void Agent::collideWithLevelV2(const std::vector<std::string> &levelData) {
-    // X Axes
+void Agent::collideWithLevelAndUpdatePos(const std::vector<std::string> &levelData) {
+
+    // Create the vector to store the colliding tiles
+    std::vector<glm::vec2> collideTilePositions;
+
+    // Un vector
+    glm::vec2 vec;
+
+    // Define the minimum distance between the agent and the tile
+    float minDist = (float)TILE_SIZE / 2.0f + (float)AGENT_WIDTH / 2.0f;
+
+    /********************
+     * X Axes Collision *
+     ********************/
+
+    // Update player position in X axe
+    _position.x +=_speed.x;
 
     //Check agent horizontal direction
-
     glm::vec2 faceX[2];
-    if(_speed.x > 0/*Right face*/){
+    if(_speed.x >= 0/*Right face*/){
+        std::cout << "Right face\n";
         faceX[0] = glm::vec2(_position.x + AGENT_WIDTH, _position.y);
         faceX[1] = glm::vec2(_position.x + AGENT_WIDTH, _position.y + AGENT_WIDTH);
     }else/*Left face*/{
+        std::cout << "Left face\n";
         faceX[0] = glm::vec2(_position.x, _position.y);
         faceX[1] = glm::vec2(_position.x, _position.y + AGENT_WIDTH);
     }
 
-    // Y Axes
+    // Check for the tiles colliding with the agent
+    vec = glm::vec2(floorf(faceX[0].x / (float)TILE_SIZE),
+                    floorf(faceX[0].y / (float)TILE_SIZE));
+
+    if(levelData[vec.y][vec.x] == 'B'){
+        collideTilePositions.push_back(vec * (float)TILE_SIZE + glm::vec2((float)TILE_SIZE/ 2.0f));
+    }
+
+    vec = glm::vec2(floorf(faceX[1].x / (float)TILE_SIZE),
+                    floorf(faceX[1].y / (float)TILE_SIZE));
+
+    if(levelData[vec.y][vec.x] == 'B'){
+        collideTilePositions.push_back(vec * (float)TILE_SIZE + glm::vec2((float)TILE_SIZE/ 2.0f));
+    }
+
+    // Manage the collisions
+    for(glm::vec2 pos : collideTilePositions){
+
+        glm::vec2 agentCenterPos = glm::vec2(_position.x + (float)AGENT_WIDTH / 2.0f, _position.y + (float)AGENT_WIDTH / 2.0f);
+        glm::vec2 distVec = agentCenterPos - pos;
+
+        float xDepth = minDist - fabsf(distVec.x);
+
+        if(xDepth >= 0){
+            if(distVec.x <= 0){
+                _position.x -= xDepth + 1;
+                _speed.x = 0;
+                _speed.y *= 0.7;
+            }else{
+                _position.x += xDepth + 1;
+                _speed.x = 0;
+                _speed.y *= 0.7;
+            }
+        }
+    }
+
+    // Clean tile vector
+    collideTilePositions.clear();
+
+    /**********
+     * Y Axes *
+     **********/
+
+    //Update player position in Y axe
+    _position.y += _speed.y;
 
     //Check agent vertical direction
-
     glm::vec2 faceY[2];
-    if(_speed.y > 0/*Up face*/){
+    if(_speed.y >= 0/*Up face*/){
+        std::cout << "Up face\n";
         faceY[0] = glm::vec2(_position.x, _position.y);
         faceY[1] = glm::vec2(_position.x + AGENT_WIDTH, _position.y);
     }else/*Down face*/{
+        std::cout << "Down face\n";
         faceY[0] = glm::vec2(_position.x + AGENT_WIDTH, _position.y);
         faceY[1] = glm::vec2(_position.x + AGENT_WIDTH, _position.y + AGENT_WIDTH);
+    }
+
+
+    // Top left point
+    vec = glm::vec2(floorf(_position.x / (float)TILE_SIZE),
+                              floorf(_position.y / (float)TILE_SIZE));
+
+    if(levelData[vec.y][vec.x] == 'B'){
+        collideTilePositions.push_back(vec * (float)TILE_SIZE + glm::vec2((float)TILE_SIZE/ 2.0f));
+    }
+
+    // Top right
+    vec = glm::vec2(floorf((_position.x + AGENT_WIDTH) / (float)TILE_SIZE),
+                    floorf(_position.y / (float)TILE_SIZE));
+
+    if(levelData[vec.y][vec.x] == 'B'){
+        collideTilePositions.push_back(vec * (float)TILE_SIZE + glm::vec2((float)TILE_SIZE/ 2.0f));
+    }
+
+
+    // Bottom left
+    vec = glm::vec2(floorf(_position.x / (float)TILE_SIZE),
+                    floorf((_position.y + AGENT_WIDTH) / (float)TILE_SIZE));
+
+    if(levelData[vec.y][vec.x] == 'B'){
+        collideTilePositions.push_back(vec * (float)TILE_SIZE + glm::vec2((float)TILE_SIZE/ 2.0f));
+    }
+
+
+    // Bottom right
+    vec = glm::vec2(floorf((_position.x + AGENT_WIDTH) / (float)TILE_SIZE),
+                    floorf((_position.y + AGENT_WIDTH) / (float)TILE_SIZE));
+
+    if(levelData[vec.y][vec.x] == 'B'){
+        collideTilePositions.push_back(vec * (float)TILE_SIZE + glm::vec2((float)TILE_SIZE/ 2.0f));
+    }
+
+    for(glm::vec2 pos : collideTilePositions){
+
+        glm::vec2 agentCenterPos = glm::vec2(_position.x + (float)AGENT_WIDTH / 2.0f, _position.y + (float)AGENT_WIDTH / 2.0f);
+        glm::vec2 distVec = agentCenterPos - pos;
+
+        float yDepth = minDist - fabsf(distVec.y);
+
+        if(yDepth > 0){
+            if(distVec.y < 0){
+                _position.y -= yDepth + 1;
+                _speed.y = 0;
+            }else{
+                _position.y += yDepth;
+                _speed.y = 0;
+                _jump = 0;
+            }
+        }
     }
 }
 

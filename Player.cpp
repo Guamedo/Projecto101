@@ -59,8 +59,8 @@ void Player::update(const std::vector<std::string> &levelData) {
     this->manageInput();
 
     //Update player position
-    _position += _speed;
-
+    //_position += _speed;
+    this->collideWithLevelAndUpdatePos(levelData);
     // Calculate head speed
     /**
     glm::vec2 dirVec = glm::vec2(_position.x, _position.y +20) - _headPosition;
@@ -94,8 +94,7 @@ void Player::update(const std::vector<std::string> &levelData) {
     //this->collideWithBody();
 
     //Collide with level
-    this->collideWithLevel(levelData);
-    std::cout << "X= " << _speed.x << ", Y= " << _speed.y << "\n";
+    //this->collideWithLevel(levelData);
 }
 
 void Player::manageInput() {
@@ -108,7 +107,7 @@ void Player::manageInput() {
     if((*_keyStates)[32]/*SPACE*/){
         if (_jump == 0 || _jump == 2) {
             //player.body.setSpeedY(10);
-            _speed.y += 15;
+            _speed.y = 15;
             _jump++;
         }
     }

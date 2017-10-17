@@ -19,7 +19,7 @@ public:
 
     virtual void collideWithLevel(const std::vector<std::string> & levelData);
 
-    virtual void collideWithLevelV2(const std::vector<std::string> & levelData);
+    virtual void collideWithLevelAndUpdatePos(const std::vector<std::string> & levelData);
 
     const glm::vec2 &getPosition() const;
 
