@@ -110,7 +110,7 @@ void Level::drawLevel() {
                 glColor3f(n*0.2f, n*0.2f, n*0.2f);
             }else if(tileType == 'G'){
                 if(n < 0.45f && !cosa){
-                    glColor3f(n * 0.2f, n * 0.2f, (n+0.55f) * 0.78f);
+                    glColor4f(n * 0.2f, n * 0.2f, (n+0.55f) * 0.78f, 0.8f);
                 }else {
                     glColor3f(n * 0.2f, n * 0.78f, n * 0.2f);
                 }
