@@ -5,6 +5,7 @@
 #include <vector>
 #include <glm/vec2.hpp>
 #include "Box.h"
+#include "PerlinNoise.h"
 
 const int TILE_SIZE = 50;
 
@@ -28,6 +29,8 @@ private:
     glm::vec2 _playerInitialPos;
     std::vector<glm::vec2> _enemyInitialPositions;
     std::vector<Box> _levelDrawData;
+    float _gravity;
+    PerlinNoise _perlinNoise;
 };
 
 #endif //PROJECT101_LEVEL_H

@@ -6,6 +6,7 @@ MainGame::MainGame(): _windowHeight(800),
                       _windowWidth(800),
                       _windowName("El mundo de J"),
                       _interval(1000/60),
+                      _deltaTime(1000.0f/60.0f),
                       _timeSinceStart(0),
                       _timeEspecial(0),
                       _keyStates(new bool[256]),
@@ -78,6 +79,7 @@ void MainGame::initSystems(int argc, char* argv[]) {
 void MainGame::draw() {
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClearColor(.2f, .2f, .2f, 1.0f);
     glLoadIdentity();
 
     _level.drawLevel();

@@ -1,11 +1,12 @@
 #include "Level.h"
 #include "Enemy.h"
+#include "PerlinNoise.h"
 #include <fstream>
 #include <iostream>
 #include <GL/gl.h>
 #include <algorithm>
 
-Level::Level() {
+Level::Level(): _gravity(800.0f), _perlinNoise(PerlinNoise()){
 
 }
 
@@ -32,7 +33,9 @@ void Level::loadLevel(const std::string &levelPath) {
         for(int x = 0; x < _levelData[y].size(); x++){
             char tile = _levelData[y][x];
             switch (tile){
-                case 'B':
+                case 'W':
+                case 'G':
+                case 'C':
                     _levelDrawData.emplace_back(glm::vec2(x * TILE_SIZE, y * TILE_SIZE), TILE_SIZE);
                     break;
                 case '@':
@@ -53,21 +56,80 @@ void Level::loadLevel(const std::string &levelPath) {
 
 void Level::drawLevel() {
     glBegin(GL_TRIANGLES);
-    glColor3f(0.42f, 0.6f, 0.5f);
     for(Box b : _levelDrawData){
-        glVertex2f(b.getPosition().x,
-                   b.getPosition().y);
-        glVertex2f(b.getPosition().x,
-                   b.getPosition().y + b.getWidth());
-        glVertex2f(b.getPosition().x + b.getWidth(),
-                   b.getPosition().y);
 
-        glVertex2f(b.getPosition().x + b.getWidth(),
-                   b.getPosition().y);
-        glVertex2f(b.getPosition().x,
-                   b.getPosition().y + b.getWidth());
-        glVertex2f(b.getPosition().x + b.getWidth(),
-                   b.getPosition().y + b.getWidth());
+
+        int tileY = (int)(floorf(b.getPosition().y)/(float)TILE_SIZE);
+        int tileX = (int)(floorf(b.getPosition().x)/(float)TILE_SIZE);
+        char tileType = _levelData[tileY][tileX];
+
+        bool cosa = false;
+        if(tileX-1 > 0){
+            if(_levelData[tileY][tileX-1] == '.'){
+                cosa = true;
+            }
+        }else{
+            cosa = true;
+        }
+
+        if(tileX + 1 < _levelData[tileY].size()){
+            if(_levelData[tileY][tileX + 1] == '.'){
+                cosa = true;
+            }
+        }else{
+            cosa = true;
+        }
+
+        if(tileY - 1 >= 0){
+            if(_levelData[tileY - 1][tileX] == '.'){
+                cosa = true;
+            }
+        }else{
+            cosa = true;
+        }
+
+
+        for(int i = 0; i < 4; i++){
+            float x = b.getPosition().x;
+            float y = b.getPosition().y;
+
+            if(i % 2 != 0){
+                x += b.getWidth()/2.0f;
+            }
+
+            if(i >= 2){
+                y += b.getWidth()/2.0f;
+            }
+
+            float n = _perlinNoise.noise((x/(b.getWidth()/2.0f))*0.1f, (y/(b.getWidth()/2.0f))*0.1f);
+
+
+            if(tileType == 'C'){
+                glColor3f(n, n, n);
+            }else if(tileType == 'W'){
+                glColor3f(n*0.2f, n*0.2f, n*0.2f);
+            }else if(tileType == 'G'){
+                if(n < 0.45f && !cosa){
+                    glColor3f(n * 0.2f, n * 0.2f, (n+0.55f) * 0.78f);
+                }else {
+                    glColor3f(n * 0.2f, n * 0.78f, n * 0.2f);
+                }
+            }
+
+            glVertex2f(x, y);
+
+            glVertex2f(x, y + b.getWidth()/2.0f);
+
+            glVertex2f(x + b.getWidth()/2.0f, y);
+
+            glVertex2f(x + b.getWidth()/2.0f, y);
+
+            glVertex2f(x, y + b.getWidth()/2.0f);
+
+            glVertex2f(x + b.getWidth()/2.0f, y + b.getWidth()/2.0f);
+        }
+
+
     }
     glEnd();
 }

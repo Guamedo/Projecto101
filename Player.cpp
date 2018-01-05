@@ -17,10 +17,11 @@ void Player::init(glm::vec2 pos, bool** keyStates, bool** speccialkeysStates) {
 }
 
 void Player::draw() {
+
     int triangleAmount = 20; //# of triangles used to draw circle
     GLfloat twicePi = (GLfloat) (2.0f * 4 * atan(1));
     glBegin(GL_TRIANGLE_FAN);
-    glColor3f(1.0f, 0.0f, 0.0f);
+    glColor3f(0.78f, 0.2f, 0.2f);
     //Draw the body
     float x = _position.x + (float)AGENT_WIDTH / 2.0f;
     float y = _position.y + (float)AGENT_WIDTH / 2.0f;
@@ -36,7 +37,7 @@ void Player::draw() {
 
     //Draw the head
     glBegin(GL_TRIANGLE_FAN);
-    glColor3f(1.0f, 1.0f, 0.0f);
+    glColor3f(0.78f, 0.78f, 0.2f);
     x = _headPosition.x + (float)AGENT_WIDTH / 2.0f;
     y = _headPosition.y + (float)AGENT_WIDTH / 2.0f;
     radius = (float)AGENT_WIDTH/4.0f;
@@ -53,7 +54,9 @@ void Player::draw() {
 void Player::update(const std::vector<std::string> &levelData) {
 
     // Set frame initial speed
-    _speed = glm::vec2(0.0f, _speed.y - 1.0f);
+
+    float newSpeedY = _speed.y - 120*(60.0f/1000.0f);
+    _speed = glm::vec2(0.0f, newSpeedY);
 
     // Update speed from input
     this->manageInput();
@@ -107,7 +110,7 @@ void Player::manageInput() {
     if((*_keyStates)[32]/*SPACE*/){
         if (_jump == 0 || _jump == 2) {
             //player.body.setSpeedY(10);
-            _speed.y = 15;
+            _speed.y = 150;
             _jump++;
         }
     }

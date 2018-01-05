@@ -82,6 +82,7 @@ private:
     int _frames;
     int _timeSinceStart;
     int _timeEspecial;
+    float _deltaTime;
 
     //Game agents
     Player* _playerV2;

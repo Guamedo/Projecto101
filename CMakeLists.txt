@@ -41,6 +41,6 @@ add_executable(Project101 Project101.cpp
                           MainGame.cpp
                           MainGame.h
                           Enemy.cpp
-                          Enemy.h)
+                          Enemy.h PerlinNoise.cpp PerlinNoise.h)
                             
 target_link_libraries(Project101 ${OPENGL_LIBRARIES} ${GLUT_LIBRARY})

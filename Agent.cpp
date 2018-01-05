@@ -125,7 +125,7 @@ void Agent::collideWithLevel(const std::vector<std::string> &levelData) {
     }else{
         //_speed = glm::vec2(_speed.x, 0.0f);
     }
-    std::cout << colWall << "\n";
+    //std::cout << colWall << "\n";
 }
 
 void Agent::collideWithLevelAndUpdatePos(const std::vector<std::string> &levelData) {
@@ -144,16 +144,17 @@ void Agent::collideWithLevelAndUpdatePos(const std::vector<std::string> &levelDa
      ********************/
 
     // Update player position in X axe
-    _position.x +=_speed.x;
+
+    _position.x += _speed.x;
 
     //Check agent horizontal direction
     glm::vec2 faceX[2];
     if(_speed.x >= 0/*Right face*/){
-        std::cout << "Right face\n";
+        //std::cout << "Right face\n";
         faceX[0] = glm::vec2(_position.x + AGENT_WIDTH, _position.y);
         faceX[1] = glm::vec2(_position.x + AGENT_WIDTH, _position.y + AGENT_WIDTH);
     }else/*Left face*/{
-        std::cout << "Left face\n";
+        //std::cout << "Left face\n";
         faceX[0] = glm::vec2(_position.x, _position.y);
         faceX[1] = glm::vec2(_position.x, _position.y + AGENT_WIDTH);
     }
@@ -162,14 +163,14 @@ void Agent::collideWithLevelAndUpdatePos(const std::vector<std::string> &levelDa
     vec = glm::vec2(floorf(faceX[0].x / (float)TILE_SIZE),
                     floorf(faceX[0].y / (float)TILE_SIZE));
 
-    if(levelData[vec.y][vec.x] == 'B'){
+    if(levelData[vec.y][vec.x] == 'G' || levelData[vec.y][vec.x] == 'W' || levelData[vec.y][vec.x] == 'C'){
         collideTilePositions.push_back(vec * (float)TILE_SIZE + glm::vec2((float)TILE_SIZE/ 2.0f));
     }
 
     vec = glm::vec2(floorf(faceX[1].x / (float)TILE_SIZE),
                     floorf(faceX[1].y / (float)TILE_SIZE));
 
-    if(levelData[vec.y][vec.x] == 'B'){
+    if(levelData[vec.y][vec.x] == 'G' || levelData[vec.y][vec.x] == 'W' || levelData[vec.y][vec.x] == 'C'){
         collideTilePositions.push_back(vec * (float)TILE_SIZE + glm::vec2((float)TILE_SIZE/ 2.0f));
     }
 
@@ -185,11 +186,11 @@ void Agent::collideWithLevelAndUpdatePos(const std::vector<std::string> &levelDa
             if(distVec.x <= 0){
                 _position.x -= xDepth + 1;
                 _speed.x = 0;
-                _speed.y *= 0.7;
+                //_speed.y *= 0.7;
             }else{
                 _position.x += xDepth + 1;
                 _speed.x = 0;
-                _speed.y *= 0.7;
+                //_speed.y *= 0.7;
             }
         }
     }
@@ -202,16 +203,16 @@ void Agent::collideWithLevelAndUpdatePos(const std::vector<std::string> &levelDa
      **********/
 
     //Update player position in Y axe
-    _position.y += _speed.y;
+    _position.y += _speed.y * (60.0f/1000.0f) + 120.0f * (60.0f/1000.0f) * (60.0f/1000.0f);
 
     //Check agent vertical direction
     glm::vec2 faceY[2];
     if(_speed.y >= 0/*Up face*/){
-        std::cout << "Up face\n";
+        //std::cout << "Up face\n";
         faceY[0] = glm::vec2(_position.x, _position.y);
         faceY[1] = glm::vec2(_position.x + AGENT_WIDTH, _position.y);
     }else/*Down face*/{
-        std::cout << "Down face\n";
+        //std::cout << "Down face\n";
         faceY[0] = glm::vec2(_position.x + AGENT_WIDTH, _position.y);
         faceY[1] = glm::vec2(_position.x + AGENT_WIDTH, _position.y + AGENT_WIDTH);
     }
@@ -221,7 +222,7 @@ void Agent::collideWithLevelAndUpdatePos(const std::vector<std::string> &levelDa
     vec = glm::vec2(floorf(_position.x / (float)TILE_SIZE),
                               floorf(_position.y / (float)TILE_SIZE));
 
-    if(levelData[vec.y][vec.x] == 'B'){
+    if(levelData[vec.y][vec.x] == 'G' || levelData[vec.y][vec.x] == 'W' || levelData[vec.y][vec.x] == 'C'){
         collideTilePositions.push_back(vec * (float)TILE_SIZE + glm::vec2((float)TILE_SIZE/ 2.0f));
     }
 
@@ -229,7 +230,7 @@ void Agent::collideWithLevelAndUpdatePos(const std::vector<std::string> &levelDa
     vec = glm::vec2(floorf((_position.x + AGENT_WIDTH) / (float)TILE_SIZE),
                     floorf(_position.y / (float)TILE_SIZE));
 
-    if(levelData[vec.y][vec.x] == 'B'){
+    if(levelData[vec.y][vec.x] == 'G' || levelData[vec.y][vec.x] == 'W' || levelData[vec.y][vec.x] == 'C'){
         collideTilePositions.push_back(vec * (float)TILE_SIZE + glm::vec2((float)TILE_SIZE/ 2.0f));
     }
 
@@ -238,7 +239,7 @@ void Agent::collideWithLevelAndUpdatePos(const std::vector<std::string> &levelDa
     vec = glm::vec2(floorf(_position.x / (float)TILE_SIZE),
                     floorf((_position.y + AGENT_WIDTH) / (float)TILE_SIZE));
 
-    if(levelData[vec.y][vec.x] == 'B'){
+    if(levelData[vec.y][vec.x] == 'G' || levelData[vec.y][vec.x] == 'W' || levelData[vec.y][vec.x] == 'C'){
         collideTilePositions.push_back(vec * (float)TILE_SIZE + glm::vec2((float)TILE_SIZE/ 2.0f));
     }
 
@@ -247,7 +248,7 @@ void Agent::collideWithLevelAndUpdatePos(const std::vector<std::string> &levelDa
     vec = glm::vec2(floorf((_position.x + AGENT_WIDTH) / (float)TILE_SIZE),
                     floorf((_position.y + AGENT_WIDTH) / (float)TILE_SIZE));
 
-    if(levelData[vec.y][vec.x] == 'B'){
+    if(levelData[vec.y][vec.x] == 'G' || levelData[vec.y][vec.x] == 'W' || levelData[vec.y][vec.x] == 'C'){
         collideTilePositions.push_back(vec * (float)TILE_SIZE + glm::vec2((float)TILE_SIZE/ 2.0f));
     }
 
