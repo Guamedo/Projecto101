@@ -20,16 +20,6 @@ if (NOT OPENGL_FOUND)
 endif (NOT OPENGL_FOUND)
 
 add_executable(Project101 Project101.cpp
-                          Action.h
-                          Action.cpp
-                          Animacion.h
-                          Animacion.cpp
-                          Dot.h
-                          Dot.cpp
-                          Frame.h
-                          Frame.cpp
-                          Cacho.cpp
-                          Cacho.h
                           Box.cpp
                           Box.h
                           Level.cpp
@@ -41,6 +31,8 @@ add_executable(Project101 Project101.cpp
                           MainGame.cpp
                           MainGame.h
                           Enemy.cpp
-                          Enemy.h PerlinNoise.cpp PerlinNoise.h)
+                          Enemy.h
+                          PerlinNoise.cpp
+                          PerlinNoise.h)
                             
 target_link_libraries(Project101 ${OPENGL_LIBRARIES} ${GLUT_LIBRARY})
