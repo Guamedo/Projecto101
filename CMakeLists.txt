@@ -19,27 +19,28 @@ if (NOT OPENGL_FOUND)
     message(ERROR " OPENGL not found!")
 endif (NOT OPENGL_FOUND)
 
-add_executable(Project101
-        Project101.cpp
-        World.h
-        World.cpp
-        Box.cpp
-        Box.h
-        Vector2.cpp
-        Vector2.h
-        EntityPrime.cpp
-        EntityPrime.h
-        CachoPrime.cpp
-        CachoPrime.h
-        Utiles.cpp
-        Utiles.h)
-
-target_link_libraries(Project101 ${OPENGL_LIBRARIES} ${GLUT_LIBRARY})
-
-add_executable(Editor
-        Editor.cpp
-        Vector2.cpp
-        Vector2.h)
-
-target_link_libraries(Editor ${OPENGL_LIBRARIES} ${GLUT_LIBRARY})
+add_executable(Project101 Project101.cpp
+                          Action.h
+                          Action.cpp
+                          Animacion.h
+                          Animacion.cpp
+                          Dot.h
+                          Dot.cpp
+                          Frame.h
+                          Frame.cpp
+                          Cacho.cpp
+                          Cacho.h
+                          Box.cpp
+                          Box.h
+                          Level.cpp
+                          Level.h
+                          Agent.cpp
+                          Agent.h
+                          Player.cpp
+                          Player.h
+                          MainGame.cpp
+                          MainGame.h
+                          Enemy.cpp
+                          Enemy.h PerlinNoise.cpp PerlinNoise.h)
                             
+target_link_libraries(Project101 ${OPENGL_LIBRARIES} ${GLUT_LIBRARY})
