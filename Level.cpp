@@ -88,47 +88,30 @@ void Level::drawLevel() {
             cosa = true;
         }
 
+        float x = b.getPosition().x;
+        float y = b.getPosition().y;
 
-        for(int i = 0; i < 4; i++){
-            float x = b.getPosition().x;
-            float y = b.getPosition().y;
+        float n = _perlinNoise.noise((x/(b.getWidth()/2.0f))*0.1f, (y/(b.getWidth()/2.0f))*0.1f);
 
-            if(i % 2 != 0){
-                x += b.getWidth()/2.0f;
+        if(tileType == 'C'){
+            glColor3f(n, n, n);
+        }else if(tileType == 'W'){
+            glColor3f(n*0.2f, n*0.2f, n*0.2f);
+        }else if(tileType == 'G' || tileType == 'H'){
+            if(n < 0.45f && !cosa){
+                glColor4f(n * 0.2f, n * 0.2f, (n+0.55f) * 0.78f, 0.5f);
+            }else {
+                glColor3f(n * 0.2f, n * 0.78f, n * 0.2f);
             }
-
-            if(i >= 2){
-                y += b.getWidth()/2.0f;
-            }
-
-            float n = _perlinNoise.noise((x/(b.getWidth()/2.0f))*0.1f, (y/(b.getWidth()/2.0f))*0.1f);
-
-
-            if(tileType == 'C'){
-                glColor3f(n, n, n);
-            }else if(tileType == 'W'){
-                glColor3f(n*0.2f, n*0.2f, n*0.2f);
-            }else if(tileType == 'G'){
-                if(n < 0.45f && !cosa){
-                    glColor3f(n * 0.2f, n * 0.2f, (n+0.55f) * 0.78f);
-                }else {
-                    glColor3f(n * 0.2f, n * 0.78f, n * 0.2f);
-                }
-            }
-
-            glVertex2f(x, y);
-
-            glVertex2f(x, y + b.getWidth()/2.0f);
-
-            glVertex2f(x + b.getWidth()/2.0f, y);
-
-            glVertex2f(x + b.getWidth()/2.0f, y);
-
-            glVertex2f(x, y + b.getWidth()/2.0f);
-
-            glVertex2f(x + b.getWidth()/2.0f, y + b.getWidth()/2.0f);
         }
 
+        glVertex2f(x, y);
+        glVertex2f(x, y + b.getWidth());
+        glVertex2f(x + b.getWidth(), y);
+
+        glVertex2f(x + b.getWidth(), y);
+        glVertex2f(x, y + b.getWidth());
+        glVertex2f(x + b.getWidth(), y + b.getWidth());
 
     }
     glEnd();

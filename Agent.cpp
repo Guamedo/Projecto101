@@ -32,29 +32,23 @@ void Agent::draw() {
 
 void Agent::collideWithLevel(const std::vector<std::string> &levelData) {
     std::vector<glm::vec2> collideTilePositions;
-    bool collPoints[4];
 
-    for(int i = 0; i < 4; i++){
-        collPoints[i] = false;
-    }
     /**Check for corners**/
 
     // Top left point
     glm::vec2 vec = glm::vec2(floorf(_position.x / (float)TILE_SIZE),
                               floorf(_position.y / (float)TILE_SIZE));
 
-    if(levelData[vec.y][vec.x] == 'B'){
+    if(levelData[vec.y][vec.x] == 'G' || levelData[vec.y][vec.x] == 'W' || levelData[vec.y][vec.x] == 'C'){
         collideTilePositions.push_back(vec * (float)TILE_SIZE + glm::vec2((float)TILE_SIZE/ 2.0f));
-        collPoints[0] = true;
     }
 
     // Top right
     vec = glm::vec2(floorf((_position.x + AGENT_WIDTH) / (float)TILE_SIZE),
                     floorf(_position.y / (float)TILE_SIZE));
 
-    if(levelData[vec.y][vec.x] == 'B'){
+    if(levelData[vec.y][vec.x] == 'G' || levelData[vec.y][vec.x] == 'W' || levelData[vec.y][vec.x] == 'C'){
         collideTilePositions.push_back(vec * (float)TILE_SIZE + glm::vec2((float)TILE_SIZE/ 2.0f));
-        collPoints[1] = true;
     }
 
 
@@ -62,9 +56,8 @@ void Agent::collideWithLevel(const std::vector<std::string> &levelData) {
     vec = glm::vec2(floorf(_position.x / (float)TILE_SIZE),
                     floorf((_position.y + AGENT_WIDTH) / (float)TILE_SIZE));
 
-    if(levelData[vec.y][vec.x] == 'B'){
+    if(levelData[vec.y][vec.x] == 'G' || levelData[vec.y][vec.x] == 'W' || levelData[vec.y][vec.x] == 'C'){
         collideTilePositions.push_back(vec * (float)TILE_SIZE + glm::vec2((float)TILE_SIZE/ 2.0f));
-        collPoints[2] = true;
     }
 
 
@@ -72,18 +65,11 @@ void Agent::collideWithLevel(const std::vector<std::string> &levelData) {
     vec = glm::vec2(floorf((_position.x + AGENT_WIDTH) / (float)TILE_SIZE),
                     floorf((_position.y + AGENT_WIDTH) / (float)TILE_SIZE));
 
-    if(levelData[vec.y][vec.x] == 'B'){
+    if(levelData[vec.y][vec.x] == 'G' || levelData[vec.y][vec.x] == 'W' || levelData[vec.y][vec.x] == 'C'){
         collideTilePositions.push_back(vec * (float)TILE_SIZE + glm::vec2((float)TILE_SIZE/ 2.0f));
-        collPoints[3] = true;
     }
 
     float minDist = (float)TILE_SIZE / 2.0f + (float)AGENT_WIDTH / 2.0f;
-    bool colWall = false;
-
-    if((collPoints[0] && collPoints[2]) ||
-            (collPoints[1] && collPoints[3])){
-        colWall = true;
-    }
 
     for(glm::vec2 pos : collideTilePositions){
 
@@ -98,34 +84,106 @@ void Agent::collideWithLevel(const std::vector<std::string> &levelData) {
                 // X axe collision
                 if(distVec.x < 0){
                     _position.x -= xDepth;
-                    //_speed.x = 0;
+                    _speed.x = 0;
                 }else{
                     _position.x += xDepth ;
-                    //_speed.x = 0;
+                    _speed.x = 0;
                 }
             }else{
                 // Y axe collision
                 if(distVec.y < 0){
                     _position.y -= yDepth;
-                    if(!colWall){
-                        _speed.y = 0;
-                    }
+                    _speed.y = 0;
+
                 }else{
                     _position.y += yDepth;
-                    if(!colWall){
-                        _speed.y = 0;
-                    }
+                    _speed.y = 0;
                     _jump = 0;
                 }
             }
         }
     }
-    if(colWall){
-        //_speed = glm::vec2(0.0f, _speed.y);
-    }else{
-        //_speed = glm::vec2(_speed.x, 0.0f);
+}
+
+void Agent::collideWithLevelInX(const std::vector<std::string> &levelData, const std::vector<glm::vec2> &faceVec) {
+    std::vector<glm::vec2> collideTilePositions;
+    glm::vec2 vec;
+    for(glm::vec2 v: faceVec){
+        vec = glm::vec2(floorf(v.x/(float)TILE_SIZE),
+                        floorf(v.y/(float)TILE_SIZE));
+        if(levelData[vec.y][vec.x] == 'G' || levelData[vec.y][vec.x] == 'W' || levelData[vec.y][vec.x] == 'C'){
+            //std::cout << "Collide in X" << "\n";
+            collideTilePositions.push_back(vec * (float)TILE_SIZE + glm::vec2((float)TILE_SIZE/ 2.0f));
+        }
     }
-    //std::cout << colWall << "\n";
+
+    // Define the minimum distance between the agent and the tile
+    float minDist = (float)TILE_SIZE / 2.0f + (float)AGENT_WIDTH / 2.0f;
+    // Manage the collisions
+    for(glm::vec2 pos : collideTilePositions){
+
+        glm::vec2 agentCenterPos = glm::vec2(_position.x + (float)AGENT_WIDTH / 2.0f, _position.y + (float)AGENT_WIDTH / 2.0f);
+        glm::vec2 distVec = agentCenterPos - pos;
+
+        float xDepth = minDist - fabsf(distVec.x);
+        float yDepth = minDist - fabsf(distVec.y);
+
+        if(xDepth >= 0 || yDepth >= 0){
+
+            if(xDepth <= yDepth){
+                // X axe collision
+                if(distVec.x < 0){
+                    _position.x -= xDepth;
+                    _speed.x = 0;
+                }else{
+                    _position.x += xDepth ;
+                    _speed.x = 0;
+                }
+            }
+        }
+    }
+}
+
+void Agent::collideWithLevelInY(const std::vector<std::string> &levelData, const std::vector<glm::vec2> &faceVec) {
+    std::vector<glm::vec2> collideTilePositions;
+    glm::vec2 vec;
+    for(glm::vec2 v: faceVec){
+        vec = glm::vec2(floorf(v.x/(float)TILE_SIZE),
+                        floorf(v.y/(float)TILE_SIZE));
+
+        if(levelData[vec.y][vec.x] == 'G' || levelData[vec.y][vec.x] == 'W' || levelData[vec.y][vec.x] == 'C'){
+            //std::cout << "Collide in Y" << "\n";
+            collideTilePositions.push_back(vec * (float)TILE_SIZE + glm::vec2((float)TILE_SIZE/ 2.0f));
+        }
+    }
+
+    // Define the minimum distance between the agent and the tile
+    float minDist = (float)TILE_SIZE / 2.0f + (float)AGENT_WIDTH / 2.0f;
+
+    // Manage the collisions
+    for(glm::vec2 pos : collideTilePositions){
+
+        glm::vec2 agentCenterPos = glm::vec2(_position.x + (float)AGENT_WIDTH / 2.0f, _position.y + (float)AGENT_WIDTH / 2.0f);
+        glm::vec2 distVec = agentCenterPos - pos;
+
+        float xDepth = minDist - fabsf(distVec.x);
+        float yDepth = minDist - fabsf(distVec.y);
+
+        if(xDepth > 0 || yDepth > 0){
+            if(xDepth > yDepth){
+                // Y axe collision
+                if(distVec.y < 0){
+                    _position.y -= yDepth;
+                    _speed.y = 0;
+
+                }else{
+                    _position.y += yDepth;
+                    _speed.y = 0;
+                    _jump = 0;
+                }
+            }
+        }
+    }
 }
 
 void Agent::collideWithLevelAndUpdatePos(const std::vector<std::string> &levelData) {
@@ -150,11 +208,11 @@ void Agent::collideWithLevelAndUpdatePos(const std::vector<std::string> &levelDa
     //Check agent horizontal direction
     glm::vec2 faceX[2];
     if(_speed.x >= 0/*Right face*/){
-        //std::cout << "Right face\n";
+        std::cout << "Right face\n";
         faceX[0] = glm::vec2(_position.x + AGENT_WIDTH, _position.y);
         faceX[1] = glm::vec2(_position.x + AGENT_WIDTH, _position.y + AGENT_WIDTH);
     }else/*Left face*/{
-        //std::cout << "Left face\n";
+        std::cout << "Left face\n";
         faceX[0] = glm::vec2(_position.x, _position.y);
         faceX[1] = glm::vec2(_position.x, _position.y + AGENT_WIDTH);
     }
@@ -182,8 +240,8 @@ void Agent::collideWithLevelAndUpdatePos(const std::vector<std::string> &levelDa
 
         float xDepth = minDist - fabsf(distVec.x);
 
-        if(xDepth >= 0){
-            if(distVec.x <= 0){
+        if(xDepth > 0){
+            if(distVec.x < 0){
                 _position.x -= xDepth + 1;
                 _speed.x = 0;
                 //_speed.y *= 0.7;
@@ -208,11 +266,11 @@ void Agent::collideWithLevelAndUpdatePos(const std::vector<std::string> &levelDa
     //Check agent vertical direction
     glm::vec2 faceY[2];
     if(_speed.y >= 0/*Up face*/){
-        //std::cout << "Up face\n";
+        std::cout << "Up face\n";
         faceY[0] = glm::vec2(_position.x, _position.y);
         faceY[1] = glm::vec2(_position.x + AGENT_WIDTH, _position.y);
     }else/*Down face*/{
-        //std::cout << "Down face\n";
+        std::cout << "Down face\n";
         faceY[0] = glm::vec2(_position.x + AGENT_WIDTH, _position.y);
         faceY[1] = glm::vec2(_position.x + AGENT_WIDTH, _position.y + AGENT_WIDTH);
     }

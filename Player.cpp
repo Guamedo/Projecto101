@@ -49,6 +49,23 @@ void Player::draw() {
         );
     }
     glEnd();
+
+    glLineWidth(2);
+    if(_facePointsX.size() == 2){
+        glBegin(GL_LINES);
+        glColor3f(0.0f, 0.0f, 1.0f);
+        glVertex2f(_facePointsX[0].x, _facePointsX[0].y);
+        glVertex2f(_facePointsX[1].x, _facePointsX[1].y);
+        glEnd();
+    }
+
+    if(_facePointsY.size() == 2){
+        glBegin(GL_LINES);
+        glColor3f(0.0f, 0.0f, 1.0f);
+        glVertex2f(_facePointsY[0].x, _facePointsY[0].y);
+        glVertex2f(_facePointsY[1].x, _facePointsY[1].y);
+        glEnd();
+    }
 }
 
 void Player::update(const std::vector<std::string> &levelData) {
@@ -61,15 +78,40 @@ void Player::update(const std::vector<std::string> &levelData) {
     // Update speed from input
     this->manageInput();
 
-    //Update player position
-    //_position += _speed;
-    this->collideWithLevelAndUpdatePos(levelData);
-    // Calculate head speed
-    /**
-    glm::vec2 dirVec = glm::vec2(_position.x, _position.y +20) - _headPosition;
-    _headSpeed = dirVec/5.0f;
-    _headPosition += _headSpeed;
-    **/
+
+    //Update player position in X
+    _position.x += _speed.x * (60.0f/1000.0f);
+
+    // Check the colliding face
+    _facePointsX.clear();
+    if(_speed.x < 0){
+        _facePointsX.push_back(glm::vec2(_position.x, _position.y));
+        _facePointsX.push_back(glm::vec2(_position.x, _position.y + AGENT_WIDTH));
+    }else if(_speed.x > 0){
+        _facePointsX.push_back(glm::vec2(_position.x + AGENT_WIDTH, _position.y));
+        _facePointsX.push_back(glm::vec2(_position.x + AGENT_WIDTH, _position.y + AGENT_WIDTH));
+    }
+
+    //Collide in X with the level
+    this->collideWithLevelInX(levelData, _facePointsX);
+
+    //Update player position in Y
+    _position.y += _speed.y * (60.0f/1000.0f) + 120.0f * (60.0f/1000.0f) * (60.0f/1000.0f);
+
+    // Check the colliding face
+    _facePointsY.clear();
+    if(_speed.y < 0){
+        _facePointsY.push_back(glm::vec2(_position.x, _position.y));
+        _facePointsY.push_back(glm::vec2(_position.x  + AGENT_WIDTH, _position.y));
+    }else if(_speed.y > 0){
+        _facePointsY.push_back(glm::vec2(_position.x , _position.y + AGENT_WIDTH));
+        _facePointsY.push_back(glm::vec2(_position.x  + AGENT_WIDTH, _position.y + AGENT_WIDTH));
+    }
+
+    //Collide in Y with the level
+    this->collideWithLevelInY(levelData, _facePointsY);
+
+    //this->collideWithLevel(levelData);
 
     //Calculate head speed procedural
     _headPosition +=_headSpeed;
@@ -102,10 +144,10 @@ void Player::update(const std::vector<std::string> &levelData) {
 
 void Player::manageInput() {
     if((*_keyStates)['a'] || (*_keyStates)['A']){
-        _speed.x -= STEP;
+        _speed.x = -STEP*15;
     }
     if((*_keyStates)['d'] || (*_keyStates)['D']){
-        _speed.x += STEP;
+        _speed.x = STEP*15;
     }
     if((*_keyStates)[32]/*SPACE*/){
         if (_jump == 0 || _jump == 2) {

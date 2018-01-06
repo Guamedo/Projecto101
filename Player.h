@@ -27,6 +27,9 @@ private:
 
     glm::vec2 _headPosition;
     glm::vec2 _headSpeed;
+
+    std::vector<glm::vec2> _facePointsX;
+    std::vector<glm::vec2> _facePointsY;
 };
 
 

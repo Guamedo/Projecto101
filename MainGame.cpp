@@ -82,6 +82,7 @@ void MainGame::draw() {
     glClearColor(.2f, .2f, .2f, 1.0f);
     glLoadIdentity();
 
+
     _level.drawLevel();
     _playerV2->draw();
 
