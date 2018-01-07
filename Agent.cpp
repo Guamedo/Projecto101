@@ -188,12 +188,14 @@ void Agent::collideWithLevelInY(const std::vector<std::string> &levelData, const
 }
 
 void Agent::collideAndUpdateInX(const std::vector<std::string> &levelData, const std::vector<glm::vec2> &faceVec) {
-    std::vector<glm::vec2> collideTilePositions;
+
     _isInitX = false;
-    std::vector<glm::vec2> obstacles;
+
     glm::vec2 vec;
+
     glm::vec2 agentCenterPos = glm::vec2(_position.x + (float)AGENT_WIDTH / 2.0f, _position.y + (float)AGENT_WIDTH / 2.0f);
     float minDist = (float)TILE_SIZE / 2.0f + (float)AGENT_WIDTH / 2.0f;
+
     for(glm::vec2 v: faceVec){
         vec = glm::vec2(floorf(v.x/(float)TILE_SIZE),
                         floorf(v.y/(float)TILE_SIZE));
@@ -205,7 +207,7 @@ void Agent::collideAndUpdateInX(const std::vector<std::string> &levelData, const
                     glm::vec2 obstaclePos = glm::vec2(i, vec.y) * (float) TILE_SIZE + glm::vec2((float) TILE_SIZE / 2.0f);
                     if(!_isInitX) {
                         _obstacleX = obstaclePos;
-                        found = true;
+                        //found = true;
                         _isInitX = true;
                     }else{
                         if(glm::distance(obstaclePos, agentCenterPos) < glm::distance(_obstacleX, agentCenterPos)){
@@ -221,7 +223,7 @@ void Agent::collideAndUpdateInX(const std::vector<std::string> &levelData, const
                     glm::vec2 obstaclePos = glm::vec2(i, vec.y) * (float) TILE_SIZE + glm::vec2((float) TILE_SIZE / 2.0f);
                     if(!_isInitX) {
                         _obstacleX = obstaclePos;
-                        found = true;
+                        //found = true;
                         _isInitX = true;
                     }else{
                         if(glm::distance(obstaclePos, agentCenterPos) < glm::distance(_obstacleX, agentCenterPos)){
@@ -233,14 +235,35 @@ void Agent::collideAndUpdateInX(const std::vector<std::string> &levelData, const
         }
     }
     if(_speed.x < 0){
-        _position.x -= std::fminf(fabsf(_speed.x * MainGame::_deltaTime), fabsf((_obstacleX.x+(float)TILE_SIZE/2.0f)-(agentCenterPos.x-(float)AGENT_WIDTH/2.0f)));
+        float normalUpdate = fabsf(_speed.x * MainGame::_deltaTime);
+        float collisionUpdate = fabsf((_obstacleX.x+(float)TILE_SIZE/2.0f)-(agentCenterPos.x-(float)AGENT_WIDTH/2.0f));
+        if(normalUpdate < collisionUpdate){
+            _position.x -= normalUpdate;
+        }else{
+            _position.x -= collisionUpdate;
+            _speed.x = 0.0f;
+            if(_speed.y < 0){
+                _speed.y *= 0.85f;
+            }
+        }
+        //_position.x -= std::fminf(fabsf(_speed.x * MainGame::_deltaTime), fabsf((_obstacleX.x+(float)TILE_SIZE/2.0f)-(agentCenterPos.x-(float)AGENT_WIDTH/2.0f)));
     }else if(_speed.x > 0){
-        _position.x += std::fminf(fabsf(_speed.x * MainGame::_deltaTime), fabsf((_obstacleX.x-(float)TILE_SIZE/2.0f) - (agentCenterPos.x+(float)AGENT_WIDTH/2.0f)));
+        float normalUpdate = fabsf(_speed.x * MainGame::_deltaTime);
+        float collisionUpdate = fabsf((_obstacleX.x-(float)TILE_SIZE/2.0f) - (agentCenterPos.x+(float)AGENT_WIDTH/2.0f));
+        if(normalUpdate < collisionUpdate){
+            _position.x += normalUpdate;
+        }else{
+            _position.x += collisionUpdate;
+            _speed.x = 0.0f;
+            if(_speed.y < 0){
+                _speed.y *= 0.85f;
+            }
+        }
+        //_position.x += std::fminf(fabsf(_speed.x * MainGame::_deltaTime), fabsf((_obstacleX.x-(float)TILE_SIZE/2.0f) - (agentCenterPos.x+(float)AGENT_WIDTH/2.0f)));
     }
 }
 
 void Agent::collideAndUpdateInY(const std::vector<std::string> &levelData, const std::vector<glm::vec2> &faceVec) {
-    //TODO
     _isInitY = false;
 
     glm::vec2 vec;
@@ -259,10 +282,10 @@ void Agent::collideAndUpdateInY(const std::vector<std::string> &levelData, const
                     glm::vec2 obstaclePos = glm::vec2(vec.x, i) * (float) TILE_SIZE + glm::vec2((float) TILE_SIZE / 2.0f);
                     if(!_isInitY) {
                         _obstacleY = obstaclePos;
-                        found = true;
+                        //found = true;
                         _isInitY = true;
                     }else{
-                        if(glm::distance(obstaclePos, agentCenterPos) < glm::distance(_obstacleY, agentCenterPos)){
+                        if(glm::distance(obstaclePos.y, agentCenterPos.y) < glm::distance(_obstacleY.y, agentCenterPos.y)){
                             _obstacleY = obstaclePos;
                         }
                     }
@@ -273,12 +296,12 @@ void Agent::collideAndUpdateInY(const std::vector<std::string> &levelData, const
             for(int i = (int)(vec.y); i < levelData.size() && !found; i++){
                 if(levelData[i][vec.x] == 'G' || levelData[i][vec.x] == 'W' || levelData[i][vec.x] == 'C'){
                     glm::vec2 obstaclePos = glm::vec2(vec.x, i) * (float) TILE_SIZE + glm::vec2((float) TILE_SIZE / 2.0f);
-                    if(!_isInitX) {
+                    if(!_isInitY) {
                         _obstacleY = obstaclePos;
-                        found = true;
+                        //found = true;
                         _isInitY = true;
                     }else{
-                        if(glm::distance(obstaclePos, agentCenterPos) < glm::distance(_obstacleX, agentCenterPos)){
+                        if(glm::distance(obstaclePos.y, agentCenterPos.y) < glm::distance(_obstacleX.y, agentCenterPos.y)){
                             _obstacleY = obstaclePos;
                         }
                     }
@@ -286,26 +309,26 @@ void Agent::collideAndUpdateInY(const std::vector<std::string> &levelData, const
             }
         }
     }
-    _jump = 0;
 
     if(_speed.y < 0){
-        float updateNormal = fabsf(_speed.y * MainGame::_deltaTime);
+        float updateNormal = fabsf(_speed.y * MainGame::_deltaTime + MainGame::_gravity * MainGame::_deltaTime * MainGame::_deltaTime);
         float updateCollision = fabsf((_obstacleY.y+(float)TILE_SIZE/2.0f)-(agentCenterPos.y-(float)AGENT_WIDTH/2.0f));
         if(updateNormal < updateCollision){
             _position.y -= updateNormal;
         }else{
             _position.y -= updateCollision;
+            _speed.y = 0.0f;
             _jump = 0;
-            std::cout << "suelo\n";
         }
         //_position.y -= std::fminf(fabsf(_speed.y * MainGame::_deltaTime), fabsf((_obstacleY.y+(float)TILE_SIZE/2.0f)-(agentCenterPos.y-(float)AGENT_WIDTH/2.0f)));
     }else if(_speed.y > 0){
-        float updateNormal = fabsf(_speed.y * MainGame::_deltaTime);
+        float updateNormal = fabsf(_speed.y * MainGame::_deltaTime + MainGame::_gravity * MainGame::_deltaTime * MainGame::_deltaTime);
         float updateCollision = fabsf((_obstacleY.y-(float)TILE_SIZE/2.0f) - (agentCenterPos.y+(float)AGENT_WIDTH/2.0f));
         if(updateNormal < updateCollision){
             _position.y += updateNormal;
         }else{
-            _position.y += updateCollision;
+            _position.y += updateCollision - 5;
+            _speed.y = 0.0f;
         }
         //_position.y += std::fminf(fabsf(_speed.y * MainGame::_deltaTime), fabsf((_obstacleY.y-(float)TILE_SIZE/2.0f) - (agentCenterPos.y+(float)AGENT_WIDTH/2.0f)));
     }

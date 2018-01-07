@@ -67,6 +67,10 @@ void Player::draw() {
             );
         }
         glEnd();
+        glBegin(GL_LINE_STRIP);
+        glVertex2f(_position.x + AGENT_WIDTH/2.0f, _position.y + AGENT_WIDTH/2.0f);
+        glVertex2f(_obstacleX.x, _obstacleX.y);
+        glEnd();
     }
 
     if(_isInitY) {
@@ -82,6 +86,10 @@ void Player::draw() {
                     (GLfloat) (y + (radius * sin(i * twicePi / triangleAmount)))
             );
         }
+        glEnd();
+        glBegin(GL_LINE_STRIP);
+        glVertex2f(_position.x + AGENT_WIDTH/2.0f, _position.y + AGENT_WIDTH/2.0f);
+        glVertex2f(_obstacleY.x, _obstacleY.y);
         glEnd();
     }
 
@@ -135,54 +143,92 @@ void Player::update(const std::vector<std::string> &levelData) {
 
 
     //Update player position in X
-    _position.x += _speed.x * MainGame::_deltaTime;
+    //_position.x += _speed.x * MainGame::_deltaTime;
 
     // Check the colliding face
     _facePointsX.clear();
     if(_speed.x < 0){
-        float cosa = 0.0f;
-        while(cosa <= AGENT_WIDTH){
+        float cosa = 1.0f;
+        while(cosa <= AGENT_WIDTH-1.0f){
             _facePointsX.push_back(glm::vec2(_position.x, _position.y + cosa));
             cosa += TILE_SIZE/2.0f;
         }
-        _facePointsX.push_back(glm::vec2(_position.x, _position.y + AGENT_WIDTH));
+        _facePointsX.push_back(glm::vec2(_position.x, _position.y + AGENT_WIDTH - 1.0f));
     }else if(_speed.x > 0){
-        float cosa = 0;
-        while(cosa <= AGENT_WIDTH){
+        float cosa = 1.0f;
+        while(cosa <= AGENT_WIDTH - 1.0f){
             _facePointsX.push_back(glm::vec2(_position.x + AGENT_WIDTH, _position.y + cosa));
             cosa += TILE_SIZE/2.0f;
         }
-        _facePointsX.push_back(glm::vec2(_position.x + AGENT_WIDTH, _position.y + AGENT_WIDTH));
+        _facePointsX.push_back(glm::vec2(_position.x + AGENT_WIDTH, _position.y + AGENT_WIDTH - 1.0f));
     }
 
     //Collide in X with the level
+    //this->collideWithLevelInX(levelData, _facePointsX);
+    this->collideAndUpdateInX(levelData, _facePointsX);
+
+    _facePointsX.clear();
+    if(_speed.x < 0){
+        float cosa = 1.0f;
+        while(cosa <= AGENT_WIDTH-1.0f){
+            _facePointsX.push_back(glm::vec2(_position.x, _position.y + cosa));
+            cosa += TILE_SIZE/2.0f;
+        }
+        _facePointsX.push_back(glm::vec2(_position.x, _position.y + AGENT_WIDTH - 1.0f));
+    }else if(_speed.x > 0){
+        float cosa = 1.0f;
+        while(cosa <= AGENT_WIDTH - 1.0f){
+            _facePointsX.push_back(glm::vec2(_position.x + AGENT_WIDTH, _position.y + cosa));
+            cosa += TILE_SIZE/2.0f;
+        }
+        _facePointsX.push_back(glm::vec2(_position.x + AGENT_WIDTH, _position.y + AGENT_WIDTH - 1.0f));
+    }
+
     this->collideWithLevelInX(levelData, _facePointsX);
-    //this->collideAndUpdateInX(levelData, _facePointsX);
 
     //Update player position in Y
-    _position.y += _speed.y * MainGame::_deltaTime + gravity * MainGame::_deltaTime * MainGame::_deltaTime;
+    //_position.y += _speed.y * MainGame::_deltaTime + gravity * MainGame::_deltaTime * MainGame::_deltaTime;
 
     // Check the colliding face
     _facePointsY.clear();
     if(_speed.y < 0){
-        float cosa = 0;
-        while(cosa <= AGENT_WIDTH){
+        float cosa = 1.0f;
+        while(cosa <= AGENT_WIDTH - 1.0f){
             _facePointsY.push_back(glm::vec2(_position.x + cosa, _position.y));
             cosa += TILE_SIZE/2.0f;
         }
-        _facePointsY.push_back(glm::vec2(_position.x + AGENT_WIDTH, _position.y));
+        _facePointsY.push_back(glm::vec2(_position.x + AGENT_WIDTH - 1.0f, _position.y));
     }else if(_speed.y > 0){
-        float cosa = 0;
-        while(cosa <= AGENT_WIDTH){
+        float cosa = 1.0f;
+        while(cosa <= AGENT_WIDTH - 1.0f){
             _facePointsY.push_back(glm::vec2(_position.x + cosa, _position.y + AGENT_WIDTH));
             cosa += TILE_SIZE/2.0f;
         }
-        _facePointsY.push_back(glm::vec2(_position.x + AGENT_WIDTH, _position.y + AGENT_WIDTH));
+        _facePointsY.push_back(glm::vec2(_position.x + AGENT_WIDTH - 1.0f, _position.y + AGENT_WIDTH));
     }
 
     //Collide in Y with the level
+    //this->collideWithLevelInY(levelData, _facePointsY);
+    this->collideAndUpdateInY(levelData, _facePointsY);
+
+    _facePointsY.clear();
+    if(_speed.y < 0){
+        float cosa = 1.0f;
+        while(cosa <= AGENT_WIDTH - 1.0f){
+            _facePointsY.push_back(glm::vec2(_position.x + cosa, _position.y));
+            cosa += TILE_SIZE/2.0f;
+        }
+        _facePointsY.push_back(glm::vec2(_position.x + AGENT_WIDTH - 1.0f, _position.y));
+    }else if(_speed.y > 0){
+        float cosa = 1.0f;
+        while(cosa <= AGENT_WIDTH - 1.0f){
+            _facePointsY.push_back(glm::vec2(_position.x + cosa, _position.y + AGENT_WIDTH));
+            cosa += TILE_SIZE/2.0f;
+        }
+        _facePointsY.push_back(glm::vec2(_position.x + AGENT_WIDTH - 1.0f, _position.y + AGENT_WIDTH));
+    }
+
     this->collideWithLevelInY(levelData, _facePointsY);
-    //this->collideAndUpdateInY(levelData, _facePointsY);
 
     //this->collideWithLevel(levelData);
     //_obstacle = _position;
@@ -226,7 +272,7 @@ void Player::manageInput() {
     if((*_keyStates)[32]/*SPACE*/){
         if (_jump == 0 || _jump == 2) {
             //player.body.setSpeedY(10);
-            _speed.y = 500;
+            _speed.y = STEP;
             _jump++;
         }
     }
