@@ -7,7 +7,7 @@
 #include "Box.h"
 #include "PerlinNoise.h"
 
-const int TILE_SIZE = 40;
+const int TILE_SIZE = 25;
 
 class Level {
 public:

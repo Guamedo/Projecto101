@@ -6,7 +6,7 @@
 #include <glm/glm.hpp>
 
 const int AGENT_WIDTH = 30;
-const int STEP = 10;
+const int STEP = 500;
 
 class Agent {
 public:
@@ -22,7 +22,8 @@ public:
     virtual void collideWithLevelInX(const std::vector<std::string> & levelData, const std::vector<glm::vec2> & faceVec);
     virtual void collideWithLevelInY(const std::vector<std::string> & levelData, const std::vector<glm::vec2> & faceVec);
 
-    virtual void collideWithLevelAndUpdatePos(const std::vector<std::string> & levelData);
+    virtual void collideAndUpdateInX(const std::vector<std::string> & levelData, const std::vector<glm::vec2> & faceVec);
+    virtual void collideAndUpdateInY(const std::vector<std::string> & levelData, const std::vector<glm::vec2> & faceVec);
 
     const glm::vec2 &getPosition() const;
 
@@ -34,6 +35,12 @@ protected:
     glm::vec2 _position;
     glm::vec2 _speed;
     int _jump;
+
+    glm::vec2 _obstacleX;
+    bool _isInitX = false;
+
+    glm::vec2 _obstacleY;
+    bool _isInitY = false;
 };
 
 

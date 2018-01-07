@@ -30,6 +30,10 @@ private:
 
     std::vector<glm::vec2> _facePointsX;
     std::vector<glm::vec2> _facePointsY;
+
+    //Debug
+    bool _sowCollidingFaces;
+    //glm::vec2 _obstacle;
 };
 
 

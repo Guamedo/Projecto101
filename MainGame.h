@@ -33,6 +33,8 @@ public:
 
     void initSystems(int argc, char* argv[]);
 
+    static float _gravity;
+    static float _deltaTime;
 private:
 
     void setInstance();
@@ -82,7 +84,6 @@ private:
     int _frames;
     int _timeSinceStart;
     int _timeEspecial;
-    float _deltaTime;
 
     //Game agents
     Player* _playerV2;

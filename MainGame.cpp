@@ -1,17 +1,20 @@
 #include "MainGame.h"
 
 MainGame* MainGame::_instance = nullptr;
+float MainGame::_deltaTime;
+float MainGame::_gravity;
 
 MainGame::MainGame(): _windowHeight(800),
                       _windowWidth(800),
                       _windowName("El mundo de J"),
                       _interval(1000/60),
-                      _deltaTime(1000.0f/60.0f),
                       _timeSinceStart(0),
                       _timeEspecial(0),
                       _keyStates(new bool[256]),
                       _keySpecialStates(new bool[246]){
 
+    MainGame::_deltaTime = (float)_interval/1000.0f;
+    MainGame::_gravity = 1500.0f;
 }
 
 MainGame::~MainGame() {
@@ -19,6 +22,8 @@ MainGame::~MainGame() {
 }
 
 void MainGame::initSystems(int argc, char* argv[]) {
+
+
 
     srand((unsigned int) time(nullptr));
 
@@ -82,8 +87,8 @@ void MainGame::draw() {
     glClearColor(.2f, .2f, .2f, 1.0f);
     glLoadIdentity();
 
-    _playerV2->draw();
     _level.drawLevel();
+    _playerV2->draw();
 
 
     for(Enemy* enemy : _enemys){
