@@ -7,7 +7,7 @@ Player::Player() = default;
 
 Player::~Player() = default;
 
-void Player::init(glm::vec2 pos, bool** keyStates, bool** speccialkeysStates) {
+void Player::init(glm::vec2 pos, bool** keyStates, bool** speccialkeysStates, bool** keyStatesP, bool** speccialkeysStatesP) {
     _position = pos;
     _headPosition = glm::vec2(pos.x, pos.y +20);
     _speed = glm::vec2(0.0f);
@@ -15,6 +15,8 @@ void Player::init(glm::vec2 pos, bool** keyStates, bool** speccialkeysStates) {
     _jump = 0;
     _keyStates = keyStates;
     _speccialkeysStates = speccialkeysStates;
+    _keyStatesP = keyStatesP;
+    _speccialkeysStatesP = speccialkeysStatesP;
     _sowCollidingFaces = false;
     //_obstacle = pos;
 }
@@ -22,7 +24,7 @@ void Player::init(glm::vec2 pos, bool** keyStates, bool** speccialkeysStates) {
 void Player::draw() {
 
     int triangleAmount = 20; //# of triangles used to draw circle
-    GLfloat twicePi = (GLfloat) (2.0f * 4 * atan(1));
+    auto twicePi = (GLfloat) (2.0f * 4 * atan(1));
     glBegin(GL_TRIANGLE_FAN);
     glColor3f(0.78f, 0.2f, 0.2f);
     //Draw the body
@@ -32,8 +34,8 @@ void Player::draw() {
     glVertex2f(x, y); // center of circle
     for (int i = 0; i <= triangleAmount; i++) {
         glVertex2f(
-                (GLfloat) (x + (radius * cos(i * twicePi / triangleAmount))),
-                (GLfloat) (y + (radius * sin(i * twicePi / triangleAmount)))
+                (GLfloat) (x + (radius * cosf(i * twicePi / triangleAmount))),
+                (GLfloat) (y + (radius * sinf(i * twicePi / triangleAmount)))
         );
     }
     glEnd();
@@ -47,8 +49,8 @@ void Player::draw() {
     glVertex2f(x, y); // center of circle
     for (int i = 0; i <= triangleAmount; i++) {
         glVertex2f(
-                (GLfloat) (x + (radius * cos(i * twicePi / triangleAmount))),
-                (GLfloat) (y + (radius * sin(i * twicePi / triangleAmount)))
+                (GLfloat) (x + (radius * cosf(i * twicePi / triangleAmount))),
+                (GLfloat) (y + (radius * sinf(i * twicePi / triangleAmount)))
         );
     }
     glEnd();
@@ -62,8 +64,8 @@ void Player::draw() {
         glVertex2f(x, y); // center of circle
         for (int i = 0; i <= triangleAmount; i++) {
             glVertex2f(
-                    (GLfloat) (x + (radius * cos(i * twicePi / triangleAmount))),
-                    (GLfloat) (y + (radius * sin(i * twicePi / triangleAmount)))
+                    (GLfloat) (x + (radius * cosf(i * twicePi / triangleAmount))),
+                    (GLfloat) (y + (radius * sinf(i * twicePi / triangleAmount)))
             );
         }
         glEnd();
@@ -82,8 +84,8 @@ void Player::draw() {
         glVertex2f(x, y); // center of circle
         for (int i = 0; i <= triangleAmount; i++) {
             glVertex2f(
-                    (GLfloat) (x + (radius * cos(i * twicePi / triangleAmount))),
-                    (GLfloat) (y + (radius * sin(i * twicePi / triangleAmount)))
+                    (GLfloat) (x + (radius * cosf(i * twicePi / triangleAmount))),
+                    (GLfloat) (y + (radius * sinf(i * twicePi / triangleAmount)))
             );
         }
         glEnd();
@@ -105,8 +107,8 @@ void Player::draw() {
             glVertex2f(x, y); // center of circle
             for (int i = 0; i <= triangleAmount; i++) {
                 glVertex2f(
-                        (GLfloat) (x + (radius * cos(i * twicePi / triangleAmount))),
-                        (GLfloat) (y + (radius * sin(i * twicePi / triangleAmount)))
+                        (GLfloat) (x + (radius * cosf(i * twicePi / triangleAmount))),
+                        (GLfloat) (y + (radius * sinf(i * twicePi / triangleAmount)))
                 );
             }
             glEnd();
@@ -122,8 +124,8 @@ void Player::draw() {
             glVertex2f(x, y); // center of circle
             for (int i = 0; i <= triangleAmount; i++) {
                 glVertex2f(
-                        (GLfloat) (x + (radius * cos(i * twicePi / triangleAmount))),
-                        (GLfloat) (y + (radius * sin(i * twicePi / triangleAmount)))
+                        (GLfloat) (x + (radius * cosf(i * twicePi / triangleAmount))),
+                        (GLfloat) (y + (radius * sinf(i * twicePi / triangleAmount)))
                 );
             }
             glEnd();
@@ -150,17 +152,21 @@ void Player::update(const std::vector<std::string> &levelData) {
     if(_speed.x < 0){
         float cosa = 1.0f;
         while(cosa <= AGENT_WIDTH-1.0f){
-            _facePointsX.push_back(glm::vec2(_position.x, _position.y + cosa));
+            _facePointsX.emplace_back(_position.x, _position.y + cosa);
+            //_facePointsX.push_back(glm::vec2(_position.x, _position.y + cosa));
             cosa += TILE_SIZE/2.0f;
         }
-        _facePointsX.push_back(glm::vec2(_position.x, _position.y + AGENT_WIDTH - 1.0f));
+        _facePointsX.emplace_back(_position.x, _position.y + AGENT_WIDTH - 1.0f);
+        //_facePointsX.push_back(glm::vec2(_position.x, _position.y + AGENT_WIDTH - 1.0f));
     }else if(_speed.x > 0){
         float cosa = 1.0f;
         while(cosa <= AGENT_WIDTH - 1.0f){
-            _facePointsX.push_back(glm::vec2(_position.x + AGENT_WIDTH, _position.y + cosa));
+            _facePointsX.emplace_back(_position.x + AGENT_WIDTH, _position.y + cosa);
+            //_facePointsX.push_back(glm::vec2(_position.x + AGENT_WIDTH, _position.y + cosa));
             cosa += TILE_SIZE/2.0f;
         }
-        _facePointsX.push_back(glm::vec2(_position.x + AGENT_WIDTH, _position.y + AGENT_WIDTH - 1.0f));
+        _facePointsX.emplace_back(_position.x + AGENT_WIDTH, _position.y + AGENT_WIDTH - 1.0f);
+        //_facePointsX.push_back(glm::vec2(_position.x + AGENT_WIDTH, _position.y + AGENT_WIDTH - 1.0f));
     }
 
     //Collide in X with the level
@@ -171,17 +177,21 @@ void Player::update(const std::vector<std::string> &levelData) {
     if(_speed.x < 0){
         float cosa = 1.0f;
         while(cosa <= AGENT_WIDTH-1.0f){
-            _facePointsX.push_back(glm::vec2(_position.x, _position.y + cosa));
+            _facePointsX.emplace_back(_position.x, _position.y + cosa);
+            //_facePointsX.push_back(glm::vec2(_position.x, _position.y + cosa));
             cosa += TILE_SIZE/2.0f;
         }
-        _facePointsX.push_back(glm::vec2(_position.x, _position.y + AGENT_WIDTH - 1.0f));
+        _facePointsX.emplace_back(_position.x, _position.y + AGENT_WIDTH - 1.0f);
+        //_facePointsX.push_back(glm::vec2(_position.x, _position.y + AGENT_WIDTH - 1.0f));
     }else if(_speed.x > 0){
         float cosa = 1.0f;
         while(cosa <= AGENT_WIDTH - 1.0f){
-            _facePointsX.push_back(glm::vec2(_position.x + AGENT_WIDTH, _position.y + cosa));
+            _facePointsX.emplace_back(_position.x + AGENT_WIDTH, _position.y + cosa);
+            //_facePointsX.push_back(glm::vec2(_position.x + AGENT_WIDTH, _position.y + cosa));
             cosa += TILE_SIZE/2.0f;
         }
-        _facePointsX.push_back(glm::vec2(_position.x + AGENT_WIDTH, _position.y + AGENT_WIDTH - 1.0f));
+        _facePointsX.emplace_back(_position.x + AGENT_WIDTH, _position.y + AGENT_WIDTH - 1.0f);
+        //_facePointsX.push_back(glm::vec2(_position.x + AGENT_WIDTH, _position.y + AGENT_WIDTH - 1.0f));
     }
 
     this->collideWithLevelInX(levelData, _facePointsX);
@@ -194,17 +204,17 @@ void Player::update(const std::vector<std::string> &levelData) {
     if(_speed.y < 0){
         float cosa = 1.0f;
         while(cosa <= AGENT_WIDTH - 1.0f){
-            _facePointsY.push_back(glm::vec2(_position.x + cosa, _position.y));
+            _facePointsY.emplace_back(_position.x + cosa, _position.y);
             cosa += TILE_SIZE/2.0f;
         }
-        _facePointsY.push_back(glm::vec2(_position.x + AGENT_WIDTH - 1.0f, _position.y));
+        _facePointsY.emplace_back(_position.x + AGENT_WIDTH - 1.0f, _position.y);
     }else if(_speed.y > 0){
         float cosa = 1.0f;
         while(cosa <= AGENT_WIDTH - 1.0f){
-            _facePointsY.push_back(glm::vec2(_position.x + cosa, _position.y + AGENT_WIDTH));
+            _facePointsY.emplace_back(_position.x + cosa, _position.y + AGENT_WIDTH);
             cosa += TILE_SIZE/2.0f;
         }
-        _facePointsY.push_back(glm::vec2(_position.x + AGENT_WIDTH - 1.0f, _position.y + AGENT_WIDTH));
+        _facePointsY.emplace_back(_position.x + AGENT_WIDTH - 1.0f, _position.y + AGENT_WIDTH);
     }
 
     //Collide in Y with the level
@@ -215,17 +225,17 @@ void Player::update(const std::vector<std::string> &levelData) {
     if(_speed.y < 0){
         float cosa = 1.0f;
         while(cosa <= AGENT_WIDTH - 1.0f){
-            _facePointsY.push_back(glm::vec2(_position.x + cosa, _position.y));
+            _facePointsY.emplace_back(_position.x + cosa, _position.y);
             cosa += TILE_SIZE/2.0f;
         }
-        _facePointsY.push_back(glm::vec2(_position.x + AGENT_WIDTH - 1.0f, _position.y));
+        _facePointsY.emplace_back(_position.x + AGENT_WIDTH - 1.0f, _position.y);
     }else if(_speed.y > 0){
         float cosa = 1.0f;
         while(cosa <= AGENT_WIDTH - 1.0f){
-            _facePointsY.push_back(glm::vec2(_position.x + cosa, _position.y + AGENT_WIDTH));
+            _facePointsY.emplace_back(_position.x + cosa, _position.y + AGENT_WIDTH);
             cosa += TILE_SIZE/2.0f;
         }
-        _facePointsY.push_back(glm::vec2(_position.x + AGENT_WIDTH - 1.0f, _position.y + AGENT_WIDTH));
+        _facePointsY.emplace_back(_position.x + AGENT_WIDTH - 1.0f, _position.y + AGENT_WIDTH);
     }
 
     this->collideWithLevelInY(levelData, _facePointsY);
@@ -270,20 +280,24 @@ void Player::manageInput() {
         _speed.x = STEP;
     }
     if((*_keyStates)[32]/*SPACE*/){
-        if (_jump == 0 || _jump == 2) {
+        if (_jump == 0 && !(*_keyStatesP)[32]/*SPACE*/) {
             //player.body.setSpeedY(10);
-            _speed.y = STEP;
-            _jump++;
+            _speed.y = 1.5f*STEP;
+            _jump = 1;
         }
     }
-    if (!(*_keyStates)[32]/*SPACE_UP*/) {
-        if (_jump == 1) {
-            _jump++;
+    /*
+    if(!(*_keyStates)[32]){
+        if (_jump == 2) {
+            _jump = 0;
         }
-    }
+    }*/
 
     if((*_keyStates)['c'] || (*_keyStates)['C']){
-        _sowCollidingFaces = !_sowCollidingFaces;
+        if(!(*_keyStatesP)['c'] && !(*_keyStatesP)['C']){
+            std::cout << "c\n";
+            _sowCollidingFaces = !_sowCollidingFaces;
+        }
     }
 }
 
@@ -302,34 +316,4 @@ glm::vec2 Player::moveToPoint(const glm::vec2 & point1, const glm::vec2 & point2
         dirVec = glm::vec2(0.0f, 0.0f);
     }
     return dirVec;
-}
-
-void Player::collideWithBody() {
-    float minDist = (float)AGENT_WIDTH / 4.0f + (float)AGENT_WIDTH / 2.0f;
-
-    glm::vec2 headCenterPos = glm::vec2(_headPosition.x + (float)AGENT_WIDTH / 4.0f, _headPosition.y + (float)AGENT_WIDTH / 4.0f);
-    glm::vec2 distVec = headCenterPos - (_position + (float)AGENT_WIDTH / 2.0f);
-
-    float xDepth = minDist - fabsf(distVec.x);
-    float yDepth = minDist - fabsf(distVec.y);
-
-    if(xDepth > 0 || yDepth > 0){
-        if(xDepth < yDepth){
-            if(distVec.x < 0){
-                _headPosition.x -= xDepth;
-                _headSpeed.x = 0;
-            }else{
-                _headPosition.x += xDepth;
-                _headSpeed.x = 0;
-            }
-        }else{
-            if(distVec.y < 0){
-                _headPosition.y -= yDepth;
-                _headSpeed.y = 0;
-            }else{
-                _headPosition.y += yDepth;
-                _headSpeed.y = 0;
-            }
-        }
-    }
 }

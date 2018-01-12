@@ -7,11 +7,13 @@ float MainGame::_gravity;
 MainGame::MainGame(): _windowHeight(800),
                       _windowWidth(800),
                       _windowName("El mundo de J"),
-                      _interval(1000/60),
+                      _interval(1000/120),
                       _timeSinceStart(0),
                       _timeEspecial(0),
                       _keyStates(new bool[256]),
-                      _keySpecialStates(new bool[246]){
+                      _keySpecialStates(new bool[246]),
+                      _keyStatesP(new bool[256]),
+                      _keySpecialStatesP(new bool[246]){
 
     MainGame::_deltaTime = (float)_interval/1000.0f;
     MainGame::_gravity = 1500.0f;
@@ -23,8 +25,6 @@ MainGame::~MainGame() {
 
 void MainGame::initSystems(int argc, char* argv[]) {
 
-
-
     srand((unsigned int) time(nullptr));
 
     //Init key arrays
@@ -34,12 +34,15 @@ void MainGame::initSystems(int argc, char* argv[]) {
     std::fill_n(_keyStates, 256, false);
     std::fill_n(_keySpecialStates, 246, false);
 
+    std::fill_n(_keyStatesP, 256, false);
+    std::fill_n(_keySpecialStatesP, 246, false);
+
     //Load the level
     _level.loadLevel("Levels/LevelTest.txt");
 
     //Init the player
     _playerV2 = new Player;
-    _playerV2->init(_level.getPlayerInitialPos(), &_keyStates, &_keySpecialStates);
+    _playerV2->init(_level.getPlayerInitialPos(), &_keyStates, &_keySpecialStates, &_keyStatesP, &_keySpecialStatesP);
 
     //Init enemys
     for(glm::vec2 enemyPos : _level.getEnemyInitialPositions()){
@@ -107,12 +110,22 @@ void MainGame::update(int value) {
     if (_timeEspecial > 1000){
         std::ostringstream strng;
         strng << _frames;
+        MainGame::_deltaTime = 1.0f/(float)_frames;
         //player.setTonterias(strng.str());
         glutSetWindowTitle(("FPS = " + strng.str()).c_str());
         _frames = 0;
         _timeSinceStart = glutGet(GLUT_ELAPSED_TIME);
     }
     _frames++;
+    std::copy(_keyStates, _keyStates + 256, _keyStatesP);
+    std::copy(_keySpecialStates, _keySpecialStates + 246, _keySpecialStatesP);
+    /*
+    for(int i = 0; i < 256; i++){
+        _keyStatesP[i] = _keyStates[i];
+        if(i < 246){
+            _keySpecialStatesP[i] = _keySpecialStates[i];
+        }
+    }*/
 }
 
 void MainGame::updateCamera(int width, int height){

@@ -70,8 +70,12 @@ private:
     std::string _windowName;
 
     //Keys
-    bool* _keyStates/* = new bool[256]*/;
-    bool* _keySpecialStates = new bool[246];
+    bool* _keyStates;
+    bool* _keySpecialStates;
+
+    bool* _keyStatesP;
+    bool* _keySpecialStatesP;
+
     int _keyPresionadoRecientemente[256];
 
     //Frame rate

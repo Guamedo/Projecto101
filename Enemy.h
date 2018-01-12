@@ -10,9 +10,9 @@ public:
 
     void init(const glm::vec2& pos);
 
-    void update(const std::vector<std::string> & levelData, const glm::vec2 playerPos);
+    void update(const std::vector<std::string> & levelData, const glm::vec2& playerPos);
 
-    virtual void collideWithLevel(const std::vector<std::string> & levelData);
+    //virtual void collideWithLevel(const std::vector<std::string> & levelData);
 
 private:
 

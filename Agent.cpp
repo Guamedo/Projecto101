@@ -29,6 +29,46 @@ void Agent::draw() {
         );
     }
     glEnd();
+
+    if(_isInitX) {
+        glBegin(GL_TRIANGLE_FAN);
+        glColor3f(0.0f, 0.0f, 1.0f);
+        x = _obstacleX.x;
+        y = _obstacleX.y;
+        radius = 5;
+        glVertex2f(x, y); // center of circle
+        for (int i = 0; i <= triangleAmount; i++) {
+            glVertex2f(
+                    (GLfloat) (x + (radius * cosf(i * twicePi / triangleAmount))),
+                    (GLfloat) (y + (radius * sinf(i * twicePi / triangleAmount)))
+            );
+        }
+        glEnd();
+        glBegin(GL_LINE_STRIP);
+        glVertex2f(_position.x + AGENT_WIDTH/2.0f, _position.y + AGENT_WIDTH/2.0f);
+        glVertex2f(_obstacleX.x, _obstacleX.y);
+        glEnd();
+    }
+
+    if(_isInitY) {
+        glBegin(GL_TRIANGLE_FAN);
+        glColor3f(0.0f, 0.0f, 1.0f);
+        x = _obstacleY.x;
+        y = _obstacleY.y;
+        radius = 5;
+        glVertex2f(x, y); // center of circle
+        for (int i = 0; i <= triangleAmount; i++) {
+            glVertex2f(
+                    (GLfloat) (x + (radius * cosf(i * twicePi / triangleAmount))),
+                    (GLfloat) (y + (radius * sinf(i * twicePi / triangleAmount)))
+            );
+        }
+        glEnd();
+        glBegin(GL_LINE_STRIP);
+        glVertex2f(_position.x + AGENT_WIDTH/2.0f, _position.y + AGENT_WIDTH/2.0f);
+        glVertex2f(_obstacleY.x, _obstacleY.y);
+        glEnd();
+    }
 }
 
 void Agent::collideWithLevel(const std::vector<std::string> &levelData) {
@@ -99,7 +139,9 @@ void Agent::collideWithLevel(const std::vector<std::string> &levelData) {
                 }else{
                     _position.y += yDepth;
                     _speed.y = 0;
-                    _jump = 0;
+                    if(_jump == 1){
+                        _jump = 2;
+                    }
                 }
             }
         }
@@ -136,9 +178,15 @@ void Agent::collideWithLevelInX(const std::vector<std::string> &levelData, const
                 if(distVec.x < 0){
                     _position.x -= xDepth;
                     _speed.x = 0;
+                    if(_jump == 1){
+                        _jump = 2;
+                    }
                 }else{
                     _position.x += xDepth ;
                     _speed.x = 0;
+                    if(_jump == 1){
+                        _jump = 2;
+                    }
                 }
             }
         }
@@ -181,6 +229,9 @@ void Agent::collideWithLevelInY(const std::vector<std::string> &levelData, const
                     _position.y += yDepth;
                     _speed.y = 0;
                     _jump = 0;
+                    /*if(_jump == 1){
+                        _jump = 2;
+                    }*/
                 }
             }
         }
@@ -319,6 +370,9 @@ void Agent::collideAndUpdateInY(const std::vector<std::string> &levelData, const
             _position.y -= updateCollision;
             _speed.y = 0.0f;
             _jump = 0;
+            /*if(_jump == 1) {
+                _jump = 2;
+            }*/
         }
         //_position.y -= std::fminf(fabsf(_speed.y * MainGame::_deltaTime), fabsf((_obstacleY.y+(float)TILE_SIZE/2.0f)-(agentCenterPos.y-(float)AGENT_WIDTH/2.0f)));
     }else if(_speed.y > 0){
@@ -336,6 +390,10 @@ void Agent::collideAndUpdateInY(const std::vector<std::string> &levelData, const
 
 const glm::vec2 &Agent::getPosition() const {
     return _position;
+}
+
+const glm::vec2 &Agent::getSpeed() const {
+    return _speed;
 }
 
 void Agent::setPosition(const glm::vec2 &position) {

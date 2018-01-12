@@ -12,28 +12,108 @@ void Enemy::init(const glm::vec2 &pos) {
     _jump = 0;
 }
 
-void Enemy::update(const std::vector<std::string> &levelData, const glm::vec2 playerPos) {
+void Enemy::update(const std::vector<std::string> &levelData, const glm::vec2& playerPos) {
 
     _speed.x = 0;
     _speed.y -= 1;
     if(playerPos.x < _position.x){
-        _speed.x -= 5;
+        _speed.x -= STEP/2.0f;
     }else if(playerPos.x > _position.x){
-        _speed.x += 5;
+        _speed.x += STEP/2.0f;
     } else{
         _speed.x = 0;
     }
-    if(_jump == 1){
-        _speed.y = 15;
-        _jump = 2;
+
+    std::vector<glm::vec2> facePointsX;
+    if(_speed.x < 0){
+        float cosa = 1.0f;
+        while(cosa <= AGENT_WIDTH-1.0f){
+            facePointsX.emplace_back(_position.x, _position.y + cosa);
+            //_facePointsX.push_back(glm::vec2(_position.x, _position.y + cosa));
+            cosa += TILE_SIZE/2.0f;
+        }
+        facePointsX.emplace_back(_position.x, _position.y + AGENT_WIDTH - 1.0f);
+        //_facePointsX.push_back(glm::vec2(_position.x, _position.y + AGENT_WIDTH - 1.0f));
+    }else if(_speed.x > 0){
+        float cosa = 1.0f;
+        while(cosa <= AGENT_WIDTH - 1.0f){
+            facePointsX.emplace_back(_position.x + AGENT_WIDTH, _position.y + cosa);
+            //_facePointsX.push_back(glm::vec2(_position.x + AGENT_WIDTH, _position.y + cosa));
+            cosa += TILE_SIZE/2.0f;
+        }
+        facePointsX.emplace_back(_position.x + AGENT_WIDTH, _position.y + AGENT_WIDTH - 1.0f);
+        //_facePointsX.push_back(glm::vec2(_position.x + AGENT_WIDTH, _position.y + AGENT_WIDTH - 1.0f));
     }
 
-    _position += _speed;
+    collideAndUpdateInX(levelData, facePointsX);
 
-    this->collideWithLevel(levelData);
+    facePointsX.clear();
+    if(_speed.x < 0){
+        float cosa = 1.0f;
+        while(cosa <= AGENT_WIDTH-1.0f){
+            facePointsX.emplace_back(_position.x, _position.y + cosa);
+            //_facePointsX.push_back(glm::vec2(_position.x, _position.y + cosa));
+            cosa += TILE_SIZE/2.0f;
+        }
+        facePointsX.emplace_back(_position.x, _position.y + AGENT_WIDTH - 1.0f);
+        //_facePointsX.push_back(glm::vec2(_position.x, _position.y + AGENT_WIDTH - 1.0f));
+    }else if(_speed.x > 0){
+        float cosa = 1.0f;
+        while(cosa <= AGENT_WIDTH - 1.0f){
+            facePointsX.emplace_back(_position.x + AGENT_WIDTH, _position.y + cosa);
+            //_facePointsX.push_back(glm::vec2(_position.x + AGENT_WIDTH, _position.y + cosa));
+            cosa += TILE_SIZE/2.0f;
+        }
+        facePointsX.emplace_back(_position.x + AGENT_WIDTH, _position.y + AGENT_WIDTH - 1.0f);
+        //_facePointsX.push_back(glm::vec2(_position.x + AGENT_WIDTH, _position.y + AGENT_WIDTH - 1.0f));
+    }
+
+    this->collideWithLevelInX(levelData, facePointsX);
+
+    std::vector<glm::vec2> facePointsY;
+    if(_speed.y < 0){
+        float cosa = 1.0f;
+        while(cosa <= AGENT_WIDTH - 1.0f){
+            facePointsY.emplace_back(_position.x + cosa, _position.y);
+            cosa += TILE_SIZE/2.0f;
+        }
+        facePointsY.emplace_back(_position.x + AGENT_WIDTH - 1.0f, _position.y);
+    }else if(_speed.y > 0){
+        float cosa = 1.0f;
+        while(cosa <= AGENT_WIDTH - 1.0f){
+            facePointsY.emplace_back(_position.x + cosa, _position.y + AGENT_WIDTH);
+            cosa += TILE_SIZE/2.0f;
+        }
+        facePointsY.emplace_back(_position.x + AGENT_WIDTH - 1.0f, _position.y + AGENT_WIDTH);
+    }
+
+    this->collideAndUpdateInY(levelData, facePointsY);
+
+    facePointsY.clear();
+    if(_speed.y < 0){
+        float cosa = 1.0f;
+        while(cosa <= AGENT_WIDTH - 1.0f){
+            facePointsY.emplace_back(_position.x + cosa, _position.y);
+            cosa += TILE_SIZE/2.0f;
+        }
+        facePointsY.emplace_back(_position.x + AGENT_WIDTH - 1.0f, _position.y);
+    }else if(_speed.y > 0){
+        float cosa = 1.0f;
+        while(cosa <= AGENT_WIDTH - 1.0f){
+            facePointsY.emplace_back(_position.x + cosa, _position.y + AGENT_WIDTH);
+            cosa += TILE_SIZE/2.0f;
+        }
+        facePointsY.emplace_back(_position.x + AGENT_WIDTH - 1.0f, _position.y + AGENT_WIDTH);
+    }
+
+    this->collideWithLevelInY(levelData, facePointsY);
+
+    //_position += _speed;
+
+    //this->collideWithLevel(levelData);
 }
 
-void Enemy::collideWithLevel(const std::vector<std::string> &levelData) {
+/*void Enemy::collideWithLevel(const std::vector<std::string> &levelData) {
     std::vector<glm::vec2> collideTilePositions;
 
     //Check for corners
@@ -98,4 +178,4 @@ void Enemy::collideWithLevel(const std::vector<std::string> &levelData) {
             }
         }
     }
-}
+}*/

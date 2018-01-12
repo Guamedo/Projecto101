@@ -8,7 +8,7 @@ public:
     Player();
     ~Player();
 
-    void init(glm::vec2 pos, bool** keyStates, bool** speccialkeysStates);
+    void init(glm::vec2 pos, bool** keyStates, bool** speccialkeysStates, bool** keyStatesP, bool** speccialkeysStatesP);
 
     void draw();
 
@@ -20,10 +20,11 @@ private:
     float diag(const glm::vec2 & point1,const glm::vec2 & point2);
     glm::vec2 moveToPoint(const glm::vec2 & point1,const glm::vec2 & point2);
 
-    void collideWithBody();
-
     bool** _keyStates;
     bool** _speccialkeysStates;
+
+    bool** _keyStatesP;
+    bool** _speccialkeysStatesP;
 
     glm::vec2 _headPosition;
     glm::vec2 _headSpeed;

@@ -26,6 +26,7 @@ public:
     virtual void collideAndUpdateInY(const std::vector<std::string> & levelData, const std::vector<glm::vec2> & faceVec);
 
     const glm::vec2 &getPosition() const;
+    const glm::vec2 &getSpeed() const;
 
     void setPosition(const glm::vec2 &position);
 
