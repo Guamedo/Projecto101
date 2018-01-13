@@ -7,30 +7,33 @@ float MainGame::_gravity;
 MainGame::MainGame(): _windowHeight(800),
                       _windowWidth(800),
                       _windowName("El mundo de J"),
-                      _interval(1000/120),
-                      _timeSinceStart(0),
-                      _timeEspecial(0),
+                      _interval(1000/60),
                       _keyStates(new bool[256]),
                       _keySpecialStates(new bool[246]),
                       _keyStatesP(new bool[256]),
-                      _keySpecialStatesP(new bool[246]){
+                      _keySpecialStatesP(new bool[246]),
+                      _trauma(0.0f),
+                      _traumaDuration(1.0f),
+                      _lastTime(0.0f),
+                      _time(0.0f){
 
     MainGame::_deltaTime = (float)_interval/1000.0f;
     MainGame::_gravity = 1500.0f;
 }
 
 MainGame::~MainGame() {
-
+    delete _playerV2;
+    for(Enemy* e: _enemys){
+        delete e;
+    }
 }
 
 void MainGame::initSystems(int argc, char* argv[]) {
 
+    // Set random seed
     srand((unsigned int) time(nullptr));
 
     //Init key arrays
-    for (int i = 0; i < 256; i++){
-        _keyPresionadoRecientemente[i]=0;
-    }
     std::fill_n(_keyStates, 256, false);
     std::fill_n(_keySpecialStates, 246, false);
 
@@ -51,9 +54,12 @@ void MainGame::initSystems(int argc, char* argv[]) {
         _enemys.push_back(newEnemy);
     }
 
-    /*************
-     * Init GLUT *
-     *************/
+    initGLUT(argc, argv);
+
+    glutMainLoop();
+}
+
+void MainGame::initGLUT(int argc, char* argv[]) {
 
     setInstance();
     glutInit(&argc, argv);
@@ -77,11 +83,6 @@ void MainGame::initSystems(int argc, char* argv[]) {
     glutTimerFunc(_interval, updateCall, 0);
 
     enable2D(_windowWidth, _windowHeight);
-
-    // Get starting time
-    _timeSinceStart = glutGet(GLUT_ELAPSED_TIME);
-
-    glutMainLoop();
 }
 
 void MainGame::draw() {
@@ -102,38 +103,69 @@ void MainGame::draw() {
 }
 
 void MainGame::update(int value) {
+
+    //Frame counter
+    float cosaTime = (float)glutGet(GLUT_ELAPSED_TIME) - _lastTime;
+
+    MainGame::_deltaTime = cosaTime/1000.0f;
+    _frames = (int)floorf(1.0f/(cosaTime/1000.0f));
+    _time += MainGame::_deltaTime;
+
+    //Draw FPS in window title
+    std::ostringstream string;
+    string << _frames;
+    glutSetWindowTitle(("FPS = " + string.str()).c_str());
+
+    _lastTime = (float)glutGet(GLUT_ELAPSED_TIME);
+
+    //Input
+    if(_keyStates['j'] || _keyStates['J']){
+        _trauma = 1.0f;
+    }
+
+    // Update the camera
     updateCamera(_windowWidth, _windowHeight);
+    _trauma = std::fmaxf(_trauma - _deltaTime, 0.0f);
+
+    // Update player and enemy positions
     logic();
+
+    // Draw the game
     glutTimerFunc(_interval, updateCall, 0);
     glutPostRedisplay();
-    _timeEspecial = glutGet(GLUT_ELAPSED_TIME) - _timeSinceStart;
-    if (_timeEspecial > 1000){
-        std::ostringstream strng;
-        strng << _frames;
-        MainGame::_deltaTime = 1.0f/(float)_frames;
-        //player.setTonterias(strng.str());
-        glutSetWindowTitle(("FPS = " + strng.str()).c_str());
-        _frames = 0;
-        _timeSinceStart = glutGet(GLUT_ELAPSED_TIME);
-    }
-    _frames++;
+
+    // Update previous pressed keys
     std::copy(_keyStates, _keyStates + 256, _keyStatesP);
     std::copy(_keySpecialStates, _keySpecialStates + 246, _keySpecialStatesP);
-    /*
-    for(int i = 0; i < 256; i++){
-        _keyStatesP[i] = _keyStates[i];
-        if(i < 246){
-            _keySpecialStatesP[i] = _keySpecialStates[i];
-        }
-    }*/
 }
 
 void MainGame::updateCamera(int width, int height){
+
+    //Set viewport
     glViewport(0, 0, width, height);
+
+    //Load the projection matrix
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
+
+    // Calculate new camera position
     float newX = _playerV2->getPosition().x - (_windowWidth/2);
     float newY = _playerV2->getPosition().y - (_windowHeight/2) + 150;
+
+    // Set rotation trauma
+    float trauma3 = _trauma * _trauma * _trauma;
+    float intensity = 10.0f;
+    float random = (((float(rand())/RAND_MAX) * 2.0f) - 1.0f) * intensity * trauma3;
+    glRotatef(random, 0.0f,0.0f,1.0f);
+
+    // Set translation trauma
+    intensity = 20.0f;
+    float randomX = (((float(rand())/RAND_MAX) * 2.0f) - 1.0f) * intensity * trauma3;
+    float randomY = (((float(rand())/RAND_MAX) * 2.0f) - 1.0f) * intensity * trauma3;
+    newX += randomX;
+    newY += randomY;
+
+    // Set new camera position
     glOrtho(0.0f + newX, width + newX, 0.0f + newY, height + newY, 0.0f, 1.0f);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();

@@ -37,6 +37,8 @@ public:
     static float _deltaTime;
 private:
 
+    void initGLUT(int argc, char* argv[]);
+
     void setInstance();
 
     void draw();
@@ -76,8 +78,6 @@ private:
     bool* _keyStatesP;
     bool* _keySpecialStatesP;
 
-    int _keyPresionadoRecientemente[256];
-
     //Frame rate
     const unsigned int _interval;
 
@@ -85,13 +85,17 @@ private:
     Level _level;
 
     //Frame counter
+    float _lastTime;
     int _frames;
-    int _timeSinceStart;
-    int _timeEspecial;
+    float _time;
 
     //Game agents
     Player* _playerV2;
     std::vector<Enemy*> _enemys;
+
+    //Camera
+    float _trauma;
+    float _traumaDuration;
 };
 
 
