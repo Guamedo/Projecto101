@@ -42,6 +42,9 @@ protected:
 
     glm::vec2 _obstacleY;
     bool _isInitY = false;
+
+    bool _collideWaterX;
+    bool _collideWaterY;
 };
 
 

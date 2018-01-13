@@ -85,23 +85,6 @@ void MainGame::initGLUT(int argc, char* argv[]) {
     enable2D(_windowWidth, _windowHeight);
 }
 
-void MainGame::draw() {
-
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glClearColor(.2f, .2f, .2f, 1.0f);
-    glLoadIdentity();
-
-    _level.drawLevel();
-    _playerV2->draw();
-
-
-    for(Enemy* enemy : _enemys){
-        enemy->draw();
-    }
-
-    glutSwapBuffers();
-}
-
 void MainGame::update(int value) {
 
     //Frame counter
@@ -119,7 +102,7 @@ void MainGame::update(int value) {
     _lastTime = (float)glutGet(GLUT_ELAPSED_TIME);
 
     //Input
-    if(_keyStates['j'] || _keyStates['J']){
+    if((_keyStates['j'] || _keyStates['J']) && !_keyStatesP['j'] && !_keyStatesP['J']){
         _trauma = 1.0f;
     }
 
@@ -137,6 +120,22 @@ void MainGame::update(int value) {
     // Update previous pressed keys
     std::copy(_keyStates, _keyStates + 256, _keyStatesP);
     std::copy(_keySpecialStates, _keySpecialStates + 246, _keySpecialStatesP);
+}
+
+void MainGame::draw() {
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClearColor(.2f, .2f, .2f, 1.0f);
+    glLoadIdentity();
+
+    _playerV2->draw();
+    _level.drawLevel();
+
+    for(Enemy* enemy : _enemys){
+        enemy->draw();
+    }
+
+    glutSwapBuffers();
 }
 
 void MainGame::updateCamera(int width, int height){

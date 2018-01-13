@@ -151,12 +151,16 @@ void Agent::collideWithLevel(const std::vector<std::string> &levelData) {
 void Agent::collideWithLevelInX(const std::vector<std::string> &levelData, const std::vector<glm::vec2> &faceVec) {
     std::vector<glm::vec2> collideTilePositions;
     glm::vec2 vec;
+    _collideWaterX = false;
     for(glm::vec2 v: faceVec){
         vec = glm::vec2(floorf(v.x/(float)TILE_SIZE),
                         floorf(v.y/(float)TILE_SIZE));
         if(levelData[vec.y][vec.x] == 'G' || levelData[vec.y][vec.x] == 'W' || levelData[vec.y][vec.x] == 'C'){
             //std::cout << "Collide in X" << "\n";
             collideTilePositions.push_back(vec * (float)TILE_SIZE + glm::vec2((float)TILE_SIZE/ 2.0f));
+        }else if(levelData[vec.y][vec.x] == 'H'){
+            _collideWaterX = true;
+            std::cout << "Collide Water\n";
         }
     }
 
@@ -196,6 +200,7 @@ void Agent::collideWithLevelInX(const std::vector<std::string> &levelData, const
 void Agent::collideWithLevelInY(const std::vector<std::string> &levelData, const std::vector<glm::vec2> &faceVec) {
     std::vector<glm::vec2> collideTilePositions;
     glm::vec2 vec;
+    _collideWaterY = false;
     for(glm::vec2 v: faceVec){
         vec = glm::vec2(floorf(v.x/(float)TILE_SIZE),
                         floorf(v.y/(float)TILE_SIZE));
@@ -203,6 +208,9 @@ void Agent::collideWithLevelInY(const std::vector<std::string> &levelData, const
         if(levelData[vec.y][vec.x] == 'G' || levelData[vec.y][vec.x] == 'W' || levelData[vec.y][vec.x] == 'C'){
             //std::cout << "Collide in Y" << "\n";
             collideTilePositions.push_back(vec * (float)TILE_SIZE + glm::vec2((float)TILE_SIZE/ 2.0f));
+        }else if(levelData[vec.y][vec.x] == 'H'){
+            _collideWaterY = true;
+            std::cout << "Collide Water\n";
         }
     }
 
@@ -286,7 +294,13 @@ void Agent::collideAndUpdateInX(const std::vector<std::string> &levelData, const
         }
     }
     if(_speed.x < 0){
-        float normalUpdate = fabsf(_speed.x * MainGame::_deltaTime);
+        float normalUpdate;
+        if(_collideWaterX){
+            normalUpdate = fabsf(_speed.x * MainGame::_deltaTime * 0.5f);
+        }else{
+            normalUpdate = fabsf(_speed.x * MainGame::_deltaTime);
+        }
+
         float collisionUpdate = fabsf((_obstacleX.x+(float)TILE_SIZE/2.0f)-(agentCenterPos.x-(float)AGENT_WIDTH/2.0f));
         if(normalUpdate < collisionUpdate){
             _position.x -= normalUpdate;
@@ -299,7 +313,12 @@ void Agent::collideAndUpdateInX(const std::vector<std::string> &levelData, const
         }
         //_position.x -= std::fminf(fabsf(_speed.x * MainGame::_deltaTime), fabsf((_obstacleX.x+(float)TILE_SIZE/2.0f)-(agentCenterPos.x-(float)AGENT_WIDTH/2.0f)));
     }else if(_speed.x > 0){
-        float normalUpdate = fabsf(_speed.x * MainGame::_deltaTime);
+        float normalUpdate;
+        if(_collideWaterX){
+            normalUpdate = fabsf(_speed.x * MainGame::_deltaTime * 0.5f);
+        }else{
+            normalUpdate = fabsf(_speed.x * MainGame::_deltaTime);
+        }
         float collisionUpdate = fabsf((_obstacleX.x-(float)TILE_SIZE/2.0f) - (agentCenterPos.x+(float)AGENT_WIDTH/2.0f));
         if(normalUpdate < collisionUpdate){
             _position.x += normalUpdate;
@@ -362,7 +381,12 @@ void Agent::collideAndUpdateInY(const std::vector<std::string> &levelData, const
     }
 
     if(_speed.y < 0){
-        float updateNormal = fabsf(_speed.y * MainGame::_deltaTime + MainGame::_gravity * MainGame::_deltaTime * MainGame::_deltaTime);
+        float updateNormal;
+        if(_collideWaterY){
+            updateNormal = fabsf(_speed.y * MainGame::_deltaTime * 0.3f + MainGame::_gravity * MainGame::_deltaTime * MainGame::_deltaTime * 0.3f);
+        }else{
+            updateNormal = fabsf(_speed.y * MainGame::_deltaTime + MainGame::_gravity * MainGame::_deltaTime * MainGame::_deltaTime);
+        }
         float updateCollision = fabsf((_obstacleY.y+(float)TILE_SIZE/2.0f)-(agentCenterPos.y-(float)AGENT_WIDTH/2.0f));
         if(updateNormal < updateCollision){
             _position.y -= updateNormal;
