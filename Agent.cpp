@@ -394,13 +394,16 @@ void Agent::collideAndUpdateInY(const std::vector<std::string> &levelData, const
             _position.y -= updateCollision;
             _speed.y = 0.0f;
             _jump = 0;
-            /*if(_jump == 1) {
-                _jump = 2;
-            }*/
         }
         //_position.y -= std::fminf(fabsf(_speed.y * MainGame::_deltaTime), fabsf((_obstacleY.y+(float)TILE_SIZE/2.0f)-(agentCenterPos.y-(float)AGENT_WIDTH/2.0f)));
     }else if(_speed.y > 0){
-        float updateNormal = fabsf(_speed.y * MainGame::_deltaTime + MainGame::_gravity * MainGame::_deltaTime * MainGame::_deltaTime);
+        float updateNormal;
+        if(_collideWaterY){
+            updateNormal = fabsf(_speed.y * MainGame::_deltaTime * 0.3f + MainGame::_gravity * MainGame::_deltaTime * MainGame::_deltaTime * 0.3f);
+            _jump = 0;
+        }else{
+            updateNormal = fabsf(_speed.y * MainGame::_deltaTime + MainGame::_gravity * MainGame::_deltaTime * MainGame::_deltaTime);
+        }
         float updateCollision = fabsf((_obstacleY.y-(float)TILE_SIZE/2.0f) - (agentCenterPos.y+(float)AGENT_WIDTH/2.0f));
         if(updateNormal < updateCollision){
             _position.y += updateNormal;

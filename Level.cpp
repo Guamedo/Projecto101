@@ -36,14 +36,19 @@ void Level::loadLevel(const std::string &levelPath) {
                 case 'W':
                 case 'G':
                 case 'C':
+                case 'H':
                     _levelDrawData.emplace_back(glm::vec2(x * TILE_SIZE, y * TILE_SIZE), TILE_SIZE);
                     break;
                 case '@':
+                    _levelData[y][x] = '.';
+                    //_levelDrawData.emplace_back(glm::vec2(x * TILE_SIZE, y * TILE_SIZE), TILE_SIZE);
                     _playerInitialPos = glm::vec2(x * TILE_SIZE, y * TILE_SIZE);
                     break;
                 case '.':
                     break;
                 case 'E':
+                    _levelData[y][x] = '.';
+                    //_levelDrawData.emplace_back(glm::vec2(x * TILE_SIZE, y * TILE_SIZE), TILE_SIZE);
                     _enemyInitialPositions.emplace_back(x * TILE_SIZE, y * TILE_SIZE);
                     break;
                 default:
@@ -57,8 +62,6 @@ void Level::loadLevel(const std::string &levelPath) {
 void Level::drawLevel() {
     glBegin(GL_TRIANGLES);
     for(Box b : _levelDrawData){
-
-
         int tileY = (int)(floorf(b.getPosition().y)/(float)TILE_SIZE);
         int tileX = (int)(floorf(b.getPosition().x)/(float)TILE_SIZE);
         char tileType = _levelData[tileY][tileX];
@@ -97,13 +100,15 @@ void Level::drawLevel() {
             glColor3f(n, n, n);
         }else if(tileType == 'W'){
             glColor3f(n*0.2f, n*0.2f, n*0.2f);
-        }else if(tileType == 'G' || tileType == 'H'){
+        }else if(tileType == 'G'){
             if(n < 0.45f && !cosa){
                 glColor4f(n * 0.2f, n * 0.2f, (n+0.55f) * 0.78f, 0.5f);
                 _levelData[tileY][tileX] = 'H';
             }else {
                 glColor3f(n * 0.2f, n * 0.78f, n * 0.2f);
             }
+        }else if(tileType == 'H'){
+            glColor4f(n * 0.2f, n * 0.2f, (n+0.55f) * 0.78f, 0.5f);
         }
 
         glVertex2f(x, y);

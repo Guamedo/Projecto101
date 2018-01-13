@@ -94,6 +94,9 @@ private:
     std::vector<Enemy*> _enemys;
 
     //Camera
+    glm::vec2 _cameraPosition;
+    float _cameraAngle;
+    glm::vec2 _cameraScale;
     float _trauma;
     float _traumaDuration;
 };

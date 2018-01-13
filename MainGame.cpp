@@ -1,11 +1,12 @@
 #include "MainGame.h"
 
 MainGame* MainGame::_instance = nullptr;
+
 float MainGame::_deltaTime;
 float MainGame::_gravity;
 
 MainGame::MainGame(): _windowHeight(800),
-                      _windowWidth(800),
+                      _windowWidth(600),
                       _windowName("El mundo de J"),
                       _interval(1000/60),
                       _keyStates(new bool[256]),
@@ -15,7 +16,10 @@ MainGame::MainGame(): _windowHeight(800),
                       _trauma(0.0f),
                       _traumaDuration(1.0f),
                       _lastTime(0.0f),
-                      _time(0.0f){
+                      _time(0.0f),
+                      _cameraPosition(glm::vec2(0.0f, 0.0f)),
+                      _cameraAngle(0.0f),
+                      _cameraScale(glm::vec2(1.0f, 1.0f)){
 
     MainGame::_deltaTime = (float)_interval/1000.0f;
     MainGame::_gravity = 1500.0f;
@@ -65,7 +69,7 @@ void MainGame::initGLUT(int argc, char* argv[]) {
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
     glutInitWindowSize(_windowHeight, _windowWidth);
-    glutInitWindowPosition(100, 100);
+    glutInitWindowPosition(300, 80);
     glutCreateWindow(_windowName.c_str());
 
     // To draw with RGBA
@@ -140,32 +144,38 @@ void MainGame::draw() {
 
 void MainGame::updateCamera(int width, int height){
 
+    //Update camera position
+    glm::vec2 target = _playerV2->getPosition() - glm::vec2(_windowWidth/2.0f, _windowHeight/2.0f - 150.0f/_cameraScale.y);
+    glm::vec2 dirVec = target - _cameraPosition;
+    _cameraPosition += dirVec/10.0f;
+
     //Set viewport
-    glViewport(0, 0, width, height);
+    glViewport(0, 0, _windowWidth, _windowHeight);
 
     //Load the projection matrix
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
 
-    // Calculate new camera position
-    float newX = _playerV2->getPosition().x - (_windowWidth/2);
-    float newY = _playerV2->getPosition().y - (_windowHeight/2) + 150;
+    // Scale the camera
+    glScalef(_cameraScale.x, _cameraScale.y, 1.0f);
 
     // Set rotation trauma
     float trauma3 = _trauma * _trauma * _trauma;
     float intensity = 10.0f;
     float random = (((float(rand())/RAND_MAX) * 2.0f) - 1.0f) * intensity * trauma3;
-    glRotatef(random, 0.0f,0.0f,1.0f);
+    glRotatef(_cameraAngle + random, 0.0f, 0.0f, 1.0f);
 
     // Set translation trauma
-    intensity = 20.0f;
+    intensity = 50.0f;
     float randomX = (((float(rand())/RAND_MAX) * 2.0f) - 1.0f) * intensity * trauma3;
     float randomY = (((float(rand())/RAND_MAX) * 2.0f) - 1.0f) * intensity * trauma3;
-    newX += randomX;
-    newY += randomY;
+    _cameraPosition.x += randomX;
+    _cameraPosition.y += randomY;
 
     // Set new camera position
-    glOrtho(0.0f + newX, width + newX, 0.0f + newY, height + newY, 0.0f, 1.0f);
+    glOrtho(0.0f + _cameraPosition.x, _windowWidth + _cameraPosition.x,
+            0.0f + _cameraPosition.y, _windowHeight + _cameraPosition.y,
+            0.0f, 1.0f);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 }
