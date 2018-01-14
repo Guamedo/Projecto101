@@ -26,6 +26,7 @@
 #include "Player.h"
 #include "Enemy.h"
 #include "Camera.h"
+#include "Explosion.h"
 
 class MainGame {
 public:
@@ -40,6 +41,7 @@ public:
 private:
 
     void initGLUT(int argc, char* argv[]);
+    void initMouse();
 
     void setInstance();
 
@@ -47,6 +49,7 @@ private:
     void update(int value);
     void updateCamera(int width, int height);
     void logic();
+    void manageInput();
 
     void resizeWindow(int width, int height);
     void enable2D(int width, int height);
@@ -56,6 +59,8 @@ private:
     void keySpecial(int key, int x, int y);
     void keySpecialUp(int key, int x, int y);
 
+    void onMouseClick(int button, int state, int x, int y);
+
     static void drawCall();
     static void updateCall(int value);
     static void resizeWindowCall(int width, int height);
@@ -63,6 +68,7 @@ private:
     static void keyUpCall(unsigned char key, int x, int y);
     static void keySpecialCall(int key, int x, int y);
     static void keySpecialUpCall(int key, int x, int y);
+    static void onMouseClickCall(int button, int state, int x, int y);
 
     int random_range(int min, int max);
 
@@ -79,6 +85,17 @@ private:
 
     bool* _keyStatesP;
     bool* _keySpecialStatesP;
+
+    //Mouse buttons
+    bool _mouseLeft;
+    bool _mouseRight;
+    bool _mouseMiddle;
+
+    bool _mouseLeftP;
+    bool _mouseRightP;
+    bool _mouseMiddleP;
+
+    glm::vec2 _mousePosition;
 
     //Frame rate
     const unsigned int _interval;
@@ -97,6 +114,9 @@ private:
 
     //Camera
     Camera _camera;
+
+    //Explosions
+    std::vector<Explosion*> _explosions;
 };
 
 

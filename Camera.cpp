@@ -67,6 +67,16 @@ void Camera::trauma() {
     _trauma = _traumaDuration;
 }
 
+glm::vec2 Camera::screenToWorld(glm::vec2 screenCoords) {
+    glm::vec2 result;
+    result = glm::vec2(screenCoords.x, _height - screenCoords.y);
+    result -= glm::vec2(_width/2.0f, _height/2.0f);
+    result /= _scale;
+    result += glm::vec2(_width/2.0f, _height/2.0f);
+    result += _position;
+    return result;
+}
+
 const glm::vec2 &Camera::getPosition() const {
     return _position;
 }

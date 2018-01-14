@@ -160,7 +160,7 @@ void Agent::collideWithLevelInX(const std::vector<std::string> &levelData, const
             collideTilePositions.push_back(vec * (float)TILE_SIZE + glm::vec2((float)TILE_SIZE/ 2.0f));
         }else if(levelData[vec.y][vec.x] == 'H'){
             _collideWaterX = true;
-            std::cout << "Collide Water\n";
+            //std::cout << "Collide Water\n";
         }
     }
 
@@ -210,7 +210,7 @@ void Agent::collideWithLevelInY(const std::vector<std::string> &levelData, const
             collideTilePositions.push_back(vec * (float)TILE_SIZE + glm::vec2((float)TILE_SIZE/ 2.0f));
         }else if(levelData[vec.y][vec.x] == 'H'){
             _collideWaterY = true;
-            std::cout << "Collide Water\n";
+            //std::cout << "Collide Water\n";
         }
     }
 

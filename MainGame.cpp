@@ -62,6 +62,8 @@ void MainGame::initSystems(int argc, char* argv[]) {
 
     initGLUT(argc, argv);
 
+    initMouse();
+
     glutMainLoop();
 }
 
@@ -82,6 +84,7 @@ void MainGame::initGLUT(int argc, char* argv[]) {
     glutReshapeFunc(resizeWindowCall);
     glutKeyboardFunc(keyPressedCall);
     glutKeyboardUpFunc(keyUpCall);
+    glutMouseFunc(onMouseClickCall);
 
     glutSpecialFunc(keySpecialCall);
     glutSpecialUpFunc(keySpecialUpCall);
@@ -89,6 +92,15 @@ void MainGame::initGLUT(int argc, char* argv[]) {
     glutTimerFunc(_interval, updateCall, 0);
 
     enable2D(_windowWidth, _windowHeight);
+}
+
+void MainGame::initMouse() {
+    _mouseLeft = false;
+    _mouseMiddle = false;
+    _mouseRight = false;
+    _mouseLeftP = false;
+    _mouseMiddleP = false;
+    _mouseRightP = false;
 }
 
 void MainGame::update(int value) {
@@ -110,16 +122,7 @@ void MainGame::update(int value) {
     _lastTime = (float)glutGet(GLUT_ELAPSED_TIME);
 
     //Input
-    if((_keyStates['j'] || _keyStates['J']) && !_keyStatesP['j'] && !_keyStatesP['J']){
-        _camera.trauma();
-    }
-    if((_keyStates['t'] || _keyStates['T']) && !_keyStatesP['t'] && !_keyStatesP['T']){
-        if(_timeScale < 1.0f){
-            _timeScale = 1.0f;
-        }else{
-            _timeScale = 0.2f;
-        }
-    }
+    manageInput();
 
     // Update the camera
     _camera.goToPosition(_playerV2->getPosition() - glm::vec2(_windowWidth/2.0f, _windowHeight/2.0f - 150.0f/_camera.getScale().y));
@@ -135,6 +138,10 @@ void MainGame::update(int value) {
     // Update previous pressed keys
     std::copy(_keyStates, _keyStates + 256, _keyStatesP);
     std::copy(_keySpecialStates, _keySpecialStates + 246, _keySpecialStatesP);
+
+    _mouseLeftP = _mouseLeft;
+    _mouseMiddleP = _mouseMiddle;
+    _mouseRightP = _mouseRight;
 }
 
 void MainGame::draw() {
@@ -143,12 +150,18 @@ void MainGame::draw() {
     glClearColor(.2f, .2f, .2f, 1.0f);
     glLoadIdentity();
 
+
     _playerV2->draw();
     _level.drawLevel();
 
     for(Enemy* enemy : _enemys){
         enemy->draw();
     }
+
+    for(Explosion* e:_explosions){
+        e->draw();
+    }
+
 
     glutSwapBuffers();
 }
@@ -157,6 +170,24 @@ void MainGame::logic() {
     _playerV2->update(_level.getLevelData());
     for(Enemy* e : _enemys){
         e->update(_level.getLevelData(), _playerV2->getPosition());
+    }
+}
+
+void MainGame::manageInput() {
+    if((_keyStates['j'] || _keyStates['J']) && !_keyStatesP['j'] && !_keyStatesP['J']){
+        _camera.trauma();
+    }
+    if((_keyStates['t'] || _keyStates['T']) && !_keyStatesP['t'] && !_keyStatesP['T']){
+        if(_timeScale < 1.0f){
+            _timeScale = 1.0f;
+        }else{
+            _timeScale = 0.2f;
+        }
+    }
+
+    if(_mouseLeft && !_mouseLeftP){
+        std::cout << "PUM\n";
+        _explosions.push_back(new Explosion(_mousePosition));
     }
 }
 
@@ -197,6 +228,34 @@ void MainGame::keySpecialUp(int key, int x, int y) {
     _keySpecialStates[key] = false;
 }
 
+void MainGame::onMouseClick(int button, int state, int x, int y) {
+
+    switch(button) {
+        case GLUT_LEFT_BUTTON:
+            if(state == GLUT_UP){
+                _mouseLeft = false;
+            }else if(state == GLUT_DOWN){
+                _mouseLeft = true;
+            }
+            break;
+        case GLUT_MIDDLE_BUTTON:
+            if(state == GLUT_UP){
+                _mouseMiddle = false;
+            }else if(state == GLUT_DOWN){
+                _mouseMiddle = true;
+            }
+            break;
+        case GLUT_RIGHT_BUTTON:
+            if(state == GLUT_UP){
+                _mouseRight = false;
+            }else if(state == GLUT_DOWN){
+                _mouseRight = true;
+            }
+            break;
+    }
+    _mousePosition = _camera.screenToWorld(glm::vec2(x, y));
+}
+
 void MainGame::setInstance() {
     _instance = this;
 }
@@ -221,4 +280,7 @@ void MainGame::keySpecialCall(int key, int x, int y){
 }
 void MainGame::keySpecialUpCall(int key, int x, int y){
     _instance->keySpecialUp(key, x, y);
+}
+void MainGame::onMouseClickCall(int button, int state, int x, int y) {
+    _instance->onMouseClick(button, state, x, y);
 }

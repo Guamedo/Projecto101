@@ -20,6 +20,8 @@ public:
 
     void trauma();
 
+    glm::vec2 screenToWorld(glm::vec2 screenCoords);
+
     const glm::vec2 &getPosition() const;
 
     void setPosition(const glm::vec2& position);

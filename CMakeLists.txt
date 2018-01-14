@@ -33,6 +33,6 @@ add_executable(Project101 Project101.cpp
                           Enemy.cpp
                           Enemy.h
                           PerlinNoise.cpp
-                          PerlinNoise.h Camera.cpp Camera.h)
+                          PerlinNoise.h Camera.cpp Camera.h Explosion.cpp Explosion.h)
                             
 target_link_libraries(Project101 ${OPENGL_LIBRARIES} ${GLUT_LIBRARY})
