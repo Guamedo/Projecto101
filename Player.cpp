@@ -18,6 +18,8 @@ void Player::init(glm::vec2 pos, bool** keyStates, bool** speccialkeysStates, bo
     _keyStatesP = keyStatesP;
     _speccialkeysStatesP = speccialkeysStatesP;
     _sowCollidingFaces = false;
+    _collideWaterY = false;
+    _collideWaterX = false;
     //_obstacle = pos;
 }
 
@@ -282,8 +284,11 @@ void Player::manageInput() {
     if((*_keyStates)[32]/*SPACE*/){
         if (_jump == 0 && !(*_keyStatesP)[32]/*SPACE*/) {
             //player.body.setSpeedY(10);
-            _speed.y = 1.5f*STEP;
+            _speed.y = 2.0f*STEP;
             _jump = 1;
+        }
+        if(_collideWaterX || _collideWaterY){
+            _speed.y = 2.0f*STEP;
         }
     }
     /*

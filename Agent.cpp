@@ -383,7 +383,7 @@ void Agent::collideAndUpdateInY(const std::vector<std::string> &levelData, const
     if(_speed.y < 0){
         float updateNormal;
         if(_collideWaterY){
-            updateNormal = fabsf(_speed.y * MainGame::_deltaTime * 0.3f + MainGame::_gravity * MainGame::_deltaTime * MainGame::_deltaTime * 0.3f);
+            updateNormal = fabsf(_speed.y * MainGame::_deltaTime * 0.2f + MainGame::_gravity * MainGame::_deltaTime * MainGame::_deltaTime * 0.2f);
         }else{
             updateNormal = fabsf(_speed.y * MainGame::_deltaTime + MainGame::_gravity * MainGame::_deltaTime * MainGame::_deltaTime);
         }
@@ -399,8 +399,7 @@ void Agent::collideAndUpdateInY(const std::vector<std::string> &levelData, const
     }else if(_speed.y > 0){
         float updateNormal;
         if(_collideWaterY){
-            updateNormal = fabsf(_speed.y * MainGame::_deltaTime * 0.3f + MainGame::_gravity * MainGame::_deltaTime * MainGame::_deltaTime * 0.3f);
-            _jump = 0;
+            updateNormal = fabsf(_speed.y * MainGame::_deltaTime * 0.2f + MainGame::_gravity * MainGame::_deltaTime * MainGame::_deltaTime * 0.2f);
         }else{
             updateNormal = fabsf(_speed.y * MainGame::_deltaTime + MainGame::_gravity * MainGame::_deltaTime * MainGame::_deltaTime);
         }

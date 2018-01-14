@@ -25,6 +25,7 @@
 #include "Level.h"
 #include "Player.h"
 #include "Enemy.h"
+#include "Camera.h"
 
 class MainGame {
 public:
@@ -35,6 +36,7 @@ public:
 
     static float _gravity;
     static float _deltaTime;
+    static float _time;
 private:
 
     void initGLUT(int argc, char* argv[]);
@@ -87,18 +89,14 @@ private:
     //Frame counter
     float _lastTime;
     int _frames;
-    float _time;
+    float _timeScale;
 
     //Game agents
     Player* _playerV2;
     std::vector<Enemy*> _enemys;
 
     //Camera
-    glm::vec2 _cameraPosition;
-    float _cameraAngle;
-    glm::vec2 _cameraScale;
-    float _trauma;
-    float _traumaDuration;
+    Camera _camera;
 };
 
 

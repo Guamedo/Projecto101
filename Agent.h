@@ -6,7 +6,7 @@
 #include <glm/glm.hpp>
 
 const int AGENT_WIDTH = 30;
-const int STEP = 500;
+const int STEP = 300;
 
 class Agent {
 public:

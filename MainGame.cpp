@@ -4,6 +4,7 @@ MainGame* MainGame::_instance = nullptr;
 
 float MainGame::_deltaTime;
 float MainGame::_gravity;
+float MainGame::_time;
 
 MainGame::MainGame(): _windowHeight(800),
                       _windowWidth(600),
@@ -13,16 +14,9 @@ MainGame::MainGame(): _windowHeight(800),
                       _keySpecialStates(new bool[246]),
                       _keyStatesP(new bool[256]),
                       _keySpecialStatesP(new bool[246]),
-                      _trauma(0.0f),
-                      _traumaDuration(1.0f),
                       _lastTime(0.0f),
-                      _time(0.0f),
-                      _cameraPosition(glm::vec2(0.0f, 0.0f)),
-                      _cameraAngle(0.0f),
-                      _cameraScale(glm::vec2(1.0f, 1.0f)){
+                      _timeScale(1.0f){
 
-    MainGame::_deltaTime = (float)_interval/1000.0f;
-    MainGame::_gravity = 1500.0f;
 }
 
 MainGame::~MainGame() {
@@ -34,6 +28,11 @@ MainGame::~MainGame() {
 
 void MainGame::initSystems(int argc, char* argv[]) {
 
+    // Init global static variables
+    MainGame::_deltaTime = (float)_interval/1000.0f;
+    MainGame::_gravity = 1500.0f;
+    MainGame::_time = 0.0f;
+
     // Set random seed
     srand((unsigned int) time(nullptr));
 
@@ -43,6 +42,9 @@ void MainGame::initSystems(int argc, char* argv[]) {
 
     std::fill_n(_keyStatesP, 256, false);
     std::fill_n(_keySpecialStatesP, 246, false);
+
+    //Init the camera
+    _camera.init(_windowWidth, _windowHeight);
 
     //Load the level
     _level.loadLevel("Levels/LevelTest.txt");
@@ -94,9 +96,11 @@ void MainGame::update(int value) {
     //Frame counter
     float cosaTime = (float)glutGet(GLUT_ELAPSED_TIME) - _lastTime;
 
-    MainGame::_deltaTime = cosaTime/1000.0f;
+
     _frames = (int)floorf(1.0f/(cosaTime/1000.0f));
-    _time += MainGame::_deltaTime;
+
+    MainGame::_deltaTime = (cosaTime/1000.0f) * _timeScale;
+    MainGame::_time += MainGame::_deltaTime;
 
     //Draw FPS in window title
     std::ostringstream string;
@@ -107,12 +111,19 @@ void MainGame::update(int value) {
 
     //Input
     if((_keyStates['j'] || _keyStates['J']) && !_keyStatesP['j'] && !_keyStatesP['J']){
-        _trauma = 1.0f;
+        _camera.trauma();
+    }
+    if((_keyStates['t'] || _keyStates['T']) && !_keyStatesP['t'] && !_keyStatesP['T']){
+        if(_timeScale < 1.0f){
+            _timeScale = 1.0f;
+        }else{
+            _timeScale = 0.2f;
+        }
     }
 
     // Update the camera
-    updateCamera(_windowWidth, _windowHeight);
-    _trauma = std::fmaxf(_trauma - _deltaTime, 0.0f);
+    _camera.goToPosition(_playerV2->getPosition() - glm::vec2(_windowWidth/2.0f, _windowHeight/2.0f - 150.0f/_camera.getScale().y));
+    _camera.update();
 
     // Update player and enemy positions
     logic();
@@ -142,44 +153,6 @@ void MainGame::draw() {
     glutSwapBuffers();
 }
 
-void MainGame::updateCamera(int width, int height){
-
-    //Update camera position
-    glm::vec2 target = _playerV2->getPosition() - glm::vec2(_windowWidth/2.0f, _windowHeight/2.0f - 150.0f/_cameraScale.y);
-    glm::vec2 dirVec = target - _cameraPosition;
-    _cameraPosition += dirVec/10.0f;
-
-    //Set viewport
-    glViewport(0, 0, _windowWidth, _windowHeight);
-
-    //Load the projection matrix
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-
-    // Scale the camera
-    glScalef(_cameraScale.x, _cameraScale.y, 1.0f);
-
-    // Set rotation trauma
-    float trauma3 = _trauma * _trauma * _trauma;
-    float intensity = 10.0f;
-    float random = (((float(rand())/RAND_MAX) * 2.0f) - 1.0f) * intensity * trauma3;
-    glRotatef(_cameraAngle + random, 0.0f, 0.0f, 1.0f);
-
-    // Set translation trauma
-    intensity = 50.0f;
-    float randomX = (((float(rand())/RAND_MAX) * 2.0f) - 1.0f) * intensity * trauma3;
-    float randomY = (((float(rand())/RAND_MAX) * 2.0f) - 1.0f) * intensity * trauma3;
-    _cameraPosition.x += randomX;
-    _cameraPosition.y += randomY;
-
-    // Set new camera position
-    glOrtho(0.0f + _cameraPosition.x, _windowWidth + _cameraPosition.x,
-            0.0f + _cameraPosition.y, _windowHeight + _cameraPosition.y,
-            0.0f, 1.0f);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-}
-
 void MainGame::logic() {
     _playerV2->update(_level.getLevelData());
     for(Enemy* e : _enemys){
@@ -190,7 +163,7 @@ void MainGame::logic() {
 void MainGame::resizeWindow(int width, int height) {
     _windowWidth = width;
     _windowHeight = height;
-
+    _camera.resize(width, height);
     glLoadIdentity();
     glOrtho(0.0f, width, 0.0f, height, 0.0f, 1.0f);
 }
