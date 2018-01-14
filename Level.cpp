@@ -101,7 +101,7 @@ void Level::drawLevel() {
         }else if(tileType == 'W'){
             glColor3f(n*0.2f, n*0.2f, n*0.2f);
         }else if(tileType == 'G'){
-            if(n < 0.45f && !cosa){
+            if(n < 0.2f && !cosa){
                 glColor4f(n * 0.2f, n * 0.2f, (n+0.55f) * 0.78f, 0.5f);
                 _levelData[tileY][tileX] = 'H';
             }else {

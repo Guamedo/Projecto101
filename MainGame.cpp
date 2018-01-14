@@ -15,7 +15,8 @@ MainGame::MainGame(): _windowHeight(800),
                       _keyStatesP(new bool[256]),
                       _keySpecialStatesP(new bool[246]),
                       _lastTime(0.0f),
-                      _timeScale(1.0f){
+                      _timeScale(1.0f),
+                      _mouse(Mouse()){
 
 }
 
@@ -30,7 +31,7 @@ void MainGame::initSystems(int argc, char* argv[]) {
 
     // Init global static variables
     MainGame::_deltaTime = (float)_interval/1000.0f;
-    MainGame::_gravity = 1500.0f;
+    MainGame::_gravity = -1500.0f;
     MainGame::_time = 0.0f;
 
     // Set random seed
@@ -62,8 +63,6 @@ void MainGame::initSystems(int argc, char* argv[]) {
 
     initGLUT(argc, argv);
 
-    initMouse();
-
     glutMainLoop();
 }
 
@@ -94,32 +93,22 @@ void MainGame::initGLUT(int argc, char* argv[]) {
     enable2D(_windowWidth, _windowHeight);
 }
 
-void MainGame::initMouse() {
-    _mouseLeft = false;
-    _mouseMiddle = false;
-    _mouseRight = false;
-    _mouseLeftP = false;
-    _mouseMiddleP = false;
-    _mouseRightP = false;
-}
-
 void MainGame::update(int value) {
 
     //Frame counter
     float cosaTime = (float)glutGet(GLUT_ELAPSED_TIME) - _lastTime;
-
 
     _frames = (int)floorf(1.0f/(cosaTime/1000.0f));
 
     MainGame::_deltaTime = (cosaTime/1000.0f) * _timeScale;
     MainGame::_time += MainGame::_deltaTime;
 
+    _lastTime = (float)glutGet(GLUT_ELAPSED_TIME);
+
     //Draw FPS in window title
     std::ostringstream string;
     string << _frames;
     glutSetWindowTitle(("FPS = " + string.str()).c_str());
-
-    _lastTime = (float)glutGet(GLUT_ELAPSED_TIME);
 
     //Input
     manageInput();
@@ -131,6 +120,15 @@ void MainGame::update(int value) {
     // Update player and enemy positions
     logic();
 
+    //Update explosion
+    for(int i = 0; i < _explosions.size(); i++){
+        bool remove = _explosions[i]->update(_playerV2);
+        if(remove){
+            _explosions[i] = _explosions[_explosions.size()-1];
+            _explosions.pop_back();
+        }
+    }
+
     // Draw the game
     glutTimerFunc(_interval, updateCall, 0);
     glutPostRedisplay();
@@ -139,35 +137,37 @@ void MainGame::update(int value) {
     std::copy(_keyStates, _keyStates + 256, _keyStatesP);
     std::copy(_keySpecialStates, _keySpecialStates + 246, _keySpecialStatesP);
 
-    _mouseLeftP = _mouseLeft;
-    _mouseMiddleP = _mouseMiddle;
-    _mouseRightP = _mouseRight;
+    // Update previous mouse buttons
+    _mouse._leftP = _mouse._left;
+    _mouse._middleP = _mouse._middle;
+    _mouse._rightP = _mouse._right;
 }
 
 void MainGame::draw() {
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glClearColor(.2f, .2f, .2f, 1.0f);
-    glLoadIdentity();
+    //glLoadIdentity();
 
 
-    _playerV2->draw();
     _level.drawLevel();
+    _playerV2->draw();
 
     for(Enemy* enemy : _enemys){
         enemy->draw();
     }
 
-    for(Explosion* e:_explosions){
-        e->draw();
+    for(int i = 0; i < _explosions.size(); i++){
+        _explosions[i]->draw();
     }
-
 
     glutSwapBuffers();
 }
 
 void MainGame::logic() {
+
     _playerV2->update(_level.getLevelData());
+
     for(Enemy* e : _enemys){
         e->update(_level.getLevelData(), _playerV2->getPosition());
     }
@@ -185,9 +185,9 @@ void MainGame::manageInput() {
         }
     }
 
-    if(_mouseLeft && !_mouseLeftP){
+    if(_mouse._left && !_mouse._leftP){
         std::cout << "PUM\n";
-        _explosions.push_back(new Explosion(_mousePosition));
+        _explosions.push_back(new Explosion(_mouse._position));
     }
 }
 
@@ -206,10 +206,6 @@ void MainGame::enable2D(int width, int height) {
     glOrtho(0.0f, width, 0.0f, height, 0.0f, 1.0f);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-}
-
-int MainGame::random_range(int min, int max) {
-    return min + (rand() % (max - min + 1));
 }
 
 void MainGame::keyPressed(unsigned char key, int x, int y) {
@@ -233,27 +229,27 @@ void MainGame::onMouseClick(int button, int state, int x, int y) {
     switch(button) {
         case GLUT_LEFT_BUTTON:
             if(state == GLUT_UP){
-                _mouseLeft = false;
+                _mouse._left = false;
             }else if(state == GLUT_DOWN){
-                _mouseLeft = true;
+                _mouse._left = true;
             }
             break;
         case GLUT_MIDDLE_BUTTON:
             if(state == GLUT_UP){
-                _mouseMiddle = false;
+                _mouse._middle = false;
             }else if(state == GLUT_DOWN){
-                _mouseMiddle = true;
+                _mouse._middle = true;
             }
             break;
         case GLUT_RIGHT_BUTTON:
             if(state == GLUT_UP){
-                _mouseRight = false;
+                _mouse._right = false;
             }else if(state == GLUT_DOWN){
-                _mouseRight = true;
+                _mouse._right = true;
             }
             break;
     }
-    _mousePosition = _camera.screenToWorld(glm::vec2(x, y));
+    _mouse._position = _camera.screenToWorld(glm::vec2(x, y));
 }
 
 void MainGame::setInstance() {

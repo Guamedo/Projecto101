@@ -3,6 +3,8 @@
 
 
 #include <glm/glm.hpp>
+#include "PerlinNoise.h"
+#include "Player.h"
 
 class Explosion {
 public:
@@ -10,12 +12,21 @@ public:
 
     ~Explosion();
 
+    bool update(Player* player);
+
     void draw();
 
 private:
 
+    PerlinNoise _perlinNoise;
     glm::vec2 _position;
     float _rad;
+    float _maxRad;
+    float _duration;
+    float _maxDuration;
+
+    float _randX;
+    float _randY;
 };
 
 

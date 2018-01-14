@@ -28,6 +28,32 @@
 #include "Camera.h"
 #include "Explosion.h"
 
+struct Mouse{
+    Mouse(){
+        _left = false;
+        _right = false;
+        _middle = false;
+
+        _leftP = false;
+        _rightP = false;
+        _middleP = false;
+
+        _position = glm::vec2(0.0f);
+    }
+    //Mouse pressed buttons
+    bool _left;
+    bool _right;
+    bool _middle;
+
+    //Previous mouse pressed buttons
+    bool _leftP;
+    bool _rightP;
+    bool _middleP;
+
+    //Mouse position
+    glm::vec2 _position;
+};
+
 class MainGame {
 public:
     MainGame();
@@ -41,13 +67,11 @@ public:
 private:
 
     void initGLUT(int argc, char* argv[]);
-    void initMouse();
 
     void setInstance();
 
     void draw();
     void update(int value);
-    void updateCamera(int width, int height);
     void logic();
     void manageInput();
 
@@ -70,8 +94,6 @@ private:
     static void keySpecialUpCall(int key, int x, int y);
     static void onMouseClickCall(int button, int state, int x, int y);
 
-    int random_range(int min, int max);
-
     static MainGame* _instance;
 
     //The window
@@ -86,16 +108,8 @@ private:
     bool* _keyStatesP;
     bool* _keySpecialStatesP;
 
-    //Mouse buttons
-    bool _mouseLeft;
-    bool _mouseRight;
-    bool _mouseMiddle;
-
-    bool _mouseLeftP;
-    bool _mouseRightP;
-    bool _mouseMiddleP;
-
-    glm::vec2 _mousePosition;
+    //Mouse
+    Mouse _mouse;
 
     //Frame rate
     const unsigned int _interval;

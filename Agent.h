@@ -27,14 +27,16 @@ public:
 
     const glm::vec2 &getPosition() const;
     const glm::vec2 &getSpeed() const;
+    const glm::vec2 &getAcceleration() const;
 
     void setPosition(const glm::vec2 &position);
-
     void setSpeed(const glm::vec2 &speed);
+    void setAcceleration(const glm::vec2 &acceleration);
 
 protected:
     glm::vec2 _position;
     glm::vec2 _speed;
+    glm::vec2 _acceleration;
     int _jump;
 
     glm::vec2 _obstacleX;

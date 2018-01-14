@@ -9,19 +9,16 @@ Enemy::~Enemy() = default;
 void Enemy::init(const glm::vec2 &pos) {
     _position = pos;
     _speed = glm::vec2(0.0f);
+    _acceleration = glm::vec2(0.0f);
     _jump = 0;
 }
 
 void Enemy::update(const std::vector<std::string> &levelData, const glm::vec2& playerPos) {
 
-    _speed.x = 0;
-    _speed.y -= 1;
     if(playerPos.x < _position.x){
-        _speed.x -= STEP/2.0f;
+        _speed.x = -STEP/2.0f;
     }else if(playerPos.x > _position.x){
-        _speed.x += STEP/2.0f;
-    } else{
-        _speed.x = 0;
+        _speed.x = STEP/2.0f;
     }
 
     std::vector<glm::vec2> facePointsX;

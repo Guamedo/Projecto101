@@ -11,6 +11,7 @@ void Player::init(glm::vec2 pos, bool** keyStates, bool** speccialkeysStates, bo
     _position = pos;
     _headPosition = glm::vec2(pos.x, pos.y +20);
     _speed = glm::vec2(0.0f);
+    _acceleration = glm::vec2(0.0f);
     _headSpeed = glm::vec2(0.0f);
     _jump = 0;
     _keyStates = keyStates;
@@ -137,14 +138,16 @@ void Player::draw() {
 
 void Player::update(const std::vector<std::string> &levelData) {
 
-    float gravity = MainGame::_gravity;
+    //float gravity = MainGame::_gravity;
     // Set frame initial speed
-    float newSpeedY = _speed.y - gravity * MainGame::_deltaTime;
-    _speed = glm::vec2(0.0f, newSpeedY);
+    //float newSpeedY = _speed.y + MainGame::_gravity * MainGame::_deltaTime;
+    //_speed = glm::vec2(0.0f, newSpeedY);
 
+    //_speed.x = 0.0f;
+    std::cout << _acceleration.x << "\n";
+    std::cout << _speed.x << "\n";
     // Update speed from input
     this->manageInput();
-
 
     //Update player position in X
     //_position.x += _speed.x * MainGame::_deltaTime;
@@ -203,14 +206,14 @@ void Player::update(const std::vector<std::string> &levelData) {
 
     // Check the colliding face
     _facePointsY.clear();
-    if(_speed.y < 0){
+    if(_speed.y < 0 ){
         float cosa = 1.0f;
         while(cosa <= AGENT_WIDTH - 1.0f){
             _facePointsY.emplace_back(_position.x + cosa, _position.y);
             cosa += TILE_SIZE/2.0f;
         }
         _facePointsY.emplace_back(_position.x + AGENT_WIDTH - 1.0f, _position.y);
-    }else if(_speed.y > 0){
+    }else if(_speed.y > 0 ){
         float cosa = 1.0f;
         while(cosa <= AGENT_WIDTH - 1.0f){
             _facePointsY.emplace_back(_position.x + cosa, _position.y + AGENT_WIDTH);

@@ -8,12 +8,14 @@ Camera::Camera() = default;
 Camera::~Camera() = default;
 
 void Camera::init(int width, int height) {
+
     _width = width;
     _height = height;
 
     _position = glm::vec2(0.0f);
     _scale = glm::vec2(1.0f);
     _rotationAngle = 0.0f;
+
     _trauma = 0.0f;
     _traumaDuration = 1.0f;
 }
